@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kleiderbörse – Kasse</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Kleiderbörse</h1>
+      <p>Kassen-App · Testversion</p>
+    </div>
+    <button id="resetBtn" class="ghost">Neue Kasse</button>
+  </header>
+
+  <main class="layout">
+    <section class="card scanner-card">
+      <div class="card-head">
+        <div>
+          <h2>Artikel erfassen</h2>
+          <p>Barcode scannen oder Artikelnummer eingeben.</p>
+        </div>
+        <span id="scanStatus" class="status">Bereit</span>
+      </div>
+
+      <div class="scan-row">
+        <input id="barcodeInput" inputmode="text" autocomplete="off"
+               placeholder="z. B. BO26-1234-000157">
+        <button id="addBtn" class="primary">Artikel hinzufügen</button>
+      </div>
+
+      <div class="quick">
+        <button id="cameraBtn" class="secondary">📷 Kamera scannen</button>
+        <span>Testdaten: 1001, 1002, 2001</span>
+      </div>
+
+      <div id="scanner" class="scanner hidden">
+        <video id="video" playsinline></video>
+        <div class="scan-frame"></div>
+        <button id="stopCameraBtn" class="secondary">Kamera schließen</button>
+      </div>
+
+      <div class="manual-box">
+        <h3>Artikel manuell anlegen</h3>
+        <div class="form-grid">
+          <input id="sellerInput" placeholder="Verkäufer-Nr.">
+          <input id="sizeInput" placeholder="Größe">
+          <input id="priceInput" type="number" step="0.01" min="0" placeholder="Preis €">
+        </div>
+        <button id="manualAddBtn" class="secondary">Artikel zum Warenkorb</button>
+        <small>Erstellt für den Test automatisch eine Artikel-ID.</small>
+      </div>
+    </section>
+
+    <section class="card cart-card">
+      <div class="card-head">
+        <div>
+          <h2>Warenkorb</h2>
+          <p><span id="itemCount">0</span> Artikel</p>
+        </div>
+        <button id="clearCartBtn" class="ghost">Leeren</button>
+      </div>
+
+      <div id="cart" class="cart"></div>
+
+      <div class="totals">
+        <div><span>Zwischensumme</span><strong id="subtotal">0,00 €</strong></div>
+        <div><span>Provision (15 %)</span><strong id="commission">0,00 €</strong></div>
+        <div class="grand"><span>Gesamt</span><strong id="total">0,00 €</strong></div>
+      </div>
+
+      <div class="payment">
+        <h3>Zahlungsart</h3>
+        <div class="payment-buttons">
+          <button data-payment="Bar" class="pay">💶 Bar</button>
+          <button data-payment="Karte" class="pay">💳 EC / Karte</button>
+          <button data-payment="PayPal" class="pay">🅿️ PayPal</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card seller-card">
+      <div class="card-head">
+        <div>
+          <h2>Verkäuferübersicht</h2>
+          <p>Automatische Zuordnung aus den Verkäufen.</p>
+        </div>
+      </div>
+      <div id="sellerSummary"></div>
+    </section>
+
+    <section class="card sales-card">
+      <div class="card-head">
+        <div>
+          <h2>Abgeschlossene Verkäufe</h2>
+          <p>Nur in diesem Browser gespeichert.</p>
+        </div>
+        <button id="exportBtn" class="secondary">CSV exportieren</button>
+      </div>
+      <div id="sales"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
