@@ -152,7 +152,7 @@ function showPayment(){
 
   const total=currentItems.reduce((sum,item)=>sum+item.price,0);
   finalTotal.textContent=euro(total);
-  paymentModal.classList.remove("hidden");
+  paymentModal.classList.add("is-open");
 }
 
 function saveSale(paymentType){
@@ -172,15 +172,15 @@ function saveSale(paymentType){
   localStorage.setItem("kb_sales",JSON.stringify(sales));
 
   const total=currentItems.reduce((sum,item)=>sum+item.price,0);
-  paymentModal.classList.add("hidden");
+  paymentModal.classList.remove("is-open");
   successText.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"} · ${euro(total)} · ${paymentType}`;
-  successModal.classList.remove("hidden");
+  successModal.classList.add("is-open");
 }
 
 function resetSale(){
   currentItems=[];
   renderReceipt();
-  successModal.classList.add("hidden");
+  successModal.classList.remove("is-open");
   resetItemFields();
 }
 

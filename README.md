@@ -58,3 +58,11 @@ Die Kasse unterstützt jetzt mehrere Artikel in einem Verkauf:
 - Nach Auswahl der Zahlungsart werden die einzelnen Verkäufe unter `kb_sales` gespeichert.
 - Jeder gespeicherte Verkauf enthält Verkäufernummer, Größe bzw. Spielzeug, Preis, Zahlungsart und Zeitstempel.
 - Die Verkäufer-Abrechnung aus dem Verkäuferbereich kann diese Verkaufsdaten später automatisch verwenden.
+
+
+## Kasse – V10
+
+Der Kassenbon wird intern während der Eingabe aufgebaut, aber **nicht auf der Kassen-Seite angezeigt**.
+- Die normale Kassenansicht zeigt nur die Artikelerfassung.
+- **Fertig** öffnet ein Popup mit dem vollständigen Kassenbon.
+- Im Popup stehen Gesamtbetrag und die drei Zahlungsarten **Bar / EC / PayPal**.

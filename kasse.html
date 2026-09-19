@@ -45,7 +45,7 @@
       <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
     </section>
 
-    <aside class="receipt-live">
+    <aside id="receiptLive" class="receipt-live hidden-receipt">
       <div class="receipt-head">
         <strong>Kassenbon</strong>
         <span id="itemCount">0 Artikel</span>
@@ -61,7 +61,7 @@
   </section>
 </main>
 
-<div id="paymentModal" class="modal hidden">
+<div id="paymentModal" class="modal">
   <div class="payment-box">
     <div class="modal-head">
       <div>
@@ -86,7 +86,7 @@
   </div>
 </div>
 
-<div id="successModal" class="modal hidden">
+<div id="successModal" class="modal">
   <div class="success-box">
     <div class="success-icon">✓</div>
     <h2>Verkauf gespeichert</h2>

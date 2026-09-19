@@ -88,3 +88,9 @@ input:focus{border-color:#4357dc}
   .payment-buttons{grid-template-columns:1fr}
   .payment{height:56px}
 }
+
+/* V10: receipt is created in the background but shown only in the popup */
+.hidden-receipt{display:none !important}
+.modal{display:none !important}
+.modal.is-open{position:fixed;inset:0;background:rgba(17,24,39,.68);place-items:center;padding:18px;z-index:20}
+.modal.is-open{display:grid !important}
