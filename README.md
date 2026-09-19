@@ -1,10 +1,31 @@
-# Kleiderbörse V1
+# Kleiderbörse – Projekt V2
 
-Startseite mit drei großen Buttons:
-- Kasse
-- Verkäufer
-- Tagesabschluss
+Aktueller Stand:
+- Startseite mit Kasse / Verkäufer / Tagesabschluss
+- Verkäuferverwaltung
+- Verkäufer werden nach Nachnamen sortiert
+- Verkäufer hinzufügen, bearbeiten und löschen
+- Suchfeld
+- Neue **Abrechnung-Schaltfläche (€)** bei jedem Verkäufer
 
-Die Verkäuferseite ist bereits als erster Bereich umgesetzt. Kasse und Tagesabschluss sind Platzhalter und werden später ergänzt.
+## Verkäufer-Abrechnung
 
-Wichtig: `index.html` ist die Startseite. Die Dateien müssen gemeinsam im Repository liegen.
+Beim Tippen auf **€** wird angezeigt:
+- Anzahl verkaufter Teile
+- Gesamtumsatz dieser Verkäufernummer
+- Auszahlung = Gesamtumsatz minus 15 % Provision
+
+Die Abrechnung liest die Verkaufsdaten aus `localStorage` unter dem Schlüssel `kb_sales`.
+
+Ein Verkauf wird später von der Kasse in dieser Form gespeichert:
+
+```js
+{
+  sellerNumber: "511",
+  price: 12.50
+}
+```
+
+Dadurch kann die Verkäufer-Abrechnung später automatisch mit der Kasse verbunden werden.
+
+**Wichtig:** Aktuell ist die Kasse noch ein Platzhalter. Deshalb stehen in der Abrechnung zunächst 0 Teile und 0,00 €.

@@ -8,10 +8,24 @@
 <div class="search"><span>⌕</span><input id="search" type="search" placeholder="Verkäufer suchen"></div>
 <p id="count" class="count"></p><section id="list"></section>
 </main>
-<div id="modal" class="modal hidden"><div class="box"><div class="modalhead"><h2>Verkäufer hinzufügen</h2><button onclick="closeForm()">×</button></div>
-<label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
-<label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
-<label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
-<div id="error"></div><div class="actions"><button onclick="closeForm()">Abbrechen</button><button class="save" onclick="saveSeller()">Speichern</button></div>
-</div></div><script src="seller.js"></script>
+
+<div id="modal" class="modal hidden"><div class="box">
+  <div class="modalhead"><h2 id="modalTitle">Verkäufer hinzufügen</h2><button onclick="closeForm()">×</button></div>
+  <label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
+  <label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
+  <label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
+  <div id="error"></div><div class="actions"><button onclick="closeForm()">Abbrechen</button><button class="save" onclick="saveSeller()">Speichern</button></div>
+</div></div>
+
+<div id="report" class="modal hidden"><div class="box reportbox">
+  <div class="modalhead"><div><h2 id="reportTitle">Abrechnung</h2><div id="reportSeller" class="reportSeller"></div></div><button onclick="closeReport()">×</button></div>
+  <div class="reportgrid">
+    <div class="reportitem"><span>Verkaufte Teile</span><strong id="reportPieces">0</strong></div>
+    <div class="reportitem"><span>Gesamtumsatz</span><strong id="reportTurnover">0,00 €</strong></div>
+    <div class="reportitem payout"><span>Auszahlung (Umsatz − 15 %)</span><strong id="reportPayout">0,00 €</strong></div>
+  </div>
+  <p class="reportnote">Die Abrechnung wird aus den erfassten Verkäufen dieser Verkäufernummer berechnet.</p>
+</div></div>
+
+<script src="seller.js"></script>
 </body></html>
