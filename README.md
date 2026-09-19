@@ -1,9 +1,11 @@
-# Kleiderbörse – Startseite
+# Kleiderbörse – Verkäufer V1
 
-Erste, bewusst einfache Startseite mit drei großen Bereichen:
+- Verkäufernummer
+- Name
+- Telefonnummer optional
+- alphabetische Sortierung nach Nachnamen
+- Suche nach Name oder Nummer
+- Bearbeiten und Löschen
+- Speicherung im Browser
 
-- Kasse
-- Verkäufer
-- Tagesabschluss
-
-Die Buttons sind aktuell nur Platzhalter. Als nächstes werden die drei Bereiche einzeln aufgebaut.
+Hinweis: Diese Version ist als nächster Baustein gedacht. Für die spätere Gesamt-App werden Startseite, Kasse und Verkäuferverwaltung in ein gemeinsames Projekt zusammengeführt.
