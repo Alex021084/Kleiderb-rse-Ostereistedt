@@ -53,3 +53,55 @@
     height:38px !important;
   }
 }
+
+/* FINAL SIMPLE LAYOUT: Euro centered above edit/delete */
+.seller > .seller-actions{
+  width:92px !important;
+  display:grid !important;
+  grid-template-columns:43px 43px !important;
+  grid-template-rows:43px 43px !important;
+  gap:6px !important;
+}
+.seller > .seller-actions > .report{
+  grid-column:1 / 3 !important;
+  grid-row:1 !important;
+  width:92px !important;
+  height:43px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.seller > .seller-actions > .seller-bottom-actions{
+  grid-column:1 / 3 !important;
+  grid-row:2 !important;
+  width:92px !important;
+  display:grid !important;
+  grid-template-columns:43px 43px !important;
+  gap:6px !important;
+}
+.seller > .seller-actions > .seller-bottom-actions > .small{
+  width:43px !important;
+  height:43px !important;
+}
+
+@media(max-width:600px){
+  .seller > .seller-actions{
+    width:82px !important;
+    grid-template-columns:39px 39px !important;
+    grid-template-rows:38px 38px !important;
+    gap:4px !important;
+  }
+  .seller > .seller-actions > .report{
+    width:82px !important;
+    height:38px !important;
+  }
+  .seller > .seller-actions > .seller-bottom-actions{
+    width:82px !important;
+    grid-template-columns:39px 39px !important;
+    gap:4px !important;
+  }
+  .seller > .seller-actions > .seller-bottom-actions > .small{
+    width:39px !important;
+    height:38px !important;
+  }
+}
