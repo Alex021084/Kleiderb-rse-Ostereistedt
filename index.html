@@ -4,28 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#172033">
-  <title>Kleiderbörse – Verkäufer</title>
+  <title>Kleiderbörse</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <button class="back" onclick="goHome()">‹ Startseite</button>
+    <button class="nav-btn" onclick="goHome()">⌂ Startseite</button>
     <div class="title">Verkäufer</div>
-    <button class="add-top" onclick="openForm()">＋ Verkäufer</button>
+    <div class="top-spacer"></div>
   </header>
 
   <main>
-    <div class="page-title">
+    <div class="page-head">
       <div>
         <h1>Verkäufer</h1>
         <p id="count">0 Verkäufer</p>
       </div>
-      <button class="primary add-button" onclick="openForm()">＋ Verkäufer anlegen</button>
     </div>
+
+    <button class="add-main" onclick="openForm()">
+      <span>＋</span>
+      Verkäufer hinzufügen
+    </button>
 
     <div class="search">
       <span>⌕</span>
-      <input id="search" type="search" placeholder="Name oder Verkäufernummer suchen">
+      <input id="search" type="search" placeholder="Verkäufer suchen">
     </div>
 
     <section id="list"></section>
@@ -35,8 +39,8 @@
     <div class="modal-box">
       <div class="modal-head">
         <div>
-          <h2 id="formTitle">Verkäufer anlegen</h2>
-          <p>Nur die benötigten Angaben.</p>
+          <h2 id="formTitle">Verkäufer hinzufügen</h2>
+          <p>Verkäufernummer und Name sind erforderlich.</p>
         </div>
         <button class="close" onclick="closeForm()">×</button>
       </div>
@@ -53,8 +57,8 @@
       <div id="error" class="error"></div>
 
       <div class="actions">
-        <button class="secondary" onclick="closeForm()">Abbrechen</button>
-        <button class="primary" onclick="saveSeller()">Speichern</button>
+        <button class="cancel" onclick="closeForm()">Abbrechen</button>
+        <button class="save" onclick="saveSeller()">Speichern</button>
       </div>
     </div>
   </div>

@@ -1,11 +1,12 @@
-# Kleiderbörse – Verkäufer V1
+# Kleiderbörse – Verkäufer V2
 
-- Verkäufernummer
-- Name
-- Telefonnummer optional
+Die Verkäuferseite hat:
+- großen Button „Verkäufer hinzufügen“
+- Verkäuferliste mit Name und Verkäufernummer
+- optionale Telefonnummer
 - alphabetische Sortierung nach Nachnamen
-- Suche nach Name oder Nummer
-- Bearbeiten und Löschen
-- Speicherung im Browser
+- Suche
+- Bearbeiten/Löschen
+- funktionierenden Zurück-Button zur enthaltenen Startseite
 
-Hinweis: Diese Version ist als nächster Baustein gedacht. Für die spätere Gesamt-App werden Startseite, Kasse und Verkäuferverwaltung in ein gemeinsames Projekt zusammengeführt.
+Die Startseite ist in `start.html` enthalten.
