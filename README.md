@@ -29,3 +29,6 @@ Ein Verkauf wird später von der Kasse in dieser Form gespeichert:
 Dadurch kann die Verkäufer-Abrechnung später automatisch mit der Kasse verbunden werden.
 
 **Wichtig:** Aktuell ist die Kasse noch ein Platzhalter. Deshalb stehen in der Abrechnung zunächst 0 Teile und 0,00 €.
+
+
+Layout der Verkäuferkarte: Abrechnung oben, darunter Bearbeiten und Löschen nebeneinander. Der Abrechnungsbutton ist exakt so breit wie die beiden unteren Buttons zusammen.
