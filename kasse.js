@@ -69,7 +69,7 @@ function checkSeller(){
 
 function currentItemValid(){
   const hasPrice=numberValue()>0;
-  const hasSize=isToy || size.value.trim()!="";
+  const hasSize=isToy || /^[0-9]+$/.test(size.value.trim());
   return isValidSeller && hasSize && hasPrice;
 }
 

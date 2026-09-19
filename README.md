@@ -66,3 +66,8 @@ Der Kassenbon wird intern während der Eingabe aufgebaut, aber **nicht auf der K
 - Die normale Kassenansicht zeigt nur die Artikelerfassung.
 - **Fertig** öffnet ein Popup mit dem vollständigen Kassenbon.
 - Im Popup stehen Gesamtbetrag und die drei Zahlungsarten **Bar / EC / PayPal**.
+
+
+## Kasse – V11
+
+Das Größenfeld verwendet jetzt `inputmode="numeric"`, sodass auf iPhone/iPad beim Eingeben die Zahlentastatur erscheint.
