@@ -1,109 +1,141 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#172033">
   <title>Kleiderbörse – Kasse</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>Kleiderbörse</h1>
-      <p>Kassen-App · Testversion</p>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">KB</div>
+    <div><h1>Kleiderbörse</h1><span>Kassenverwaltung</span></div>
+  </div>
+  <div id="clock"></div>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="view active">
+    <div class="page-head">
+      <div><h2>Übersicht</h2><p>Verkäufer, Tagesumsatz und Kasse</p></div>
+      <button class="primary big" onclick="openCashier()">🧾 Kasse starten</button>
     </div>
-    <button id="resetBtn" class="ghost">Neue Kasse</button>
-  </header>
 
-  <main class="layout">
-    <section class="card scanner-card">
-      <div class="card-head">
-        <div>
-          <h2>Artikel erfassen</h2>
-          <p>Barcode scannen oder Artikelnummer eingeben.</p>
+    <div class="summary-grid">
+      <div class="summary"><span>Verkäufer</span><strong id="dashSellerCount">0</strong></div>
+      <div class="summary"><span>Verkaufte Teile heute</span><strong id="dashItemCount">0</strong></div>
+      <div class="summary"><span>Umsatz heute</span><strong id="dashRevenue">0,00 €</strong></div>
+      <div class="summary"><span>Provision 15 %</span><strong id="dashCommission">0,00 €</strong></div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div><h3>Verkäufer</h3><p>Antippen für die persönliche Abrechnung.</p></div>
+        <button class="secondary" onclick="openSellerForm()">＋ Verkäufer</button>
+      </div>
+      <div id="sellerList"></div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><div><h3>Kasse & Tagesabschluss</h3><p>Alle Zahlungsarten werden für die Kassenprüfung getrennt erfasst.</p></div></div>
+      <div id="paymentSummary" class="payment-summary"></div>
+      <div class="day-actions">
+        <button class="secondary" onclick="printDaySummary()">🖨️ Tagesabschluss drucken / PDF</button>
+        <button class="ghost dark" onclick="showSales()">Verkäufe ansehen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SELLER DETAIL -->
+  <section id="sellerDetail" class="view">
+    <div class="page-head">
+      <div><button class="back" onclick="showDashboard()">‹ Übersicht</button><h2 id="sellerDetailTitle">Verkäufer</h2><p id="sellerDetailSubtitle"></p></div>
+      <div class="head-actions"><button class="secondary" onclick="printSeller()">🖨️ Abrechnung / PDF</button><button class="primary" onclick="openCashier()">＋ Verkauf erfassen</button></div>
+    </div>
+    <div class="seller-kpis">
+      <div class="kpi"><span>Verkaufte Teile</span><strong id="detailItems">0</strong></div>
+      <div class="kpi"><span>Umsatz</span><strong id="detailRevenue">0,00 €</strong></div>
+      <div class="kpi"><span>Provision −15 %</span><strong id="detailCommission">0,00 €</strong></div>
+      <div class="kpi green"><span>Auszahlung</span><strong id="detailPayout">0,00 €</strong></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><div><h3>Verkaufte Artikel</h3><p>Alle diesem Verkäufer zugeordneten Verkäufe.</p></div></div>
+      <div id="sellerItems"></div>
+    </div>
+  </section>
+
+  <!-- CASHIER -->
+  <section id="cashier" class="view">
+    <div class="page-head">
+      <div><button class="back" onclick="showDashboard()">‹ Übersicht</button><h2>Kasse</h2><p>Artikel erfassen – Zahlung am Ende des Kassenzettels</p></div>
+      <button class="secondary" onclick="clearCart()">Neuer Kassenzettel</button>
+    </div>
+
+    <div class="cash-layout">
+      <div class="section-card entry-card">
+        <div class="section-head"><div><h3>Artikel eingeben</h3><p>Für jeden Artikel Verkäufernummer, Größe bzw. Spielzeug und Preis erfassen.</p></div></div>
+        <label>Verkäufernummer</label>
+        <input id="cashSeller" class="large-input" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="z. B. 1234">
+        <div class="two-col">
+          <div>
+            <label>Größe</label>
+            <input id="cashSize" class="large-input" type="text" inputmode="text" autocomplete="off" placeholder="z. B. 128 / M">
+          </div>
+          <div>
+            <label>Art</label>
+            <button id="toyBtn" class="choice-btn" onclick="toggleToy()">👕 Kleidung</button>
+          </div>
         </div>
-        <span id="scanStatus" class="status">Bereit</span>
+        <label>Preis</label>
+        <div class="price-input"><input id="cashPrice" class="large-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"><span>€</span></div>
+        <button class="primary add-item" onclick="addCashItem()">＋ Artikel auf Kassenzettel</button>
+        <div id="entryHint" class="hint"></div>
       </div>
 
-      <div class="scan-row">
-        <input id="barcodeInput" inputmode="text" autocomplete="off"
-               placeholder="z. B. BO26-1234-000157">
-        <button id="addBtn" class="primary">Artikel hinzufügen</button>
+      <div class="receipt section-card">
+        <div class="receipt-head"><div><strong>KASSENZETTEL</strong><small id="receiptNo"></small></div><span id="receiptDate"></span></div>
+        <div id="receiptItems" class="receipt-items"></div>
+        <div class="receipt-total"><span>Gesamt</span><strong id="cartTotal">0,00 €</strong></div>
+        <button class="primary pay-btn" onclick="startPayment()">BEZAHLEN</button>
+        <button class="ghost full" onclick="clearCart()">Kassenzettel löschen</button>
       </div>
+    </div>
+  </section>
 
-      <div class="quick">
-        <button id="cameraBtn" class="secondary">📷 Kamera scannen</button>
-        <span>Testdaten: 1001, 1002, 2001</span>
-      </div>
+  <!-- SALES -->
+  <section id="salesView" class="view">
+    <div class="page-head"><div><button class="back" onclick="showDashboard()">‹ Übersicht</button><h2>Verkäufe</h2><p>Abgeschlossene Kassenzettel</p></div></div>
+    <div class="section-card"><div id="allSales"></div></div>
+  </section>
+</main>
 
-      <div id="scanner" class="scanner hidden">
-        <video id="video" playsinline></video>
-        <div class="scan-frame"></div>
-        <button id="stopCameraBtn" class="secondary">Kamera schließen</button>
-      </div>
+<!-- SELLER MODAL -->
+<div id="sellerModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Verkäufer anlegen</h3><button onclick="closeModal()">×</button></div>
+    <label>Verkäufernummer</label><input id="newSellerNo" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="z. B. 1234">
+    <label>Name</label><input id="newSellerName" type="text" autocomplete="name" placeholder="Vor- und Nachname">
+    <div class="modal-actions"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveSeller()">Speichern</button></div>
+  </div>
+</div>
 
-      <div class="manual-box">
-        <h3>Artikel manuell anlegen</h3>
-        <div class="form-grid">
-          <input id="sellerInput" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Verkäufer-Nr.">
-          <input id="sizeInput" placeholder="Größe">
-          <input id="priceInput" type="text" inputmode="decimal" autocomplete="off" placeholder="Preis €">
-        </div>
-        <button id="manualAddBtn" class="secondary">Artikel zum Warenkorb</button>
-        <small>Erstellt für den Test automatisch eine Artikel-ID.</small>
-      </div>
-    </section>
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" class="modal hidden">
+  <div class="modal-box payment-box">
+    <div class="modal-head"><h3>Zahlungsart auswählen</h3><button onclick="closePayment()">×</button></div>
+    <p>Der Betrag dient der Kassenprüfung und wird mit der gewählten Zahlungsart gespeichert.</p>
+    <div class="payment-choice">
+      <button onclick="finishPayment('Bar')">💶<b>Bar</b></button>
+      <button onclick="finishPayment('EC')">💳<b>EC / Karte</b></button>
+      <button onclick="finishPayment('PayPal')">🅿️<b>PayPal</b></button>
+    </div>
+  </div>
+</div>
 
-    <section class="card cart-card">
-      <div class="card-head">
-        <div>
-          <h2>Warenkorb</h2>
-          <p><span id="itemCount">0</span> Artikel</p>
-        </div>
-        <button id="clearCartBtn" class="ghost">Leeren</button>
-      </div>
-
-      <div id="cart" class="cart"></div>
-
-      <div class="totals">
-        <div><span>Zwischensumme</span><strong id="subtotal">0,00 €</strong></div>
-        <div><span>Provision (15 %)</span><strong id="commission">0,00 €</strong></div>
-        <div class="grand"><span>Gesamt</span><strong id="total">0,00 €</strong></div>
-      </div>
-
-      <div class="payment">
-        <h3>Zahlungsart</h3>
-        <div class="payment-buttons">
-          <button data-payment="Bar" class="pay">💶 Bar</button>
-          <button data-payment="Karte" class="pay">💳 EC / Karte</button>
-          <button data-payment="PayPal" class="pay">🅿️ PayPal</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="card seller-card">
-      <div class="card-head">
-        <div>
-          <h2>Verkäuferübersicht</h2>
-          <p>Automatische Zuordnung aus den Verkäufen.</p>
-        </div>
-      </div>
-      <div id="sellerSummary"></div>
-    </section>
-
-    <section class="card sales-card">
-      <div class="card-head">
-        <div>
-          <h2>Abgeschlossene Verkäufe</h2>
-          <p>Nur in diesem Browser gespeichert.</p>
-        </div>
-        <button id="exportBtn" class="secondary">CSV exportieren</button>
-      </div>
-      <div id="sales"></div>
-    </section>
-  </main>
-
-  <div id="toast" class="toast"></div>
-  <script src="app.js"></script>
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
 </body>
 </html>

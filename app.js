@@ -1,180 +1,128 @@
-const commissionRate = 0.15;
-const testArticles = {
-  "1001": {id:"BO26-1001-000001", seller:"1001", description:"T-Shirt", size:"128", price:5},
-  "1002": {id:"BO26-1002-000002", seller:"1002", description:"Jeans", size:"140", price:8},
-  "2001": {id:"BO26-2001-000003", seller:"2001", description:"Pullover", size:"M", price:12}
-};
+const RATE=.15;
+let sellers=JSON.parse(localStorage.getItem("kb3_sellers")||"[]");
+let sales=JSON.parse(localStorage.getItem("kb3_sales")||"[]");
+let cart=[];
+let currentSeller=null;
+let toyMode=false;
 
-let cart = JSON.parse(localStorage.getItem("kb_cart") || "[]");
-let sales = JSON.parse(localStorage.getItem("kb_sales") || "[]");
-let manualCounter = Number(localStorage.getItem("kb_counter") || 100);
+const $=id=>document.getElementById(id);
+const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n);
+const todayKey=()=>new Date().toISOString().slice(0,10);
 
-const $ = id => document.getElementById(id);
-const euro = n => new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n);
+function save(){localStorage.setItem("kb3_sellers",JSON.stringify(sellers));localStorage.setItem("kb3_sales",JSON.stringify(sales));}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function toast(t){const x=$("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2200)}
+function fmtDate(iso){return new Date(iso).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"})}
 
-function save() {
-  localStorage.setItem("kb_cart", JSON.stringify(cart));
-  localStorage.setItem("kb_sales", JSON.stringify(sales));
-  localStorage.setItem("kb_counter", String(manualCounter));
+function statsForSeller(no){
+  const items=sales.flatMap(s=>s.items).filter(i=>i.seller===no);
+  const revenue=items.reduce((a,i)=>a+i.price,0);
+  return {items,revenue,commission:revenue*RATE,payout:revenue*(1-RATE)};
+}
+function todaySales(){return sales.filter(s=>s.date===todayKey())}
+function show(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");window.scrollTo(0,0)}
+function showDashboard(){show("dashboard");currentSeller=null;renderDashboard()}
+function openCashier(){show("cashier");renderCart();$("cashSeller").focus()}
+function showSales(){show("salesView");renderSales()}
+function openSellerForm(){$("sellerModal").classList.remove("hidden");$("newSellerNo").focus()}
+function closeModal(){$("sellerModal").classList.add("hidden")}
+function closePayment(){$("paymentModal").classList.add("hidden")}
+
+function saveSeller(){
+  const no=$("newSellerNo").value.trim(),name=$("newSellerName").value.trim();
+  if(!no||!name){toast("Bitte Nummer und Namen eingeben.");return}
+  if(sellers.some(s=>s.no===no)){toast("Diese Verkäufernummer gibt es bereits.");return}
+  sellers.push({no,name});sellers.sort((a,b)=>a.no.localeCompare(b.no,undefined,{numeric:true}));
+  save();closeModal();$("newSellerNo").value="";$("newSellerName").value="";renderDashboard();toast("Verkäufer angelegt.");
+}
+function sellerByNo(no){return sellers.find(s=>s.no===no)}
+
+function renderDashboard(){
+  $("dashSellerCount").textContent=sellers.length;
+  const ts=todaySales(), items=ts.flatMap(s=>s.items), revenue=items.reduce((a,i)=>a+i.price,0);
+  $("dashItemCount").textContent=items.length;$("dashRevenue").textContent=euro(revenue);$("dashCommission").textContent=euro(revenue*RATE);
+  renderSellerList();renderPaymentSummary();
+}
+function renderSellerList(){
+  if(!sellers.length){$("sellerList").innerHTML='<div class="empty">Noch keine Verkäufer angelegt.<br><button class="primary" onclick="openSellerForm()">＋ Ersten Verkäufer anlegen</button></div>';return}
+  $("sellerList").innerHTML=sellers.map(s=>{
+    const st=statsForSeller(s.no);
+    const initials=s.name.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase();
+    return `<div class="seller-card" onclick="openSeller('${esc(s.no)}')">
+      <div class="avatar">${esc(initials)}</div>
+      <div><div class="seller-name">${esc(s.name)}</div><div class="seller-meta">Nr. ${esc(s.no)} · ${st.items.length} verkaufte Teile</div></div>
+      <div class="seller-money"><strong>${euro(st.revenue)}</strong><small>Auszahlung ${euro(st.payout)}</small></div>
+      <div class="seller-arrow">›</div>
+    </div>`
+  }).join("");
+}
+function renderPaymentSummary(){
+  const ts=todaySales(), types=["Bar","EC","PayPal"];
+  $("paymentSummary").innerHTML=types.map(t=>{
+    const n=ts.flatMap(s=>s.items).filter(i=>i.payment===t).reduce((a,i)=>a+i.price,0);
+    const count=ts.filter(s=>s.payment===t).length;
+    return `<div class="payment-box-small"><span>${t} · ${count} Kassenzettel</span><strong>${euro(n)}</strong></div>`
+  }).join("");
 }
 
-function toast(msg) {
-  const el=$("toast"); el.textContent=msg; el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"),2200);
+function openSeller(no){
+  currentSeller=no;const s=sellerByNo(no);if(!s)return;
+  const st=statsForSeller(no);show("sellerDetail");
+  $("sellerDetailTitle").textContent=s.name;$("sellerDetailSubtitle").textContent=`Verkäufernummer ${s.no}`;
+  $("detailItems").textContent=st.items.length;$("detailRevenue").textContent=euro(st.revenue);
+  $("detailCommission").textContent=euro(st.commission);$("detailPayout").textContent=euro(st.payout);
+  $("sellerItems").innerHTML=st.items.length?`<table class="table"><thead><tr><th>Datum</th><th>Artikel</th><th>Größe / Art</th><th>Zahlung</th><th class="right">Preis</th></tr></thead><tbody>${st.items.map(i=>`<tr><td>${fmtDate(i.time)}</td><td>${i.type==="Spielzeug"?"🧸":"👕"}</td><td>${esc(i.type==="Spielzeug"?"Spielzeug":"Größe "+i.size)}</td><td>${esc(i.payment||"—")}</td><td class="right">${euro(i.price)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">Noch keine verkauften Artikel.</div>';
 }
 
-function addArticle(article) {
-  if (!article || !article.seller || !(article.price >= 0)) {
-    toast("Artikel konnte nicht hinzugefügt werden.");
-    return;
-  }
-  cart.push({...article, cartId: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random())});
-  save(); render();
-  toast(`Artikel von Verkäufer ${article.seller} hinzugefügt.`);
-  $("barcodeInput").value="";
-  $("barcodeInput").focus();
+function toggleToy(){
+  toyMode=!toyMode;$("toyBtn").classList.toggle("toy",toyMode);$("toyBtn").textContent=toyMode?"🧸 Spielzeug":"👕 Kleidung";
+  $("cashSize").disabled=toyMode;$("cashSize").placeholder=toyMode?"Keine Größe nötig":"z. B. 128 / M";
+  if(toyMode)$("cashSize").value="";
+}
+function addCashItem(){
+  const seller=$("cashSeller").value.trim();
+  const size=$("cashSize").value.trim();
+  const price=Number($("cashPrice").value.replace(",","."));
+  if(!seller||!sellerByNo(seller)){toast("Verkäufernummer nicht gefunden. Bitte zuerst anlegen.");return}
+  if(!toyMode&&!size){toast("Bitte eine Größe eingeben oder Spielzeug auswählen.");return}
+  if(!(price>0)){toast("Bitte einen gültigen Preis eingeben.");return}
+  cart.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),seller,size:toyMode?"—":size,type:toyMode?"Spielzeug":"Kleidung",price,time:new Date().toISOString()});
+  $("cashPrice").value="";$("cashSize").value="";$("entryHint").textContent=`Artikel für ${sellerByNo(seller).name} hinzugefügt.`;
+  renderCart();$("cashPrice").focus();
+}
+function renderCart(){
+  const total=cart.reduce((a,i)=>a+i.price,0);$("cartTotal").textContent=euro(total);
+  $("receiptNo").textContent=cart.length?` · ${cart.length} Artikel`:" · neuer Bon";$("receiptDate").textContent=new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+  $("receiptItems").innerHTML=cart.length?cart.map((i,n)=>{
+    const s=sellerByNo(i.seller);
+    return `<div class="receipt-row"><div><div class="receipt-main">${n+1}. ${i.type==="Spielzeug"?"🧸 Spielzeug":"👕 Kleidung"}</div><div class="receipt-sub">Verkäufer ${esc(i.seller)} · ${esc(s?.name||"")} · ${i.type==="Spielzeug"?"":`Größe ${esc(i.size)}`}</div><button class="remove-line" onclick="removeCartItem(${n})">Entfernen</button></div><div class="price">${euro(i.price)}</div></div>`
+  }).join(""):'<div class="empty" style="margin-top:20px">Noch keine Artikel.<br>Links Artikel eingeben und hinzufügen.</div>';
+}
+function removeCartItem(n){cart.splice(n,1);renderCart()}
+function clearCart(){cart=[];$("entryHint").textContent="";renderCart()}
+function startPayment(){if(!cart.length){toast("Der Kassenzettel ist leer.");return}$("paymentModal").classList.remove("hidden")}
+function finishPayment(payment){
+  const total=cart.reduce((a,i)=>a+i.price,0), id="KB-"+Date.now();
+  sales.push({id,date:todayKey(),time:new Date().toISOString(),payment,total,items:cart.map(i=>({...i,payment}))});
+  save();closePayment();clearCart();toast(`Verkauf ${euro(total)} · ${payment} gespeichert.`);renderDashboard();
+}
+function renderSales(){
+  if(!sales.length){$("allSales").innerHTML='<div class="empty">Noch keine abgeschlossenen Verkäufe.</div>';return}
+  $("allSales").innerHTML=`<table class="table"><thead><tr><th>Datum</th><th>Bon</th><th>Artikel</th><th>Zahlung</th><th class="right">Gesamt</th></tr></thead><tbody>${[...sales].reverse().map(s=>`<tr><td>${fmtDate(s.time)}</td><td>${esc(s.id)}</td><td>${s.items.length}</td><td>${esc(s.payment)}</td><td class="right">${euro(s.total)}</td></tr>`).join("")}</tbody></table>`;
 }
 
-function findArticle(code) {
-  const clean=code.trim();
-  if (testArticles[clean]) return testArticles[clean];
-  // Unterstützt z.B. BO26-1234-000157 aus einer späteren Verkäufer-App.
-  const parts=clean.split("-");
-  if (parts.length>=3 && parts[1] && parts[2]) {
-    const seller=parts[1];
-    const price = null;
-    // Ohne Datenbank kann die Test-Kasse nur bekannte Testartikel auflösen.
-    return null;
-  }
-  return null;
+function printSeller(){
+  if(!currentSeller)return;const s=sellerByNo(currentSeller),st=statsForSeller(currentSeller);
+  const w=window.open("","_blank","width=800,height=900");
+  w.document.write(`<html><head><title>Abrechnung ${esc(s.name)}</title><style>body{font-family:Arial;padding:35px;color:#172033}h1{margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{padding:9px;border-bottom:1px solid #ddd;text-align:left}.r{text-align:right}.total{font-size:18px;font-weight:bold}.box{padding:16px;background:#f3f5f8;margin-top:20px}@media print{button{display:none}}</style></head><body><h1>Kleiderbörse – Verkäuferabrechnung</h1><div>Verkäufer: <b>${esc(s.name)}</b> · Nr. ${esc(s.no)}</div><div>${new Date().toLocaleDateString("de-DE")}</div><table><tr><th>Artikel</th><th>Größe / Art</th><th>Zahlung</th><th class="r">Preis</th></tr>${st.items.map(i=>`<tr><td>${esc(i.type)}</td><td>${esc(i.type==="Spielzeug"?"—":i.size)}</td><td>${esc(i.payment||"—")}</td><td class="r">${euro(i.price)}</td></tr>`).join("")}</table><div class="box"><p>Verkaufte Teile: <b>${st.items.length}</b></p><p>Umsatz: <b>${euro(st.revenue)}</b></p><p>Provision −15 %: <b>${euro(st.commission)}</b></p><p class="total">Auszahlung: ${euro(st.payout)}</p></div><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
 }
-
-$("addBtn").onclick=()=>{
-  const code=$("barcodeInput").value;
-  const article=findArticle(code);
-  if(!article) {
-    toast("Barcode nicht gefunden. Teste 1001, 1002 oder 2001.");
-    return;
-  }
-  addArticle(article);
-};
-
-$("barcodeInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter") $("addBtn").click();
-});
-
-$("manualAddBtn").onclick=()=>{
-  const seller=$("sellerInput").value.trim();
-  const size=$("sizeInput").value.trim();
-  const price=Number($("priceInput").value.replace(",", "."));
-  if(!seller || !size || !(price>0)) { toast("Bitte Verkäufer, Größe und Preis eingeben."); return; }
-  manualCounter++;
-  addArticle({
-    id:`TEST-${seller}-${String(manualCounter).padStart(6,"0")}`,
-    seller, description:"Artikel", size, price
-  });
-  $("sellerInput").value=""; $("sizeInput").value=""; $("priceInput").value="";
-};
-
-$("clearCartBtn").onclick=()=>{
-  if(cart.length && confirm("Warenkorb wirklich leeren?")) {cart=[];save();render();}
-};
-
-$("resetBtn").onclick=()=>{
-  if(confirm("Testdaten dieser Kasse löschen?")) {
-    cart=[]; sales=[]; localStorage.removeItem("kb_cart"); localStorage.removeItem("kb_sales"); render(); toast("Kasse zurückgesetzt.");
-  }
-};
-
-document.querySelectorAll(".pay").forEach(btn=>{
-  btn.onclick=()=>{
-    if(!cart.length){toast("Der Warenkorb ist leer.");return;}
-    const payment=btn.dataset.payment;
-    const total=cart.reduce((s,a)=>s+a.price,0);
-    const sale={id:"V"+Date.now(), timestamp:new Date().toISOString(), payment, items:cart.map(x=>({...x}))};
-    sales.unshift(sale); cart=[]; save(); render();
-    toast(`Verkauf ${euro(total)} · ${payment} · gespeichert`);
-  };
-});
-
-function renderCart() {
-  const el=$("cart");
-  if(!cart.length){el.innerHTML='<div class="empty">Noch keine Artikel im Warenkorb.</div>';}
-  else el.innerHTML=cart.map(a=>`
-    <div class="cart-item">
-      <div><div class="item-title">${escapeHtml(a.description)} · Gr. ${escapeHtml(a.size)}</div>
-      <div class="item-meta">Verkäufer ${escapeHtml(a.seller)} · ${escapeHtml(a.id)}</div>
-      <button class="remove" onclick="removeItem('${a.cartId}')">Entfernen</button></div>
-      <div class="item-price">${euro(a.price)}</div>
-    </div>`).join("");
-  const subtotal=cart.reduce((s,a)=>s+a.price,0);
-  $("itemCount").textContent=cart.length;
-  $("subtotal").textContent=euro(subtotal);
-  $("commission").textContent=euro(subtotal*commissionRate);
-  $("total").textContent=euro(subtotal);
+function printDaySummary(){
+  const ts=todaySales(),items=ts.flatMap(s=>s.items),total=items.reduce((a,i)=>a+i.price,0);
+  const vals=["Bar","EC","PayPal"].map(t=>[t,items.filter(i=>i.payment===t).reduce((a,i)=>a+i.price,0)]);
+  const w=window.open("","_blank","width=700,height=800");
+  w.document.write(`<html><head><title>Tagesabschluss</title><style>body{font-family:Arial;padding:35px;color:#172033}table{width:100%;border-collapse:collapse;margin-top:25px}td{padding:12px;border-bottom:1px solid #ddd}.r{text-align:right;font-weight:bold}.big{font-size:20px;font-weight:bold}</style></head><body><h1>Kleiderbörse – Tagesabschluss</h1><p>${new Date().toLocaleDateString("de-DE")}</p><table>${vals.map(v=>`<tr><td>${v[0]}</td><td class="r">${euro(v[1])}</td></tr>`).join("")}<tr><td class="big">Gesamt</td><td class="r big">${euro(total)}</td></tr><tr><td>15 % Provision</td><td class="r">${euro(total*RATE)}</td></tr><tr><td>Auszahlungen Verkäufer</td><td class="r">${euro(total*(1-RATE))}</td></tr></table><p>Verkaufte Teile: ${items.length}</p><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
 }
-window.removeItem=id=>{cart=cart.filter(x=>x.cartId!==id);save();render();};
-
-function renderSellers() {
-  const map={};
-  sales.forEach(s=>s.items.forEach(a=>{
-    if(!map[a.seller]) map[a.seller]={sales:0, count:0};
-    map[a.seller].sales+=a.price; map[a.seller].count++;
-  }));
-  const rows=Object.entries(map);
-  if(!rows.length){$("sellerSummary").innerHTML='<div class="empty">Noch keine abgeschlossenen Verkäufe.</div>';return;}
-  const max=Math.max(...rows.map(([,v])=>v.sales),1);
-  $("sellerSummary").innerHTML=rows.sort((a,b)=>b[1].sales-a[1].sales).map(([seller,v])=>`
-    <div class="seller-row">
-      <div class="seller-number">${escapeHtml(seller)}</div>
-      <div><div class="seller-bar"><span style="width:${Math.round(v.sales/max*100)}%"></span></div><small>${v.count} Artikel</small></div>
-      <div class="seller-total">${euro(v.sales)}</div>
-      <div class="seller-payout">${euro(v.sales*(1-commissionRate))}</div>
-    </div>`).join("");
-}
-
-function renderSales() {
-  const rows=sales.flatMap(s=>s.items.map(a=>({time:s.timestamp,payment:s.payment,...a})));
-  if(!rows.length){$("sales").innerHTML='<div class="empty">Noch keine Verkäufe.</div>';return;}
-  $("sales").innerHTML=`<div class="table-wrap"><table class="sales-table"><thead><tr><th>Zeit</th><th>Verkäufer</th><th>Artikel</th><th>Größe</th><th>Preis</th><th>Zahlung</th></tr></thead><tbody>${
-    rows.map(r=>`<tr><td>${new Date(r.time).toLocaleString("de-DE")}</td><td>${escapeHtml(r.seller)}</td><td>${escapeHtml(r.description)}</td><td>${escapeHtml(r.size)}</td><td>${euro(r.price)}</td><td>${escapeHtml(r.payment)}</td></tr>`).join("")
-  }</tbody></table></div>`;
-}
-
-function render(){renderCart();renderSellers();renderSales();}
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-
-let stream=null;
-$("cameraBtn").onclick=async()=>{
-  if(!("BarcodeDetector" in window)){toast("Dieser Browser unterstützt den Kamera-Barcode-Test nicht.");return;}
-  try{
-    const detector=new BarcodeDetector({formats:["code_128","ean_13","ean_8","qr_code"]});
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-    $("video").srcObject=stream; await $("video").play();
-    $("scanner").classList.remove("hidden"); $("scanStatus").textContent="Scanne…";
-    const scan=async()=>{
-      if(!stream)return;
-      try{
-        const codes=await detector.detect($("video"));
-        if(codes.length){$("barcodeInput").value=codes[0].rawValue;stopCamera();$("addBtn").click();return;}
-      }catch(e){}
-      requestAnimationFrame(scan);
-    };
-    scan();
-  }catch(e){toast("Kamera konnte nicht geöffnet werden.");}
-};
-function stopCamera(){
-  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
-  $("scanner").classList.add("hidden"); $("scanStatus").textContent="Bereit";
-}
-$("stopCameraBtn").onclick=stopCamera;
-
-$("exportBtn").onclick=()=>{
-  const rows=[["Verkaufs-ID","Datum","Verkäufer","Artikel","Größe","Preis","Zahlungsart"]];
-  sales.forEach(s=>s.items.forEach(a=>rows.push([s.id,new Date(s.timestamp).toLocaleString("de-DE"),a.seller,a.description,a.size,a.price.toFixed(2).replace(".",","),s.payment])));
-  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(";")).join("\\n");
-  const blob=new Blob(["\\ufeff"+csv],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kleiderboerse-verkaeufe.csv";a.click();URL.revokeObjectURL(a.href);
-};
-
-render();
+function tick(){$("clock").textContent=new Date().toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"})}
+setInterval(tick,1000);tick();renderDashboard();
