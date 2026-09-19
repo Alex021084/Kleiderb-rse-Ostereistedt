@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Kleiderbörse – Kasse</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -45,9 +45,9 @@
       <div class="manual-box">
         <h3>Artikel manuell anlegen</h3>
         <div class="form-grid">
-          <input id="sellerInput" placeholder="Verkäufer-Nr.">
+          <input id="sellerInput" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Verkäufer-Nr.">
           <input id="sizeInput" placeholder="Größe">
-          <input id="priceInput" type="number" step="0.01" min="0" placeholder="Preis €">
+          <input id="priceInput" type="text" inputmode="decimal" autocomplete="off" placeholder="Preis €">
         </div>
         <button id="manualAddBtn" class="secondary">Artikel zum Warenkorb</button>
         <small>Erstellt für den Test automatisch eine Artikel-ID.</small>

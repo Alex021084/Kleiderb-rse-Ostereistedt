@@ -66,7 +66,7 @@ $("barcodeInput").addEventListener("keydown",e=>{
 $("manualAddBtn").onclick=()=>{
   const seller=$("sellerInput").value.trim();
   const size=$("sizeInput").value.trim();
-  const price=Number($("priceInput").value);
+  const price=Number($("priceInput").value.replace(",", "."));
   if(!seller || !size || !(price>0)) { toast("Bitte Verkäufer, Größe und Preis eingeben."); return; }
   manualCounter++;
   addArticle({
