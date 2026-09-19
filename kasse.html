@@ -1,1 +1,52 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kasse</title></head><body style="font-family:system-ui;padding:30px"><a href="index.html">⌂ Startseite</a><h1>Kasse</h1><p>Dieser Bereich wird als Nächstes gebaut.</p></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Kasse</title>
+<link rel="stylesheet" href="kasse.css">
+</head>
+<body>
+<header class="top">
+  <a href="index.html">⌂ Startseite</a>
+  <strong>Kasse</strong>
+  <span></span>
+</header>
+
+<main>
+  <h1>Kasse</h1>
+
+  <section class="kasse-box">
+    <label for="sellerNumber">Verkäufernummer</label>
+    <input id="sellerNumber" type="tel" inputmode="numeric" autocomplete="off"
+           placeholder="z. B. 511" aria-describedby="sellerStatus">
+    <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
+
+    <div class="row">
+      <div class="field">
+        <label for="size">Größe</label>
+        <input id="size" type="text" autocomplete="off"
+               placeholder="z. B. 104">
+      </div>
+
+      <button id="toyButton" class="toy-button" type="button" aria-pressed="false">
+        🧸<br><span>Spielzeug</span>
+      </button>
+    </div>
+
+    <label for="price">Preis</label>
+    <div class="price-wrap">
+      <input id="price" type="text" inputmode="decimal" autocomplete="off"
+             placeholder="0,00">
+      <span>€</span>
+    </div>
+
+    <button id="continueButton" class="continue" type="button" disabled>
+      Weiter
+    </button>
+  </section>
+</main>
+
+<script src="kasse.js"></script>
+</body>
+</html>

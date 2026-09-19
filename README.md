@@ -32,3 +32,18 @@ Dadurch kann die Verkäufer-Abrechnung später automatisch mit der Kasse verbund
 
 
 Layout der Verkäuferkarte: Abrechnung oben, darunter Bearbeiten und Löschen nebeneinander. Der Abrechnungsbutton ist exakt so breit wie die beiden unteren Buttons zusammen.
+
+
+## Kasse – V8
+
+Die Kasse enthält jetzt die erste Eingabemaske:
+- Verkäufernummer
+- Größe
+- Spielzeug-Schalter
+- Preis
+- Verkäufernummer wird automatisch geprüft:
+  - grün = Verkäufernummer existiert
+  - rot = Verkäufernummer existiert nicht
+- Der Weiter-Button wird erst aktiv, wenn Verkäufernummer, Größe/Spielzeug und Preis gültig sind.
+
+Der eigentliche Verkauf und die Zahlungsart werden im nächsten Schritt ergänzt.
