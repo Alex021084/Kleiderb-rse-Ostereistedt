@@ -5,13 +5,37 @@ const sellerStatus=$("sellerStatus");
 const size=$("size");
 const toyButton=$("toyButton");
 const price=$("price");
-const continueButton=$("continueButton");
+const addButton=$("addButton");
+const finishButton=$("finishButton");
+
+const receiptItems=$("receiptItems");
+const itemCount=$("itemCount");
+const liveTotal=$("liveTotal");
+
+const paymentModal=$("paymentModal");
+const finalReceipt=$("finalReceipt");
+const finalTotal=$("finalTotal");
+const finalCount=$("finalCount");
+const closePayment=$("closePayment");
+
+const successModal=$("successModal");
+const successText=$("successText");
+const newSaleButton=$("newSaleButton");
 
 let isValidSeller=false;
 let isToy=false;
+let currentItems=[];
 
 function getSellers(){
   return JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+}
+
+function euro(value){
+  return Number(value||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"});
+}
+
+function numberValue(){
+  return parseFloat(price.value.replace(/\./g,"").replace(",","."));
 }
 
 function checkSeller(){
@@ -23,7 +47,7 @@ function checkSeller(){
   if(!number){
     isValidSeller=false;
     sellerStatus.textContent="Bitte Verkäufernummer eingeben.";
-    continueButton.disabled=true;
+    updateButtons();
     return;
   }
 
@@ -40,18 +64,130 @@ function checkSeller(){
     sellerStatus.classList.add("invalid");
     sellerStatus.textContent="✕ Verkäufernummer nicht gefunden";
   }
-  updateContinue();
+  updateButtons();
 }
 
-function updateContinue(){
-  const hasPrice=parseFloat(price.value.replace(",", "."))>0;
+function currentItemValid(){
+  const hasPrice=numberValue()>0;
   const hasSize=isToy || size.value.trim()!="";
-  continueButton.disabled=!(isValidSeller && hasSize && hasPrice);
+  return isValidSeller && hasSize && hasPrice;
+}
+
+function updateButtons(){
+  const valid=currentItemValid();
+  addButton.disabled=!valid;
+  finishButton.disabled=!(currentItems.length>0 || valid);
+}
+
+function resetItemFields(){
+  sellerNumber.value="";
+  size.value="";
+  price.value="";
+  isToy=false;
+  toyButton.classList.remove("active");
+  toyButton.setAttribute("aria-pressed","false");
+  size.disabled=false;
+  sellerNumber.classList.remove("valid","invalid");
+  sellerStatus.classList.remove("valid","invalid");
+  sellerStatus.textContent="Bitte Verkäufernummer eingeben.";
+  sellerNumber.focus();
+  updateButtons();
+}
+
+function addCurrentItem(){
+  if(!currentItemValid()) return;
+
+  currentItems.push({
+    sellerNumber:sellerNumber.value.trim(),
+    size:isToy ? "Spielzeug" : size.value.trim(),
+    price:numberValue()
+  });
+
+  renderReceipt();
+  resetItemFields();
+}
+
+function renderReceipt(){
+  itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;
+
+  if(!currentItems.length){
+    receiptItems.innerHTML='<div class="receipt-empty">Noch keine Artikel.</div>';
+  }else{
+    receiptItems.innerHTML=currentItems.map((item,index)=>`
+      <div class="receipt-line">
+        <div class="receipt-line-main">
+          <div class="receipt-line-title">Artikel ${index+1}</div>
+          <div class="receipt-line-meta">Verkäufer ${escapeHtml(item.sellerNumber)} · ${escapeHtml(item.size)}</div>
+        </div>
+        <div class="receipt-line-price">${euro(item.price)}</div>
+      </div>
+    `).join("");
+  }
+
+  const total=currentItems.reduce((sum,item)=>sum+item.price,0);
+  liveTotal.textContent=euro(total);
+  updateButtons();
+}
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+function showPayment(){
+  if(currentItemValid()){
+    addCurrentItem();
+  }
+  if(!currentItems.length) return;
+
+  finalCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;
+  finalReceipt.innerHTML=currentItems.map((item,index)=>`
+    <div class="receipt-line">
+      <div class="receipt-line-main">
+        <div class="receipt-line-title">Artikel ${index+1}</div>
+        <div class="receipt-line-meta">Verkäufer ${escapeHtml(item.sellerNumber)} · ${escapeHtml(item.size)}</div>
+      </div>
+      <div class="receipt-line-price">${euro(item.price)}</div>
+    </div>
+  `).join("");
+
+  const total=currentItems.reduce((sum,item)=>sum+item.price,0);
+  finalTotal.textContent=euro(total);
+  paymentModal.classList.remove("hidden");
+}
+
+function saveSale(paymentType){
+  const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]");
+  const timestamp=new Date().toISOString();
+
+  currentItems.forEach(item=>{
+    sales.push({
+      sellerNumber:item.sellerNumber,
+      size:item.size,
+      price:item.price,
+      payment:paymentType,
+      timestamp
+    });
+  });
+
+  localStorage.setItem("kb_sales",JSON.stringify(sales));
+
+  const total=currentItems.reduce((sum,item)=>sum+item.price,0);
+  paymentModal.classList.add("hidden");
+  successText.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"} · ${euro(total)} · ${paymentType}`;
+  successModal.classList.remove("hidden");
+}
+
+function resetSale(){
+  currentItems=[];
+  renderReceipt();
+  successModal.classList.add("hidden");
+  resetItemFields();
 }
 
 sellerNumber.addEventListener("input",checkSeller);
-size.addEventListener("input",updateContinue);
-price.addEventListener("input",updateContinue);
+sellerNumber.addEventListener("blur",checkSeller);
+size.addEventListener("input",updateButtons);
+price.addEventListener("input",updateButtons);
 
 toyButton.addEventListener("click",()=>{
   isToy=!isToy;
@@ -66,12 +202,17 @@ toyButton.addEventListener("click",()=>{
     size.disabled=false;
     size.focus();
   }
-  updateContinue();
+  updateButtons();
 });
 
-continueButton.addEventListener("click",()=>{
-  // Der eigentliche Verkauf/Bezahlvorgang kommt im nächsten Schritt.
-  alert("Artikel übernommen. Der nächste Schritt wird als Nächstes eingebaut.");
+addButton.addEventListener("click",addCurrentItem);
+finishButton.addEventListener("click",showPayment);
+closePayment.addEventListener("click",()=>paymentModal.classList.add("hidden"));
+newSaleButton.addEventListener("click",resetSale);
+
+document.querySelectorAll(".payment").forEach(button=>{
+  button.addEventListener("click",()=>saveSale(button.dataset.payment));
 });
 
-sellerNumber.addEventListener("blur",checkSeller);
+renderReceipt();
+sellerNumber.focus();

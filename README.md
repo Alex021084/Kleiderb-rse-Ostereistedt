@@ -47,3 +47,14 @@ Die Kasse enthält jetzt die erste Eingabemaske:
 - Der Weiter-Button wird erst aktiv, wenn Verkäufernummer, Größe/Spielzeug und Preis gültig sind.
 
 Der eigentliche Verkauf und die Zahlungsart werden im nächsten Schritt ergänzt.
+
+
+## Kasse – V9
+
+Die Kasse unterstützt jetzt mehrere Artikel in einem Verkauf:
+- **Weiterer Artikel** übernimmt den aktuellen Artikel und setzt die Eingabefelder für den nächsten Artikel zurück.
+- Rechts bzw. unterhalb auf dem Smartphone läuft ein **Kassenbon** mit allen Artikeln und der Gesamtsumme mit.
+- **Fertig** zeigt den vollständigen Bon und die Zahlungsarten **Bar / EC / PayPal**.
+- Nach Auswahl der Zahlungsart werden die einzelnen Verkäufe unter `kb_sales` gespeichert.
+- Jeder gespeicherte Verkauf enthält Verkäufernummer, Größe bzw. Spielzeug, Preis, Zahlungsart und Zeitstempel.
+- Die Verkäufer-Abrechnung aus dem Verkäuferbereich kann diese Verkaufsdaten später automatisch verwenden.

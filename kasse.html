@@ -16,36 +16,84 @@
 <main>
   <h1>Kasse</h1>
 
-  <section class="kasse-box">
-    <label for="sellerNumber">Verkäufernummer</label>
-    <input id="sellerNumber" type="tel" inputmode="numeric" autocomplete="off"
-           placeholder="z. B. 511" aria-describedby="sellerStatus">
-    <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
+  <section class="layout">
+    <section class="kasse-box">
+      <h2>Artikel</h2>
 
-    <div class="row">
-      <div class="field">
-        <label for="size">Größe</label>
-        <input id="size" type="text" autocomplete="off"
-               placeholder="z. B. 104">
+      <label for="sellerNumber">Verkäufernummer</label>
+      <input id="sellerNumber" type="tel" inputmode="numeric" autocomplete="off" placeholder="z. B. 511">
+      <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="size">Größe</label>
+          <input id="size" type="text" autocomplete="off" placeholder="z. B. 104">
+        </div>
+
+        <button id="toyButton" class="toy-button" type="button" aria-pressed="false">
+          🧸<br><span>Spielzeug</span>
+        </button>
       </div>
 
-      <button id="toyButton" class="toy-button" type="button" aria-pressed="false">
-        🧸<br><span>Spielzeug</span>
-      </button>
-    </div>
+      <label for="price">Preis</label>
+      <div class="price-wrap">
+        <input id="price" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00">
+        <span>€</span>
+      </div>
 
-    <label for="price">Preis</label>
-    <div class="price-wrap">
-      <input id="price" type="text" inputmode="decimal" autocomplete="off"
-             placeholder="0,00">
-      <span>€</span>
-    </div>
+      <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
+      <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
+    </section>
 
-    <button id="continueButton" class="continue" type="button" disabled>
-      Weiter
-    </button>
+    <aside class="receipt-live">
+      <div class="receipt-head">
+        <strong>Kassenbon</strong>
+        <span id="itemCount">0 Artikel</span>
+      </div>
+      <div id="receiptItems" class="receipt-items">
+        <div class="receipt-empty">Noch keine Artikel.</div>
+      </div>
+      <div class="receipt-total">
+        <span>Gesamt</span>
+        <strong id="liveTotal">0,00 €</strong>
+      </div>
+    </aside>
   </section>
 </main>
+
+<div id="paymentModal" class="modal hidden">
+  <div class="payment-box">
+    <div class="modal-head">
+      <div>
+        <h2>Kassenbon</h2>
+        <div id="finalCount" class="final-count"></div>
+      </div>
+      <button id="closePayment" class="close" type="button">×</button>
+    </div>
+
+    <div id="finalReceipt" class="final-receipt"></div>
+
+    <div class="payment-total">
+      <span>Gesamt</span>
+      <strong id="finalTotal">0,00 €</strong>
+    </div>
+
+    <div class="payment-buttons">
+      <button class="payment cash" data-payment="Bar" type="button">Bar</button>
+      <button class="payment card" data-payment="EC" type="button">EC</button>
+      <button class="payment paypal" data-payment="PayPal" type="button">PayPal</button>
+    </div>
+  </div>
+</div>
+
+<div id="successModal" class="modal hidden">
+  <div class="success-box">
+    <div class="success-icon">✓</div>
+    <h2>Verkauf gespeichert</h2>
+    <p id="successText"></p>
+    <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
+  </div>
+</div>
 
 <script src="kasse.js"></script>
 </body>
