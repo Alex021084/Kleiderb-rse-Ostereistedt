@@ -6,7 +6,7 @@ Aktueller Stand:
 - Verkäufer werden nach Nachnamen sortiert
 - Verkäufer hinzufügen, bearbeiten und löschen
 - Suchfeld
-- Neue **Abrechnung-Schaltfläche (€)** bei jedem Verkäufer
+- Neue **Abrechnung-Schaltfläche (€)** bei jedem Verkäufer, oben über Bearbeiten/Löschen
 
 ## Verkäufer-Abrechnung
 
