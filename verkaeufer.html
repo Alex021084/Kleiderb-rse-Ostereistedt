@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><title>Verkäufer</title><link rel="stylesheet" href="seller.css"></head>
+<body>
+<header class="top"><a href="index.html">⌂ Startseite</a><strong>Verkäufer</strong><span></span></header>
+<main>
+<h1>Verkäufer</h1>
+<button class="add" onclick="openForm()">＋ Verkäufer hinzufügen</button>
+<div class="search"><span>⌕</span><input id="search" type="search" placeholder="Verkäufer suchen"></div>
+<p id="count" class="count"></p><section id="list"></section>
+</main>
+<div id="modal" class="modal hidden"><div class="box"><div class="modalhead"><h2>Verkäufer hinzufügen</h2><button onclick="closeForm()">×</button></div>
+<label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
+<label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
+<label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
+<div id="error"></div><div class="actions"><button onclick="closeForm()">Abbrechen</button><button class="save" onclick="saveSeller()">Speichern</button></div>
+</div></div><script src="seller.js"></script>
+</body></html>

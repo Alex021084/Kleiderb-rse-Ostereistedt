@@ -1,69 +1,38 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="theme-color" content="#172033">
-  <title>Kleiderbörse</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#172033">
+<title>Kleiderbörse</title>
+<link rel="stylesheet" href="home.css">
 </head>
 <body>
-  <header class="topbar">
-    <button class="nav-btn" onclick="goHome()">⌂ Startseite</button>
-    <div class="title">Verkäufer</div>
-    <div class="top-spacer"></div>
+<main class="home">
+  <header>
+    <div class="logo">KB</div>
+    <h1>Kleiderbörse</h1>
   </header>
 
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Verkäufer</h1>
-        <p id="count">0 Verkäufer</p>
-      </div>
-    </div>
+  <div class="menu">
+    <a class="menu-button blue" href="kasse.html">
+      <span class="icon">🧾</span>
+      <strong>Kasse</strong>
+      <small>Verkäufe erfassen</small>
+    </a>
 
-    <button class="add-main" onclick="openForm()">
-      <span>＋</span>
-      Verkäufer hinzufügen
-    </button>
+    <a class="menu-button green" href="verkaeufer.html">
+      <span class="icon">👤</span>
+      <strong>Verkäufer</strong>
+      <small>Verkäufer verwalten</small>
+    </a>
 
-    <div class="search">
-      <span>⌕</span>
-      <input id="search" type="search" placeholder="Verkäufer suchen">
-    </div>
-
-    <section id="list"></section>
-  </main>
-
-  <div id="modal" class="modal hidden">
-    <div class="modal-box">
-      <div class="modal-head">
-        <div>
-          <h2 id="formTitle">Verkäufer hinzufügen</h2>
-          <p>Verkäufernummer und Name sind erforderlich.</p>
-        </div>
-        <button class="close" onclick="closeForm()">×</button>
-      </div>
-
-      <label for="number">Verkäufernummer *</label>
-      <input id="number" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="z. B. 1234">
-
-      <label for="name">Name *</label>
-      <input id="name" type="text" autocomplete="name" placeholder="Vorname Nachname">
-
-      <label for="phone">Telefonnummer <span>(optional)</span></label>
-      <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="z. B. 0170 1234567">
-
-      <div id="error" class="error"></div>
-
-      <div class="actions">
-        <button class="cancel" onclick="closeForm()">Abbrechen</button>
-        <button class="save" onclick="saveSeller()">Speichern</button>
-      </div>
-    </div>
+    <a class="menu-button orange" href="tagesabschluss.html">
+      <span class="icon">📊</span>
+      <strong>Tagesabschluss</strong>
+      <small>Umsatz & Zahlungsarten</small>
+    </a>
   </div>
-
-  <div id="toast" class="toast"></div>
-  <script src="app.js"></script>
+</main>
 </body>
 </html>

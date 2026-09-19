@@ -1,12 +1,10 @@
-# Kleiderbörse – Verkäufer V2
+# Kleiderbörse V1
 
-Die Verkäuferseite hat:
-- großen Button „Verkäufer hinzufügen“
-- Verkäuferliste mit Name und Verkäufernummer
-- optionale Telefonnummer
-- alphabetische Sortierung nach Nachnamen
-- Suche
-- Bearbeiten/Löschen
-- funktionierenden Zurück-Button zur enthaltenen Startseite
+Startseite mit drei großen Buttons:
+- Kasse
+- Verkäufer
+- Tagesabschluss
 
-Die Startseite ist in `start.html` enthalten.
+Die Verkäuferseite ist bereits als erster Bereich umgesetzt. Kasse und Tagesabschluss sind Platzhalter und werden später ergänzt.
+
+Wichtig: `index.html` ist die Startseite. Die Dateien müssen gemeinsam im Repository liegen.
