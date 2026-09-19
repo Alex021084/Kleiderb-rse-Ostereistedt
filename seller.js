@@ -33,10 +33,12 @@ function render(){
         <div class="no">Verkäufernummer: ${esc(s.number)}</div>
         ${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}
       </div>
-      <div class="actions">
-        <button class="small report" title="Abrechnung" onclick="showReport('${s.id}')">€</button>
-        <button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button>
-        <button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button>
+      <div class="seller-actions">
+        <button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button>
+        <div class="seller-bottom-actions">
+          <button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button>
+          <button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button>
+        </div>
       </div>
     </article>`).join(""):'<div class="empty">Noch keine Verkäufer angelegt.</div>';
 }
