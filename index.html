@@ -15,10 +15,10 @@
   </header>
 
   <div class="menu">
-    <button class="menu-button blue" id="openRegisterModal" type="button" aria-haspopup="dialog">
+    <a class="menu-button blue" id="openRegisterModal" href="#registerModal" aria-haspopup="dialog">
       <span class="icon">🧾</span>
       <span class="menu-copy"><strong>Kasse</strong><small>Verkäufe erfassen</small></span>
-    </button>
+    </a>
 
     <a class="menu-button green" href="verkaeufer.html">
       <span class="icon">👤</span>
@@ -37,11 +37,11 @@
     <h2 id="registerModalTitle">Welche Kasse?</h2>
     <p>Bitte die Kasse auswählen.</p>
     <div class="register-choice-grid">
-      <button type="button" data-register="Kasse 1">Kasse 1</button>
-      <button type="button" data-register="Kasse 2">Kasse 2</button>
-      <button type="button" data-register="Kasse 3">Kasse 3</button>
-      <button type="button" data-register="Kasse 4">Kasse 4</button>
-      <button type="button" data-register="Kasse 5">Kasse 5</button>
+      <a href="kasse.html?kasse=1" data-register="Kasse 1">Kasse 1</a>
+      <a href="kasse.html?kasse=2" data-register="Kasse 2">Kasse 2</a>
+      <a href="kasse.html?kasse=3" data-register="Kasse 3">Kasse 3</a>
+      <a href="kasse.html?kasse=4" data-register="Kasse 4">Kasse 4</a>
+      <a href="kasse.html?kasse=5" data-register="Kasse 5">Kasse 5</a>
     </div>
     <button type="button" class="register-cancel" id="closeRegisterModal">Abbrechen</button>
   </div>
@@ -50,33 +50,14 @@
 <script>
 (function(){
   var modal=document.getElementById("registerModal");
-  var open=document.getElementById("openRegisterModal");
   var close=document.getElementById("closeRegisterModal");
-
-  function showModal(){
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden","false");
-  }
-  function hideModal(){
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden","true");
-  }
-
-  open.onclick=showModal;
-  close.onclick=hideModal;
-
+  if(close) close.onclick=function(){ window.location.hash=""; };
   var choices=document.querySelectorAll("[data-register]");
   for(var i=0;i<choices.length;i++){
     choices[i].onclick=function(){
-      var reg=this.getAttribute("data-register");
-      try{ localStorage.setItem("kb_register",reg); }catch(e){}
-      window.location.href="kasse.html";
+      try{ localStorage.setItem("kb_register",this.getAttribute("data-register")); }catch(e){}
     };
   }
-
-  modal.onclick=function(e){
-    if(e.target===modal) hideModal();
-  };
 })();
 </script>
 </body>

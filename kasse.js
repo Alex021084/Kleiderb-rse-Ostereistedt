@@ -93,6 +93,16 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
 closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
+function getSelectedRegister(){
+  const q=new URLSearchParams(window.location.search).get("kasse");
+  if(q && /^[1-5]$/.test(q)){
+    const r=`Kasse ${q}`;
+    try{localStorage.setItem("kb_register",r);}catch(e){}
+    return r;
+  }
+  return localStorage.getItem("kb_register") || "Kasse 1";
+}
+
 async function initCloud(){
   if(KBCloud.cloudReady()){
     try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));}
@@ -100,7 +110,7 @@ async function initCloud(){
   }else{sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({...s,commissionEnabled:s.commissionEnabled===undefined?true:s.commissionEnabled,commissionRate:Number(s.commissionRate??15)}));}
   const title=document.getElementById("registerTitle");
   if(title){
-    const selectedRegister=localStorage.getItem("kb_register") || "Kasse 1";
+    const selectedRegister=getSelectedRegister();
     title.textContent=selectedRegister;
     if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
   }

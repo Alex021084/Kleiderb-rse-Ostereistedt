@@ -15,12 +15,13 @@ h1{font-size:29px;margin:0}
 
 .register-modal{position:fixed;inset:0;background:rgba(10,16,30,.62);display:none;align-items:center;justify-content:center;padding:22px;z-index:10000}
 .register-modal.open{display:flex}
+.register-modal:target{display:flex}
 .register-modal-box{width:min(620px,100%);background:#fff;border-radius:26px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
 .register-modal-box h2{margin:0;font-size:32px}
 .register-modal-box p{margin:9px 0 24px;color:#687382;font-size:18px}
 .register-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.register-choice-grid button{min-height:100px;border:0;border-radius:18px;background:#4357dc;color:#fff;font-size:27px;font-weight:800;box-shadow:0 5px 14px #17203318;cursor:pointer}
-.register-choice-grid button:active{transform:scale(.98)}
+.register-choice-grid button,.register-choice-grid a{min-height:100px;border:0;border-radius:18px;background:#4357dc;color:#fff;font-size:27px;font-weight:800;box-shadow:0 5px 14px #17203318;cursor:pointer;text-decoration:none;display:grid;place-items:center}
+.register-choice-grid button:active,.register-choice-grid a:active{transform:scale(.98)}
 .register-choice-grid button:last-child{grid-column:1 / -1}
 .register-cancel{margin-top:18px;width:100%;min-height:58px;border:0;border-radius:15px;background:#edf0f5;color:#172033;font-size:18px;font-weight:700;cursor:pointer}
 

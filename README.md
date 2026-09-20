@@ -125,3 +125,6 @@ V20: Provisionsschalter robust gespeichert. Legacy-Verkäufer werden beim ersten
 
 
 V24: Kasse-Auswahl auf der Startseite wurde ohne Cloud-Abhängigkeit umgesetzt. Der Kasse-Button öffnet ein großes Auswahl-Popup mit Kasse 1–5; die Auswahl wird vor dem Öffnen der Kasse lokal gespeichert.
+
+
+V25: Kassenwahl auf der Startseite ist jetzt ohne JavaScript für das Öffnen des Popups möglich (CSS :target). Die fünf Auswahlfelder sind echte Links auf kasse.html?kasse=1..5; die Kasse liest die Auswahl direkt aus der URL. Dadurch funktioniert die Auswahl auch bei verzögertem/gesperrtem Startseiten-JavaScript.
