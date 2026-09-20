@@ -155,3 +155,6 @@ V36: Verkäufer-Abrechnung wird nicht mehr als handgebauter PDF-Stream erzeugt. 
 
 
 V37: Geldbeträge in der Verkäufer-Druckansicht verwenden jetzt explizit die HTML-Entität &euro;, damit auf iPad/Safari keine Fragezeichen vor dem Eurozeichen erscheinen. Layout leicht bereinigt und kompakter gestaltet.
+
+
+V38: Doppelten alten PDF-Code entfernt, der die neue Druckansicht überschrieben hat und weiterhin die alte Fehlermeldung auslöste. Jetzt wird ausschließlich die neue A4-Druckansicht verwendet.

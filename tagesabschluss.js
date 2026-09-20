@@ -306,38 +306,6 @@ function makeZip(entries){
   const end=new Uint8Array([80,75,5,6,0,0,0,0,(entries.length&255),(entries.length>>>8)&255,(entries.length&255),(entries.length>>>8)&255,cd.length&255,(cd.length>>>8)&255,(cd.length>>>16)&255,(cd.length>>>24)&255,body.length&255,(body.length>>>8)&255,(body.length>>>16)&255,(body.length>>>24)&255,0,0]);
   return new Blob([body,cd,end],{type:"application/zip"});
 }
-async function saveSellerPdfByNumber(number, receipts, sellers){
-  try{
-    const data=sellerPdfData(number,receipts,sellers);
-    const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}.pdf`;
-    const ok=await saveBlob(makeSellerPdf(data),filename);
-    if(!ok) return;
-  }catch(e){console.error(e);alert("Die Verkäufer-PDF konnte nicht erstellt werden.")}
-}
-async function saveAllSellerPdfs(){
-  const button=$("saveAllSellerPdf");
-  if(button)button.disabled=true;
-  try{
-    const receipts=await loadData();
-    let sellers=[];
-    if(KBCloud.cloudReady()) sellers=await KBCloud.cloudGetSellers();
-    else sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
-    if(!sellers.length){alert("Es sind keine Verkäufer vorhanden.");return}
-    const zipEntries=[];
-    sellers.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"de-DE"));
-    for(const s of sellers){
-      const data=sellerPdfData(s.number,receipts,sellers);
-      const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}.pdf`;
-      zipEntries.push({name:filename,data:new Uint8Array(await makeSellerPdf(data).arrayBuffer())});
-    }
-    const blob=makeZip(zipEntries);
-    const ok=await saveBlob(blob,`Verkäufer-Abrechnungen_${dateStamp()}.zip`);
-    if(!ok) return;
-  }catch(e){
-    console.error(e);
-    alert("Die Verkäufer-PDFs konnten nicht erstellt werden. Bitte die Seite einmal neu laden und erneut versuchen.");
-  }finally{if(button)button.disabled=false}
-}
 $("refreshButton").addEventListener("click",render);
 $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
