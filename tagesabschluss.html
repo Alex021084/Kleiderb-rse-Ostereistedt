@@ -66,6 +66,7 @@
     <section class="seller-summary">
       <div class="seller-summary-head">
         <h2>Auszahlung je Verkäufer</h2>
+        <button id="saveAllSellerPdf" type="button" class="pdf-all-button">📄 Speichern aller Verkäufer</button>
       </div>
       <div id="sellerRows" class="seller-rows">
         <div class="seller-empty">Noch keine Verkäufe.</div>
@@ -87,6 +88,10 @@
   </section>
 </main>
 
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="tagesabschluss.js"></script>
+<script src="cloud-config.js"></script>
+<script src="cloud.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="tagesabschluss.js"></script>
 </body>
 </html>

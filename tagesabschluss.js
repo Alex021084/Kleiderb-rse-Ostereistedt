@@ -32,7 +32,8 @@ async function render(){
  if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
  else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
  const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
- $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
+ $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div><div class="seller-pdf-cell"><button type="button" class="seller-pdf-button" data-seller-number="${esc(n)}">PDF</button></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
+ document.querySelectorAll(".seller-pdf-button").forEach(btn=>btn.addEventListener("click",()=>saveSellerPdfByNumber(btn.dataset.sellerNumber, allReceipts, sellerData)));
 
  const regs={};
  allReceipts.forEach(r=>{
@@ -84,7 +85,121 @@ async function resetSales(){
  }catch(e){console.error(e);alert("Die Verkaufszahlen konnten nicht zurückgesetzt werden. Bitte Internetverbindung prüfen.")}
 }
 
+
+function safeFilePart(value){
+  return String(value||"").trim()
+    .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue")
+    .replace(/Ä/g,"Ae").replace(/Ö/g,"Oe").replace(/Ü/g,"Ue")
+    .replace(/ß/g,"ss").replace(/[^a-zA-Z0-9_-]+/g,"_")
+    .replace(/^_+|_+$/g,"") || "Verkaeufer";
+}
+function dateStamp(){
+  const d=new Date();
+  return `${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}`;
+}
+function sellerPdfData(sellerNumber, receipts, sellers){
+  const seller= sellers.find(s=>String(s.number)===String(sellerNumber)) || {number:String(sellerNumber),name:"Verkäufer "+sellerNumber};
+  const rows=[];
+  receipts.forEach(r=>{
+    const pay=r.payment||"";
+    (r.receipt_items||[]).forEach(i=>{
+      const n=i.seller_number??i.sellerNumber??"";
+      if(String(n)!==String(sellerNumber)) return;
+      rows.push({
+        price:priceOf(i),
+        size:String(i.size||""),
+        payment:pay,
+        register:r.register_id||r.registerId||"Kasse 1",
+        created:r.created_at,
+        commission:rateOf(i)
+      });
+    });
+  });
+  const gross=rows.reduce((a,x)=>a+x.price,0);
+  const commission=rows.reduce((a,x)=>a+x.price*x.commission,0);
+  const payout=gross-commission;
+  const payments={Bar:0,EC:0,PayPal:0};
+  rows.forEach(x=>{if(payments[x.payment]!==undefined)payments[x.payment]+=x.price});
+  const sizes={};
+  rows.forEach(x=>{const key=x.size||"Ohne Größe";sizes[key]=(sizes[key]||0)+1});
+  const registers={};
+  rows.forEach(x=>{registers[x.register]=(registers[x.register]||0)+x.price});
+  return {seller,rows,gross,commission,payout,payments,sizes,registers};
+}
+function saveBlob(blob,filename){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+function makeSellerPdf(data){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const margin=18;
+  let y=18;
+  doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("Verkäufer-Abrechnung",margin,y);y+=10;
+  doc.setFontSize(14);doc.text(data.seller.name||"Verkäufer",margin,y);y+=7;
+  doc.setFont("helvetica","normal");doc.setFontSize(11);
+  doc.text(`Verkäufernummer: ${data.seller.number}`,margin,y);y+=6;
+  doc.text(`Abrechnung: ${dateStamp()}`,margin,y);y+=10;
+
+  doc.setFillColor(242,244,248);doc.roundedRect(margin,y,174,43,4,4,"F");
+  doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text("Zusammenfassung",margin+6,y+8);
+  doc.setFont("helvetica","normal");doc.setFontSize(11);
+  doc.text("Verkaufte Artikel",margin+6,y+17);doc.text(String(data.rows.length),margin+150,y+17,{align:"right"});
+  doc.text("Gesamtumsatz",margin+6,y+25);doc.text(euro(data.gross),margin+150,y+25,{align:"right"});
+  doc.text("Provision",margin+6,y+33);doc.text(euro(data.commission),margin+150,y+33,{align:"right"});
+  doc.setFont("helvetica","bold");doc.text("Auszahlung",margin+6,y+41);doc.text(euro(data.payout),margin+150,y+41,{align:"right"});
+  y+=53;
+
+  doc.setFontSize(13);doc.text("Zahlungsarten",margin,y);y+=7;doc.setFont("helvetica","normal");doc.setFontSize(10.5);
+  [["Bar",data.payments.Bar],["EC",data.payments.EC],["PayPal",data.payments.PayPal]].forEach(([k,v])=>{doc.text(k,margin,y);doc.text(euro(v),margin+70,y,{align:"right"});y+=6});
+  y+=3;
+
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("Verkaufte Artikel nach Größe / Kategorie",margin,y);y+=7;
+  doc.setFont("helvetica","normal");doc.setFontSize(10.5);
+  Object.entries(data.sizes).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true})).forEach(([k,v])=>{if(y>270){doc.addPage();y=20}doc.text(k,margin,y);doc.text(`${v} ${v===1?"Artikel":"Artikel"}`,margin+70,y,{align:"right"});y+=6});
+  y+=4;
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("Umsatz nach Kasse",margin,y);y+=7;
+  doc.setFont("helvetica","normal");doc.setFontSize(10.5);
+  Object.entries(data.registers).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true})).forEach(([k,v])=>{if(y>270){doc.addPage();y=20}doc.text(k,margin,y);doc.text(euro(v),margin+70,y,{align:"right"});y+=6});
+  y+=5;
+  doc.setFontSize(8.5);doc.setTextColor(100);
+  doc.text("Die Provision basiert auf dem beim jeweiligen Verkauf gespeicherten Provisionssatz.",margin,y);
+  return doc.output("blob");
+}
+async function saveSellerPdfByNumber(number, receipts, sellers){
+  try{
+    const data=sellerPdfData(number,receipts,sellers);
+    const filename=`Verkaeufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name)}_${dateStamp()}.pdf`;
+    saveBlob(makeSellerPdf(data),filename);
+  }catch(e){console.error(e);alert("Die Verkäufer-PDF konnte nicht erstellt werden.")}
+}
+async function saveAllSellerPdfs(){
+  const button=$("saveAllSellerPdf");
+  if(button)button.disabled=true;
+  try{
+    const receipts=await loadData();
+    let sellers=[];
+    if(KBCloud.cloudReady()) sellers=await KBCloud.cloudGetSellers();
+    else sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+    if(!sellers.length){alert("Es sind keine Verkäufer vorhanden.");return}
+    if(!window.jspdf?.jsPDF || !window.JSZip) throw new Error("PDF-Bibliotheken konnten nicht geladen werden.");
+    const zip=new JSZip();
+    sellers.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"de-DE"));
+    sellers.forEach(s=>{
+      const data=sellerPdfData(s.number,receipts,sellers);
+      const filename=`Verkaeufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name)}_${dateStamp()}.pdf`;
+      zip.file(filename,makeSellerPdf(data));
+    });
+    const blob=await zip.generateAsync({type:"blob"});
+    saveBlob(blob,`Verkaeufer-Abrechnungen_${dateStamp()}.zip`);
+  }catch(e){
+    console.error(e);
+    alert("Die PDFs konnten nicht erstellt werden. Bitte kurz prüfen, ob eine Internetverbindung besteht und die Seite neu geladen wurde.");
+  }finally{if(button)button.disabled=false}
+}
 $("refreshButton").addEventListener("click",render);
+$("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
 document.querySelectorAll(".register-filter-button").forEach(btn=>btn.addEventListener("click",()=>{
  selectedRegister=btn.dataset.register;

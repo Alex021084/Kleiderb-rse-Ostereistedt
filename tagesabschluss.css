@@ -48,3 +48,16 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 #resetSalesButton{border:0;border-radius:11px;background:#c93434;color:#fff;font-weight:800;padding:13px 16px;min-height:48px;touch-action:manipulation}
 @media(max-width:700px){.register-buttons{grid-template-columns:repeat(3,1fr)}.reset-box{align-items:stretch;flex-direction:column}#resetSalesButton{width:100%}}
 @media(max-width:420px){.register-buttons{grid-template-columns:repeat(2,1fr)}}
+
+.seller-summary-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pdf-all-button,.seller-pdf-button{border:0;border-radius:10px;background:#4357dc;color:#fff;font-weight:800;cursor:pointer;touch-action:manipulation}
+.pdf-all-button{padding:12px 16px;min-height:46px}
+.pdf-all-button:disabled{opacity:.55}
+.seller-pdf-cell{text-align:right}
+.seller-pdf-button{padding:9px 14px;min-width:62px}
+@media(max-width:600px){
+  .seller-summary-head{align-items:flex-start;flex-direction:column}
+  .pdf-all-button{width:100%;min-height:52px}
+  .seller-pdf-cell{grid-column:1/-1;text-align:left}
+  .seller-pdf-button{width:100%;min-height:44px}
+}

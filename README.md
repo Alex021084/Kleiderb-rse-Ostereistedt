@@ -134,3 +134,6 @@ V26: Startseiten-Button in Kasse und Tagesabschluss optisch kompakter und sauber
 V27: Auf der Kasse ist kein Kassen-Wechsel mehr möglich. Die beim Einstieg gewählte Kasse wird im Kopf und als Seitentitel angezeigt. Startseite ist kompakt gestaltet.
 
 V28: Verkäufer-Seite hat jetzt denselben kompakten Startseiten-Button wie Kasse/Tagesabschluss.
+
+
+V30: Tagesabschluss enthält Verkäufer-PDF-Abrechnungen. 'Speichern aller Verkäufer' erstellt eine ZIP-Datei mit einer einseitigen PDF pro Verkäufer. Dateinamen enthalten Verkäufernummer, Name und Datum. Zusätzlich gibt es pro Verkäufer einen PDF-Button.
