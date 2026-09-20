@@ -260,6 +260,89 @@ async function saveSellerPdfByNumber(number, receipts, sellers){
     setTimeout(()=>{try{win.focus();win.print()}catch(e){}},500);
   }catch(e){console.error(e);alert("Die Verkäufer-Abrechnung konnte nicht geöffnet werden.")}
 }
+function pdfText(x,y,size,text,bold=false){
+  return `BT /${bold?"F2":"F1"} ${size} Tf ${x} ${y} Td (${pdfEscape(text)}) Tj ET`;
+}
+function pdfRect(x,y,w,h,fill){
+  return `${fill?"0.91 0.95 1 rg":"0.85 0.88 0.93 RG 0.7 w"} ${x} ${y} ${w} ${h} ${fill?"f":"S"}`;
+}
+function makeSellerPdf(data){
+  const W=595.28,H=841.89, margin=42;
+  const c=[];
+  // Header
+  c.push("0.19 0.35 0.85 rg 0 780 595 62 re f");
+  c.push(pdfText(42,808,22,"Kleiderbörse",true));
+  c.push(pdfText(42,789,11,"Verkäufer-Abrechnung",false));
+  c.push(pdfText(42,748,9,"Verkäufer",false));
+  c.push(pdfText(42,724,18,String(data.seller.name||"Verkäufer"),true));
+  c.push(pdfText(42,705,10,`Verkäufernummer: ${data.seller.number}`));
+  c.push(pdfText(470,748,9,"Datum",false));
+  c.push(pdfText(470,729,10,dateStamp(),false));
+  // Overview
+  c.push(pdfRect(42,560,511,118,false));
+  c.push(pdfText(58,653,11,"ÜBERSICHT",true));
+  c.push(pdfText(58,626,11,"Verkaufte Teile"));
+  c.push(pdfText(470,626,11,String(data.rows.length),true));
+  c.push(pdfText(58,602,11,"Gesamtumsatz"));
+  c.push(pdfText(420,602,11,sellerMoneyPlain(data.gross),true));
+  if(data.commission>0){
+    c.push(pdfText(58,578,11,"Provision"));
+    c.push(pdfText(420,578,11,"- " + sellerMoneyPlain(data.commission),true));
+  } else {
+    c.push(pdfText(58,578,11,"Provision"));
+    c.push(pdfText(420,578,11,"Keine Provision",true));
+  }
+  // Payout
+  c.push("0.91 0.97 0.93 rg 42 500 511 44 re f");
+  c.push(pdfText(58,520,12,"AUSZAHLUNG",true));
+  c.push(pdfText(430,518,16,sellerMoneyPlain(data.payout),true));
+  // Articles
+  c.push(pdfRect(42,300,511,180,false));
+  c.push(pdfText(58,455,11,"VERKAUFTE ARTIKEL",true));
+  c.push(pdfText(58,430,9,"Größe / Kategorie",true));
+  c.push(pdfText(470,430,9,"Anzahl",true));
+  c.push("0.80 0.83 0.88 RG 58 420 m 537 420 l S");
+  const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
+  let y=398;
+  if(rows.length){
+    for(const [k,v] of rows){
+      if(y<320) break;
+      c.push(pdfText(58,y,10,k));
+      c.push(pdfText(470,y,10,`${v} ${v===1?"Teil":"Teile"}`,true));
+      y-=22;
+    }
+  } else {
+    c.push(pdfText(58,y,10,"Keine Artikel"));
+  }
+  c.push(pdfText(42,270,8,"Kleiderbörse · Verkäufer-Abrechnung"));
+
+  const content=c.join("\n");
+  const objects=[];
+  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
+  objects.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+  const stream=content+"\n";
+  objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
+  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
+  const offsets=[0];
+  for(let i=0;i<objects.length;i++){
+    offsets.push(pdf.length);
+    pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;
+  }
+  const xref=pdf.length;
+  pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+  for(let i=1;i<offsets.length;i++) pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
+  pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([bytesFromBinaryString(pdf)],{type:"application/pdf"});
+}
+function sellerMoneyPlain(v){
+  return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+}
+function cleanPdfFilename(name,number){
+  return `${String(name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")} - Vk-Nr. ${String(number)}.pdf`;
+}
 async function saveAllSellerPdfs(){
   const button=$("saveAllSellerPdf");
   if(button)button.disabled=true;
@@ -269,22 +352,22 @@ async function saveAllSellerPdfs(){
     if(KBCloud.cloudReady()) sellers=await KBCloud.cloudGetSellers();
     else sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
     if(!sellers.length){alert("Es sind keine Verkäufer vorhanden.");return}
-    // The iPad handles a single print job reliably. For "alle" we open a combined,
-    // print-ready document with one A4 page per seller. The user can save it as one PDF.
     sellers.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"de-DE"));
-    const pages=sellers.map(s=>{
-      const data=sellerPdfData(s.number,receipts,sellers);
-      return sellerPrintHtml(data).replace(/^<!doctype html>[\s\S]*?<body>/i,"").replace(/<\/body><\/html>\s*$/i,"");
-    }).join("");
-    const html=`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Verkäufer-Abrechnungen_${dateStamp()}</title>
-<style>@page{size:A4 portrait;margin:0}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.printbar{text-align:center;padding:12px;border-bottom:1px solid #ddd}.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}@media print{.printbar{display:none}}</style></head><body>
-<div class="printbar"><button onclick="window.print()">PDF / Drucken</button></div>${pages}</body></html>`;
-    const win=window.open("about:blank","_blank");
-    if(!win){alert("Das PDF-Fenster konnte nicht geöffnet werden. Bitte Pop-ups für diese Seite erlauben.");return}
-    win.document.open();win.document.write(html);win.document.close();
-    setTimeout(()=>{try{win.focus();win.print()}catch(e){}},700);
-  }catch(e){console.error(e);alert("Die Verkäufer-Abrechnungen konnten nicht geöffnet werden.")}finally{if(button)button.disabled=false}
+    const folder="Verkäufer-Abrechnungen";
+    const entries=[{name:folder+"/",data:new Uint8Array()}];
+    for(const seller of sellers){
+      const data=sellerPdfData(seller.number,receipts,sellers);
+      const pdf=makeSellerPdf(data);
+      entries.push({name:`${folder}/${cleanPdfFilename(data.seller.name,data.seller.number)}`,data:new Uint8Array(await pdf.arrayBuffer())});
+    }
+    const zip=makeZip(entries);
+    await saveBlob(zip,"Verkäufer-Abrechnungen.zip");
+  }catch(e){
+    console.error(e);
+    alert("Die ZIP-Datei mit den Verkäufer-PDFs konnte nicht erstellt werden.");
+  }finally{if(button)button.disabled=false}
 }
+
 function crc32(bytes){
   let table=crc32.table;
   if(!table){table=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);table[n]=c>>>0;}crc32.table=table;}
@@ -295,17 +378,18 @@ function u32(v){return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&2
 function concatBytes(parts){let len=parts.reduce((n,p)=>n+p.length,0),out=new Uint8Array(len),o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
 function makeZip(entries){
   const enc=new TextEncoder(), locals=[], centrals=[];let offset=0;
-  for(const entry of entries){
-    const name=enc.encode(entry.name), data=new Uint8Array(entry.data), crc=crc32(data);
-    const local=concatBytes([new Uint8Array([80,75,3,4,20,0,0,0,0,0,0,0,0,0]),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+    for(const entry of entries){
+    const name=enc.encode(entry.name), data=new Uint8Array(entry.data||[]), crc=crc32(data);
+    const local=concatBytes([new Uint8Array([80,75,3,4,20,0,0x00,0x08,0,0,0,0,0,0]),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
     locals.push(local);
-    const central=concatBytes([new Uint8Array([80,75,1,2,20,0,20,0,0,0,0,0,0,0]),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]);
+    const central=concatBytes([new Uint8Array([80,75,1,2,20,0,20,0,0x00,0x08,0,0,0,0,0,0]),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]);
     centrals.push(central);offset+=local.length;
   }
   const body=concatBytes(locals), cd=concatBytes(centrals);
   const end=new Uint8Array([80,75,5,6,0,0,0,0,(entries.length&255),(entries.length>>>8)&255,(entries.length&255),(entries.length>>>8)&255,cd.length&255,(cd.length>>>8)&255,(cd.length>>>16)&255,(cd.length>>>24)&255,body.length&255,(body.length>>>8)&255,(body.length>>>16)&255,(body.length>>>24)&255,0,0]);
   return new Blob([body,cd,end],{type:"application/zip"});
 }
+
 $("refreshButton").addEventListener("click",render);
 $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
