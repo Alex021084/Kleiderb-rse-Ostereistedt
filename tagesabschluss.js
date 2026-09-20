@@ -206,28 +206,29 @@ function makeSimplePdf(lines){
 function makeSellerPdf(data){
   const lines=[];
   const add=(text,size=11,gap=18)=>lines.push({text,size,gap});
-  add("Verkaeufer-Abrechnung",22,30);
-  add(data.seller.name||"Verkaeufer",15,22);
-  add(`Verkaeufernummer: ${data.seller.number}`,11,18);
-  add(`Abrechnung: ${dateStamp()}`,11,28);
-  add("Zusammenfassung",14,22);
-  add(`Verkaufte Artikel: ${data.rows.length}`,11,18);
-  add(`Gesamtumsatz: ${euro(data.gross)}`,11,18);
-  add(`Provision: ${euro(data.commission)}`,11,18);
-  add(`Auszahlung: ${euro(data.payout)}`,13,26);
-  add("Zahlungsarten",14,22);
-  add(`Bar: ${euro(data.payments.Bar)}`,11,18);
-  add(`EC: ${euro(data.payments.EC)}`,11,18);
-  add(`PayPal: ${euro(data.payments.PayPal)}`,11,26);
-  add("Verkaufte Artikel nach Groesse / Kategorie",14,22);
+  add("Kleiderbörse",24,26);
+  add("Verkäufer-Abrechnung",17,28);
+  add(`Verkäufer: ${data.seller.name||"Verkäufer"}`,12,19);
+  add(`Verkäufernummer: ${data.seller.number}`,11,19);
+  add(`Datum: ${dateStamp()}`,11,28);
+
+  add("ÜBERSICHT",13,22);
+  add(`Verkaufte Teile:        ${data.rows.length}`,12,20);
+  add(`Gesamtumsatz:           ${euro(data.gross)}`,12,20);
+  if(data.commission>0) add(`Provision:              -${euro(data.commission)}`,12,20);
+  else add("Provision:              0,00 €",12,20);
+  add(`AUSZAHLUNG:             ${euro(data.payout)}`,15,30);
+
+  add("VERKAUFTE ARTIKEL",13,22);
   const sizeEntries=Object.entries(data.sizes).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  if(sizeEntries.length) sizeEntries.forEach(([k,v])=>add(`${k}: ${v} ${v===1?"Artikel":"Artikel"}`,10.5,16));
-  else add("Keine Artikel",10.5,16);
-  add("Umsatz nach Kasse",14,22);
-  const regEntries=Object.entries(data.registers).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  if(regEntries.length) regEntries.forEach(([k,v])=>add(`${k}: ${euro(v)}`,10.5,16));
-  else add("Keine Verkaeufe",10.5,16);
-  add("Provision basiert auf dem beim Verkauf gespeicherten Provisionssatz.",8.5,12);
+  if(sizeEntries.length){
+    sizeEntries.forEach(([k,v])=>add(`${k}: ${v} ${v===1?"Teil":"Teile"}`,11,18));
+  }else{
+    add("Keine Artikel",11,18);
+  }
+
+  add("",8,8);
+  add("Vielen Dank für die Teilnahme an der Kleiderbörse.",9,18);
   return makeSimplePdf(lines);
 }
 function crc32(bytes){
@@ -254,7 +255,7 @@ function makeZip(entries){
 async function saveSellerPdfByNumber(number, receipts, sellers){
   try{
     const data=sellerPdfData(number,receipts,sellers);
-    const filename=`Verkaeufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name)}_${dateStamp()}.pdf`;
+    const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name).replace(/_/g,"_")}_${dateStamp()}.pdf`;
     const ok=await saveBlob(makeSellerPdf(data),filename);
     if(!ok) return;
   }catch(e){console.error(e);alert("Die Verkäufer-PDF konnte nicht erstellt werden.")}
@@ -272,11 +273,11 @@ async function saveAllSellerPdfs(){
     sellers.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"de-DE"));
     for(const s of sellers){
       const data=sellerPdfData(s.number,receipts,sellers);
-      const filename=`Verkaeufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name)}_${dateStamp()}.pdf`;
+      const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name).replace(/_/g,"_")}_${dateStamp()}.pdf`;
       zipEntries.push({name:filename,data:new Uint8Array(await makeSellerPdf(data).arrayBuffer())});
     }
     const blob=makeZip(zipEntries);
-    const ok=await saveBlob(blob,`Verkaeufer-Abrechnungen_${dateStamp()}.zip`);
+    const ok=await saveBlob(blob,`Verkäufer-Abrechnungen_${dateStamp()}.zip`);
     if(!ok) return;
   }catch(e){
     console.error(e);

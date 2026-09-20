@@ -140,3 +140,6 @@ V30: Tagesabschluss enthält Verkäufer-PDF-Abrechnungen. 'Speichern aller Verk�
 
 
 V32: Verkäufer-PDF/ZIP-Speichern auf iPad/Safari robuster über den nativen Teilen-Dialog (Dateien speichern) mit Fallback auf Download.
+
+
+V33: Verkäufer-PDF auf kompakte, übersichtliche DIN-A4-Abrechnung umgestellt. Zahlungsarten und Umsatz nach Kasse entfernt; Verkäufername/Verkäufernummer, Datum, Teile, Umsatz, Provision, Auszahlung und verkaufte Größen/Kategorien bleiben. PDF-/ZIP-Dateinamen verwenden „Verkäufer“ mit ä.
