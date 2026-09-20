@@ -122,3 +122,6 @@ V20: Provisionsschalter robust gespeichert. Legacy-Verkäufer werden beim ersten
 - Kennzahlen und Kassenbons werden passend zur Auswahl gefiltert.
 - Verkaufszahlen können nach Sicherheitsabfrage für alle Kassen oder die aktuell ausgewählte Kasse zurückgesetzt werden.
 - Verkäuferdaten bleiben beim Zurücksetzen erhalten.
+
+
+V24: Kasse-Auswahl auf der Startseite wurde ohne Cloud-Abhängigkeit umgesetzt. Der Kasse-Button öffnet ein großes Auswahl-Popup mit Kasse 1–5; die Auswahl wird vor dem Öffnen der Kasse lokal gespeichert.

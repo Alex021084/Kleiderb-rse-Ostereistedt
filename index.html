@@ -15,22 +15,19 @@
   </header>
 
   <div class="menu">
-    <button class="menu-button blue" id="openRegisterModal" type="button">
+    <button class="menu-button blue" id="openRegisterModal" type="button" aria-haspopup="dialog">
       <span class="icon">🧾</span>
-      <strong>Kasse</strong>
-      <small>Verkäufe erfassen</small>
+      <span class="menu-copy"><strong>Kasse</strong><small>Verkäufe erfassen</small></span>
     </button>
 
     <a class="menu-button green" href="verkaeufer.html">
       <span class="icon">👤</span>
-      <strong>Verkäufer</strong>
-      <small>Verkäufer verwalten</small>
+      <span class="menu-copy"><strong>Verkäufer</strong><small>Verkäufer verwalten</small></span>
     </a>
 
     <a class="menu-button orange" href="tagesabschluss.html">
       <span class="icon">📊</span>
-      <strong>Tagesabschluss</strong>
-      <small>Umsatz & Zahlungsarten</small>
+      <span class="menu-copy"><strong>Tagesabschluss</strong><small>Umsatz & Zahlungsarten</small></span>
     </a>
   </div>
 </main>
@@ -38,7 +35,7 @@
 <div id="registerModal" class="register-modal" aria-hidden="true">
   <div class="register-modal-box" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
     <h2 id="registerModalTitle">Welche Kasse?</h2>
-    <p>Bitte die Kasse auswählen, an der dieses Gerät verwendet wird.</p>
+    <p>Bitte die Kasse auswählen.</p>
     <div class="register-choice-grid">
       <button type="button" data-register="Kasse 1">Kasse 1</button>
       <button type="button" data-register="Kasse 2">Kasse 2</button>
@@ -49,19 +46,38 @@
     <button type="button" class="register-cancel" id="closeRegisterModal">Abbrechen</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script>
+
 <script>
-const modal=document.getElementById("registerModal");
-function openRegisterModal(){modal.classList.add("open");modal.setAttribute("aria-hidden","false")}
-function closeRegisterModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true")}
-document.getElementById("openRegisterModal").addEventListener("click",openRegisterModal);
-document.getElementById("closeRegisterModal").addEventListener("click",closeRegisterModal);
-document.querySelectorAll(".register-choice-grid button").forEach(btn=>btn.addEventListener("click",()=>{
-  const reg=btn.dataset.register;
-  if(window.KBCloud?.setRegister) KBCloud.setRegister(reg); else localStorage.setItem("kb_register",reg);
-  window.location.href="kasse.html";
-}));
-modal.addEventListener("click",e=>{if(e.target===modal)closeRegisterModal()});
+(function(){
+  var modal=document.getElementById("registerModal");
+  var open=document.getElementById("openRegisterModal");
+  var close=document.getElementById("closeRegisterModal");
+
+  function showModal(){
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden","false");
+  }
+  function hideModal(){
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden","true");
+  }
+
+  open.onclick=showModal;
+  close.onclick=hideModal;
+
+  var choices=document.querySelectorAll("[data-register]");
+  for(var i=0;i<choices.length;i++){
+    choices[i].onclick=function(){
+      var reg=this.getAttribute("data-register");
+      try{ localStorage.setItem("kb_register",reg); }catch(e){}
+      window.location.href="kasse.html";
+    };
+  }
+
+  modal.onclick=function(e){
+    if(e.target===modal) hideModal();
+  };
+})();
 </script>
 </body>
 </html>

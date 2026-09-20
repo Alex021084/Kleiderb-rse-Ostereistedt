@@ -1,12 +1,37 @@
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f4f6f9;color:#172033;-webkit-text-size-adjust:100%}.home{max-width:760px;min-height:100vh;margin:auto;padding:34px 20px 30px}header{display:flex;align-items:center;justify-content:center;gap:13px;margin:10px 0 38px}.logo{width:55px;height:55px;border-radius:16px;background:#4357dc;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px}h1{font-size:29px;margin:0}.menu{display:flex;flex-direction:column;gap:18px}.menu-button{min-height:155px;border-radius:21px;color:#fff;text-decoration:none;padding:25px;display:grid;grid-template-columns:75px 1fr;grid-template-rows:1fr 1fr;column-gap:20px;align-items:center;box-shadow:0 8px 22px #17203318;transition:transform .1s}.menu-button:active{transform:scale(.985)}.icon{grid-row:1/3;width:68px;height:68px;border-radius:18px;background:#ffffff2e;display:grid;place-items:center;font-size:33px}.menu-button strong{align-self:end;font-size:29px;line-height:1}.menu-button small{align-self:start;margin-top:7px;font-size:15px;opacity:.9}.blue{background:#4357dc}.green{background:#16804c}.orange{background:#c47b16}@media(max-width:500px){.home{padding:25px 15px}.menu-button{min-height:140px;padding:20px;grid-template-columns:62px 1fr;column-gap:16px}.icon{width:58px;height:58px;font-size:29px;border-radius:15px}.menu-button strong{font-size:25px}.menu-button small{font-size:14px}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f4f6f9;color:#172033;-webkit-text-size-adjust:100%}
+.home{max-width:760px;min-height:100vh;margin:auto;padding:34px 20px 30px}
+header{display:flex;align-items:center;justify-content:center;gap:13px;margin:10px 0 38px}
+.logo{width:55px;height:55px;border-radius:16px;background:#4357dc;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px}
+h1{font-size:29px;margin:0}
+.menu{display:flex;flex-direction:column;gap:18px}
+.menu-button{min-height:155px;border:0;border-radius:21px;color:#fff;text-decoration:none;padding:25px;display:flex;align-items:center;gap:22px;width:100%;font-family:inherit;text-align:left;box-shadow:0 8px 22px #17203318;cursor:pointer}
+.menu-button:active{transform:scale(.985)}
+.icon{flex:0 0 75px;width:75px;height:75px;border-radius:18px;background:#ffffff2e;display:grid;place-items:center;font-size:35px}
+.menu-copy{display:flex;flex-direction:column;justify-content:center;gap:8px}
+.menu-button strong{font-size:30px;line-height:1}
+.menu-button small{font-size:16px;opacity:.92}
+.blue{background:#4357dc}.green{background:#16804c}.orange{background:#c47b16}
 
-.menu-button{border:0;font-family:inherit;text-align:left;width:100%;cursor:pointer}
-.register-modal{position:fixed;inset:0;background:rgba(10,16,30,.58);display:none;align-items:center;justify-content:center;padding:20px;z-index:10000}
+.register-modal{position:fixed;inset:0;background:rgba(10,16,30,.62);display:none;align-items:center;justify-content:center;padding:22px;z-index:10000}
 .register-modal.open{display:flex}
-.register-modal-box{width:min(560px,100%);background:#fff;border-radius:24px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.28);text-align:center}
-.register-modal-box h2{margin:0;font-size:30px}.register-modal-box p{margin:8px 0 22px;color:#687382;font-size:16px}
-.register-choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.register-choice-grid button{min-height:92px;border:0;border-radius:17px;background:#4357dc;color:#fff;font-size:24px;font-weight:800;box-shadow:0 5px 14px #17203318;cursor:pointer}
+.register-modal-box{width:min(620px,100%);background:#fff;border-radius:26px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.register-modal-box h2{margin:0;font-size:32px}
+.register-modal-box p{margin:9px 0 24px;color:#687382;font-size:18px}
+.register-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.register-choice-grid button{min-height:100px;border:0;border-radius:18px;background:#4357dc;color:#fff;font-size:27px;font-weight:800;box-shadow:0 5px 14px #17203318;cursor:pointer}
 .register-choice-grid button:active{transform:scale(.98)}
-.register-cancel{margin-top:16px;width:100%;min-height:54px;border:0;border-radius:14px;background:#edf0f5;color:#172033;font-size:17px;font-weight:700;cursor:pointer}
-@media(max-width:500px){.register-modal-box{padding:22px}.register-choice-grid{grid-template-columns:1fr}.register-choice-grid button{min-height:78px}}
+.register-choice-grid button:last-child{grid-column:1 / -1}
+.register-cancel{margin-top:18px;width:100%;min-height:58px;border:0;border-radius:15px;background:#edf0f5;color:#172033;font-size:18px;font-weight:700;cursor:pointer}
+
+@media(max-width:500px){
+  .home{padding:25px 15px}
+  .menu-button{min-height:140px;padding:20px;gap:16px}
+  .icon{flex-basis:62px;width:62px;height:62px;font-size:30px;border-radius:15px}
+  .menu-button strong{font-size:27px}
+  .menu-button small{font-size:14px}
+  .register-modal-box{padding:22px}
+  .register-choice-grid{grid-template-columns:1fr}
+  .register-choice-grid button{min-height:82px}
+  .register-choice-grid button:last-child{grid-column:auto}
+}
