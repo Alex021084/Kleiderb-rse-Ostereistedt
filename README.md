@@ -164,3 +164,6 @@ V39: Safari/GitHub-Pages-Cache behoben: tagesabschluss.js wird mit ?v=39 geladen
 
 
 V40: Einzelne Verkäufer-PDFs werden jetzt direkt als echte PDF-Datei gespeichert/geteilt, ohne Druckdialog. Dateiname: „Alexander Geestmann - Vk-Nr. 0210.pdf“. Die Sammelfunktion erstellt weiterhin eine ZIP mit den einzelnen PDFs.
+
+
+V41: Sammelfunktion finalisiert: „Alle Verkäufer als ZIP speichern“ erzeugt eine einzige ZIP-Datei mit einer separaten PDF pro Verkäufer. Einzel-PDF bleibt verfügbar.
