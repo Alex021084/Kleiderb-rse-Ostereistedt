@@ -161,3 +161,6 @@ V38: Doppelten alten PDF-Code entfernt, der die neue Druckansicht überschrieben
 
 
 V39: Safari/GitHub-Pages-Cache behoben: tagesabschluss.js wird mit ?v=39 geladen, damit keine alte PDF-Funktion aus dem Browsercache mehr ausgeführt wird. Der aktuelle Code enthält keine Meldung „Die Verkäufer-PDF konnte nicht erstellt werden.“ mehr.
+
+
+V40: Einzelne Verkäufer-PDFs werden jetzt direkt als echte PDF-Datei gespeichert/geteilt, ohne Druckdialog. Dateiname: „Alexander Geestmann - Vk-Nr. 0210.pdf“. Die Sammelfunktion erstellt weiterhin eine ZIP mit den einzelnen PDFs.
