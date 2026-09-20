@@ -14,6 +14,13 @@
   <label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
   <label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
   <label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
+  <div class="commission-settings">
+    <label class="commission-check"><input id="commissionEnabled" type="checkbox" checked><span>Provision berechnen</span></label>
+    <div id="commissionRateWrap" class="commission-rate-wrap">
+      <label for="commissionRate">Provisionssatz</label>
+      <div class="percent-input"><input id="commissionRate" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="15"><span>%</span></div>
+    </div>
+  </div>
   <div id="error"></div><div class="actions"><button onclick="closeForm()">Abbrechen</button><button class="save" onclick="saveSeller()">Speichern</button></div>
 </div></div>
 
@@ -22,7 +29,7 @@
   <div class="reportgrid">
     <div class="reportitem"><span>Verkaufte Teile</span><strong id="reportPieces">0</strong></div>
     <div class="reportitem"><span>Gesamtumsatz</span><strong id="reportTurnover">0,00 €</strong></div>
-    <div class="reportitem payout"><span>Auszahlung (Umsatz − 15 %)</span><strong id="reportPayout">0,00 €</strong></div>
+    <div class="reportitem payout"><span>Auszahlung nach Provision</span><strong id="reportPayout">0,00 €</strong></div>
   </div>
   <p class="reportnote">Die Abrechnung wird aus den erfassten Verkäufen dieser Verkäufernummer berechnet.</p>
 </div></div>

@@ -96,3 +96,12 @@ V15: Kassenansicht als starrer iPad-Kassenbildschirm. Kein Seiten-Scrollen. Link
 
 
 V16: Grüner Bestätigungs-Pfeil im permanenten Zahlenfeld. Nach Eingabe einer gültigen Verkäufernummer und Druck auf den grünen Pfeil wird automatisch das Preisfeld aktiviert. Bei aktivem Preisfeld bestätigt der grüne Pfeil den Artikel und übernimmt ihn in den laufenden Kassenbon.
+
+
+V17: Tagesabschluss. Zeigt Gesamtumsatz, Bar, EC, PayPal, 15% Provision und Auszahlung an Verkäufer auf Basis der gespeicherten Kassenverkäufe. Aktualisieren-Button lädt die aktuellen Daten neu.
+
+
+V18: Verkäufer haben jetzt die Einstellung „15 % Provision berechnen“. Die Einstellung wird beim Verkauf mitgespeichert, damit spätere Änderungen am Verkäufer die bereits abgeschlossenen Verkäufe nicht verändern. Der Tagesabschluss berücksichtigt die Provision je Verkäufer und zeigt die jeweilige Auszahlung.
+
+
+V19: Provisionssatz pro Verkäufer frei einstellbar (0–100 %, in 0,5-%-Schritten), standardmäßig 15 %. Die Einstellung wird zusammen mit jedem Verkauf gespeichert, damit spätere Änderungen die alten Verkäufe nicht verändern.

@@ -68,3 +68,19 @@ label span{font-weight:400;color:#89919d}
   .name{font-size:17px}
   .no{font-size:13px}
 }
+
+.commission-check{display:flex!important;align-items:center;gap:12px;margin:12px 0 6px;padding:13px 15px;background:#f4f6f9;border-radius:12px;font-weight:700}
+.commission-check input{width:24px;height:24px;accent-color:#4357dc;flex:none}
+.commission-check span{font-size:16px}
+.commission-badge{display:inline-block;margin-top:5px;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:800}
+.commission-badge.yes{background:#e9edff;color:#4357dc}
+.commission-badge.no{background:#e8f5eb;color:#247a42}
+
+.commission-settings{margin:12px 0 6px;padding:13px 15px;background:#f4f6f9;border-radius:12px}
+.commission-settings .commission-check{margin:0!important;padding:0!important;background:transparent!important}
+.commission-rate-wrap{margin-top:10px}
+.commission-rate-wrap label{display:block!important;margin:0 0 5px!important;font-size:14px!important;font-weight:700!important}
+.percent-input{position:relative}
+.percent-input input{width:100%;height:44px;border:2px solid #cfd5df;border-radius:9px;background:#fff;padding:8px 38px 8px 12px;font-size:17px}
+.percent-input span{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-weight:800;color:#687382}
+.commission-rate-wrap.hidden{display:none}

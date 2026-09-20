@@ -1,1 +1,71 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tagesabschluss</title></head><body style="font-family:system-ui;padding:30px"><a href="index.html">⌂ Startseite</a><h1>Tagesabschluss</h1><p>Dieser Bereich wird als Nächstes gebaut.</p></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Tagesabschluss</title>
+<link rel="stylesheet" href="tagesabschluss.css">
+</head>
+<body>
+<header class="top">
+  <a href="index.html">⌂ Startseite</a>
+  <strong>Tagesabschluss</strong>
+  <span></span>
+</header>
+
+<main>
+  <section class="summary">
+    <div class="summary-head">
+      <div>
+        <h1>Tagesabschluss</h1>
+        <p id="dateText"></p>
+      </div>
+      <button id="refreshButton" type="button">↻ Aktualisieren</button>
+    </div>
+
+    <div class="big-total">
+      <span>Gesamtumsatz</span>
+      <strong id="totalRevenue">0,00 €</strong>
+      <small id="articleCount">0 Artikel</small>
+    </div>
+
+    <div class="payment-grid">
+      <div class="payment-card cash">
+        <span>Bar</span>
+        <strong id="cashTotal">0,00 €</strong>
+      </div>
+      <div class="payment-card card">
+        <span>EC</span>
+        <strong id="cardTotal">0,00 €</strong>
+      </div>
+      <div class="payment-card paypal">
+        <span>PayPal</span>
+        <strong id="paypalTotal">0,00 €</strong>
+      </div>
+    </div>
+
+    <div class="commission-box">
+      <div><span>Gesamtumsatz</span><strong id="commissionGross">0,00 €</strong></div>
+      <div><span>15 % Provision</span><strong id="commission">0,00 €</strong></div>
+      <div class="payout"><span>Auszahlung an Verkäufer</span><strong id="payout">0,00 €</strong></div>
+    </div>
+
+    <section class="seller-summary">
+      <div class="seller-summary-head">
+        <h2>Auszahlung je Verkäufer</h2>
+      </div>
+      <div id="sellerRows" class="seller-rows">
+        <div class="seller-empty">Noch keine Verkäufe.</div>
+      </div>
+    </section>
+
+    <div class="info-box">
+      <strong>Hinweis</strong>
+      <p>Die Zahlen werden aus den gespeicherten Verkäufen der Kasse berechnet. Bar, EC und PayPal werden getrennt ausgewiesen.</p>
+    </div>
+  </section>
+</main>
+
+<script src="tagesabschluss.js"></script>
+</body>
+</html>

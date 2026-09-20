@@ -30,7 +30,12 @@ function deleteItem(i){currentItems.splice(i,1);if(editingIndex===i)nextArticle(
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function render(){itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;receiptItems.innerHTML=currentItems.length?currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b><button type="button" class="receipt-action" onclick="editItem(${i})">✎</button><button type="button" class="receipt-action receipt-delete" onclick="deleteItem(${i})">×</button></div>`).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()}
 function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
-function saveSale(payment){const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();currentItems.forEach(x=>sales.push({...x,payment,timestamp}));localStorage.setItem("kb_sales",JSON.stringify(sales));paymentModal.classList.remove("is-open");successText.textContent=`${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;successModal.classList.add("is-open")}
+function saveSale(payment){const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();currentItems.forEach(x=>{
+  const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
+  const commissionEnabled = seller ? seller.commissionEnabled !== false : true;
+  const commissionRate = commissionEnabled ? Number(seller?.commissionRate ?? 15)/100 : 0;
+  sales.push({...x,payment,timestamp,commissionEnabled,commissionRate});
+});localStorage.setItem("kb_sales",JSON.stringify(sales));paymentModal.classList.remove("is-open");successText.textContent=`${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;successModal.classList.add("is-open")}
 function newSale(){currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
 
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
