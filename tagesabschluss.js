@@ -210,7 +210,7 @@ body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSy
 .page{width:210mm;min-height:297mm;padding:8mm 18mm 16mm;margin:0 auto}
 .logo-wrap{text-align:center;margin:0 auto 5mm}.logo-wrap img{width:85mm;height:auto;display:block;margin:0 auto}
 .header{background:#3159d8;color:#fff;border-radius:6mm;padding:8mm 10mm 7mm;margin-bottom:9mm}
-.brand{font-size:24px;font-weight:800;letter-spacing:.1px}.subtitle{font-size:13px;margin-top:2mm;opacity:.94}
+.brand{font-size:24px;font-weight:800;letter-spacing:.1px}
 .info{display:flex;justify-content:space-between;gap:10mm;margin-bottom:9mm}
 .label{font-size:10px;color:#687386}.name{font-size:20px;font-weight:800;margin-top:1mm}.meta{font-size:11px;color:#4f5b6c;margin-top:2mm}
 .card{border:1px solid #dfe4ec;border-radius:4mm;padding:6mm 8mm;margin-bottom:6mm}
@@ -230,7 +230,7 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
 <div class="printbar"><button onclick="window.print()">PDF / Drucken</button></div>
 <div class="page">
   <div class="logo-wrap"><img src="${new URL("kleiderboerse-logo.jpg", location.href).href}" alt="Kleiderbörse Ostereistedt"></div>
-  <div class="header"><div class="brand">Kleiderbörse</div><div class="subtitle">Verkäufer-Abrechnung</div></div>
+  <div class="header"><div class="brand">Verkäufer-Abrechnung</div></div>
   <div class="info">
     <div><div class="label">Verkäufer</div><div class="name">${escHtml(data.seller.name||"Verkäufer")}</div><div class="meta">Verkäufernummer: ${escHtml(data.seller.number)}</div></div>
     <div style="text-align:right"><div class="label">Datum</div><div class="meta" style="font-size:12px">${escHtml(dateStamp())}</div></div>
@@ -307,8 +307,7 @@ function makeSellerPdf(data){
   c.push(BLUE);
   c.push(pdfRoundRect(x,555,w,90,17,true,false));
   c.push(WHITE);
-  c.push(pdfText(75,610,24,"Kleiderbörse",true));
-  c.push(pdfText(75,587,13,"Verkäufer-Abrechnung",false));
+  c.push(pdfText(75,610,24,"Verkäufer-Abrechnung",true));
 
   // Verkäufer / Datum
   c.push(MUTED);
