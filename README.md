@@ -93,3 +93,6 @@ Die Kasse ist jetzt konsequent für Touch/iPad ausgelegt:
 
 
 V15: Kassenansicht als starrer iPad-Kassenbildschirm. Kein Seiten-Scrollen. Links Artikelerfassung, rechts dauerhaftes Zahlenfeld und darunter der mitlaufende Kassenbon. Nur die Bon-Liste kann bei vielen Artikeln intern scrollen.
+
+
+V16: Grüner Bestätigungs-Pfeil im permanenten Zahlenfeld. Nach Eingabe einer gültigen Verkäufernummer und Druck auf den grünen Pfeil wird automatisch das Preisfeld aktiviert. Bei aktivem Preisfeld bestätigt der grüne Pfeil den Artikel und übernimmt ihn in den laufenden Kassenbon.

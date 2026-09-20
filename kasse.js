@@ -35,7 +35,32 @@ function newSale(){currentItems=[];render();successModal.classList.remove("is-op
 
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);
-keypadButtons.forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.key,field=activeInput==="seller"?sellerNumber:price;let v=field.value;if(k==="clear")v="";else if(k==="back")v=v.slice(0,-1);else if(k==="comma"){if(activeInput==="price"&&!v.includes(","))v=v||"0,"}else{if(activeInput==="price"&&v.includes(",")&&v.split(",")[1].length>=2)return;v+=k}field.value=v;if(activeInput==="seller")checkSeller();else update()}));
+keypadButtons.forEach(b=>b.addEventListener("click",()=>{
+ const k=b.dataset.key;
+ if(k==="confirm"){
+   if(activeInput==="seller"){
+     if(checkSeller()){
+       setActive("price");
+       price.focus({preventScroll:true});
+     }
+   }else{
+     if(valid()) saveItem();
+   }
+   return;
+ }
+ const field=activeInput==="seller"?sellerNumber:price;
+ let v=field.value;
+ if(k==="clear")v="";
+ else if(k==="back")v=v.slice(0,-1);
+ else if(k==="comma"){
+   if(activeInput==="price"&&!v.includes(","))v=v||"0,";
+ }else{
+   if(activeInput==="price"&&v.includes(",")&&v.split(",")[1].length>=2)return;
+   v+=k;
+ }
+ field.value=v;
+ if(activeInput==="seller")checkSeller();else update();
+}));
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
 closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));

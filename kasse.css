@@ -70,3 +70,12 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
   .size-button{height:38px;font-size:14px}
   .touch-input{height:44px}.keypad button{height:46px}
 }
+
+.keypad .confirm-key{
+  grid-column:2 / 4;
+  background:#2e9b55;
+  border-color:#2e9b55;
+  color:#fff;
+  font-size:28px;
+}
+.keypad .confirm-key:active{background:#247c43}
