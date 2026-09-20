@@ -209,7 +209,7 @@ function sellerPrintHtml(data){
 body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 .page{width:210mm;min-height:297mm;padding:8mm 18mm 16mm;margin:0 auto}
 .logo-wrap{text-align:center;margin:0 auto 5mm}.logo-wrap img{width:85mm;height:auto;display:block;margin:0 auto}
-.header{background:#3159d8;color:#fff;border-radius:6mm;padding:8mm 10mm 7mm;margin-bottom:9mm}
+.header{background:#3159d8;color:#fff;border-radius:6mm;padding:8mm 10mm 7mm;margin-bottom:14mm}
 .brand{font-size:24px;font-weight:800;letter-spacing:.1px}
 .info{display:flex;justify-content:space-between;gap:10mm;margin-bottom:9mm}
 .label{font-size:10px;color:#687386}.name{font-size:20px;font-weight:800;margin-top:1mm}.meta{font-size:11px;color:#4f5b6c;margin-top:2mm}
@@ -330,14 +330,14 @@ async function makeSellerPdf(data){
   text("Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
 
   // Verkäufer / Datum
-  text("Verkäufer",x,501,13,muted,false);
-  text(data.seller.name||"Verkäufer",x,541,28,dark,true);
-  text(`Verkäufernummer: ${data.seller.number}`,x,573,15,"#4f5b6c");
-  text("Datum",x+w,501,13,muted,false,"right");
-  text(dateStamp(),x+w,541,15,dark,false,"right");
+  text("Verkäufer",x,536,13,muted,false);
+  text(data.seller.name||"Verkäufer",x,576,28,dark,true);
+  text(`Verkäufernummer: ${data.seller.number}`,x,608,15,"#4f5b6c");
+  text("Datum",x+w,536,13,muted,false,"right");
+  text(dateStamp(),x+w,576,15,dark,false,"right");
 
   // Übersicht
-  const oy=614, oh=214;
+  const oy=649, oh=214;
   round(x,oy,w,oh,24,"#fff",border);
   text("ÜBERSICHT",x+42,658,16,"#344054",true);
   text("Verkaufte Teile",x+42,709,16,dark);
@@ -352,20 +352,20 @@ async function makeSellerPdf(data){
   }
 
   // Auszahlung
-  const py=850, ph=82;
+  const py=885, ph=82;
   round(x,py,w,ph,24,greenBg,null);
   text("AUSZAHLUNG",x+42,902,21,green,true);
   text(money(data.payout),x+w-42,902,25,green,true,"right");
 
   // Artikel
   const ah=Math.max(210,Math.min(370,128+rows.length*35));
-  const ay=954;
+  const ay=989;
   round(x,ay,w,ah,24,"#fff",border);
-  text("VERKAUFTE ARTIKEL",x+42,1000,16,"#344054",true);
-  text("Größe / Kategorie",x+42,1035,13,muted,true);
-  text("Anzahl",x+w-42,1035,13,muted,true,"right");
-  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1048);ctx.lineTo(x+w-42,1048);ctx.stroke();
-  let y=1083;
+  text("VERKAUFTE ARTIKEL",x+42,1035,16,"#344054",true);
+  text("Größe / Kategorie",x+42,1070,13,muted,true);
+  text("Anzahl",x+w-42,1070,13,muted,true,"right");
+  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1083);ctx.lineTo(x+w-42,1083);ctx.stroke();
+  let y=1118;
   if(rows.length){
     for(const [k,v] of rows){
       text(k,x+42,y,15,dark);
