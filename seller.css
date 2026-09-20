@@ -2,11 +2,10 @@
 html,body{margin:0;background:#f4f6f9;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
 button,input{font:inherit}
 
-.top{height:64px;background:#172033;color:#fff;display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:0 18px;gap:16px;position:sticky;top:0;z-index:5}
-.top a{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:max-content;justify-self:start;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:9px 14px;border-radius:12px;font-weight:750;font-size:15px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.top a:active{transform:scale(.97);background:rgba(255,255,255,.18)}
+.top{height:64px;background:#172033;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 18px;position:sticky;top:0;z-index:5;position:relative}
+.top .home-link{position:absolute;left:18px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;min-width:0;max-width:none;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:700;font-size:14px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap}
+.top .home-link:active{transform:translateY(-50%) scale(.97);background:rgba(255,255,255,.18)}
 .top strong{text-align:center;font-size:20px}
-.top span{min-width:90px}
 
 main{max-width:850px;margin:auto;padding:25px 16px}
 h1{font-size:31px;margin:0 0 17px}
@@ -57,8 +56,9 @@ label span{font-weight:400;color:#89919d}
 .reportnote{font-size:13px;color:#7a8390;line-height:1.4;margin:16px 2px 0}
 
 @media(max-width:600px){
-  .top{grid-template-columns:auto 1fr auto}
-  .top span{min-width:0}
+  .top{height:64px;padding:0 12px}
+  .top .home-link{left:12px;font-size:13px;padding:8px 10px}
+  .top strong{font-size:18px}
   main{padding:22px 14px}
   .seller{grid-template-columns:52px minmax(0,1fr) 82px;padding:17px}
   .avatar{width:50px;height:50px}
@@ -86,9 +86,3 @@ label span{font-weight:400;color:#89919d}
 .percent-input span{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-weight:800;color:#687382}
 .commission-rate-wrap.hidden{display:none}
 
-@media(max-width:600px){
-  .top{height:68px;padding:0 12px;gap:10px}
-  .top a{font-size:14px;padding:9px 12px}
-  .top strong{font-size:18px}
-  .top span{min-width:0}
-}
