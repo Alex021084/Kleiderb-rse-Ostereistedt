@@ -47,8 +47,10 @@ create policy "kb sellers delete" on public.sellers for delete using (true);
 
 drop policy if exists "kb receipts select" on public.receipts;
 drop policy if exists "kb receipts insert" on public.receipts;
+drop policy if exists "kb receipts delete" on public.receipts;
 create policy "kb receipts select" on public.receipts for select using (true);
 create policy "kb receipts insert" on public.receipts for insert with check (true);
+create policy "kb receipts delete" on public.receipts for delete using (true);
 
 drop policy if exists "kb items select" on public.receipt_items;
 drop policy if exists "kb items insert" on public.receipt_items;

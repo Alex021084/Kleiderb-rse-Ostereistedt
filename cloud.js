@@ -43,6 +43,12 @@ async function cloudCreateReceipt(items,payment){
 async function cloudGetReceipts(){
   return cloudFetch("receipts?select=*,receipt_items(*)&order=created_at.desc");
 }
+async function cloudResetReceipts(){
+  await cloudFetch("receipts?id=gt.0",{method:"DELETE",headers:{"Prefer":"return=minimal"}});
+}
+async function cloudResetReceiptsForRegister(registerId){
+  await cloudFetch(`receipts?register_id=eq.${encodeURIComponent(registerId)}`,{method:"DELETE",headers:{"Prefer":"return=minimal"}});
+}
 function cloudBanner(){
   if(document.getElementById("cloudStatus")) return;
   const el=document.createElement("div");el.id="cloudStatus";
@@ -60,4 +66,4 @@ function registerPicker(){
   s.value=KB_CLOUD.register;s.onchange=()=>setRegister(s.value);
   wrap.appendChild(s);return wrap;
 }
-window.KBCloud={cloudReady,cloudGetSellers,cloudSaveSeller,cloudDeleteSeller,cloudCreateReceipt,cloudGetReceipts,cloudBanner,registerPicker,setRegister,KB_CLOUD};
+window.KBCloud={cloudReady,cloudGetSellers,cloudSaveSeller,cloudDeleteSeller,cloudCreateReceipt,cloudGetReceipts,cloudResetReceipts,cloudResetReceiptsForRegister,cloudBanner,registerPicker,setRegister,KB_CLOUD};

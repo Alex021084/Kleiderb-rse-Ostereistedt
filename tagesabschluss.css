@@ -35,3 +35,15 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 }
 
 .receipt-details{margin:8px 0;background:#fff;border-radius:12px;padding:10px 14px;border:1px solid #e5e7eb}.receipt-details summary{cursor:pointer;font-size:16px;list-style:none}.receipt-details summary::-webkit-details-marker{display:none}.receipt-details[open]{box-shadow:0 2px 10px #0001}
+
+.register-filter{margin-top:16px;padding:16px;border:1px solid #dfe4eb;border-radius:15px;background:#f8f9fb}
+.register-filter-title{font-size:17px;font-weight:800;margin-bottom:10px}
+.register-buttons{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.register-filter-button{min-height:48px;border:1px solid #cfd5df;border-radius:11px;background:#fff;color:#172033;font-weight:800;padding:8px 10px;touch-action:manipulation}
+.register-filter-button.selected{background:#4357dc;color:#fff;border-color:#4357dc}
+.selected-register-text{margin-top:9px;color:#687382;font-size:14px;font-weight:700}
+.reset-box{margin-top:20px;border:1px solid #f0caca;border-radius:15px;padding:17px;background:#fff7f7;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.reset-box h2{margin:0;font-size:19px}.reset-box p{margin:5px 0 0;color:#747e8c;font-size:14px;line-height:1.4}
+#resetSalesButton{border:0;border-radius:11px;background:#c93434;color:#fff;font-weight:800;padding:13px 16px;min-height:48px;touch-action:manipulation}
+@media(max-width:700px){.register-buttons{grid-template-columns:repeat(3,1fr)}.reset-box{align-items:stretch;flex-direction:column}#resetSalesButton{width:100%}}
+@media(max-width:420px){.register-buttons{grid-template-columns:repeat(2,1fr)}}

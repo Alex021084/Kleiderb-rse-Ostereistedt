@@ -108,3 +108,17 @@ V19: Provisionssatz pro Verkäufer frei einstellbar (0–100 %, in 0,5-%-Schritt
 
 
 V20: Provisionsschalter robust gespeichert. Legacy-Verkäufer werden beim ersten Laden auf 15 % Provision gesetzt; „Provision berechnen“ aus bedeutet eindeutig 0 % für neue Verkäufe. Der Schalter wird beim Bearbeiten geladen und gespeichert.
+
+
+## V22 – Tagesabschluss-Auswahl und Zurücksetzen
+- Im Tagesabschluss kann zwischen Alle Kassen und Kasse 1–5 umgeschaltet werden.
+- Die Kennzahlen und Kassenbons werden passend zur Auswahl gefiltert.
+- Verkaufszahlen können nach Sicherheitsabfrage für alle Kassen oder die aktuell ausgewählte Kasse zurückgesetzt werden.
+- Verkäuferdaten bleiben beim Zurücksetzen erhalten.
+
+
+## V22 – Tagesabschluss-Auswahl und Zurücksetzen
+- Im Tagesabschluss kann zwischen Alle Kassen und Kasse 1–5 umgeschaltet werden.
+- Kennzahlen und Kassenbons werden passend zur Auswahl gefiltert.
+- Verkaufszahlen können nach Sicherheitsabfrage für alle Kassen oder die aktuell ausgewählte Kasse zurückgesetzt werden.
+- Verkäuferdaten bleiben beim Zurücksetzen erhalten.
