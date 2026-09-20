@@ -130,3 +130,5 @@ V24: Kasse-Auswahl auf der Startseite wurde ohne Cloud-Abhängigkeit umgesetzt. 
 V25: Kassenwahl auf der Startseite ist jetzt ohne JavaScript für das Öffnen des Popups möglich (CSS :target). Die fünf Auswahlfelder sind echte Links auf kasse.html?kasse=1..5; die Kasse liest die Auswahl direkt aus der URL. Dadurch funktioniert die Auswahl auch bei verzögertem/gesperrtem Startseiten-JavaScript.
 
 V26: Startseiten-Button in Kasse und Tagesabschluss optisch kompakter und sauber im Header ausgerichtet.
+
+V27: Auf der Kasse ist kein Kassen-Wechsel mehr möglich. Die beim Einstieg gewählte Kasse wird im Kopf und als Seitentitel angezeigt. Startseite ist kompakt gestaltet.

@@ -108,13 +108,12 @@ async function initCloud(){
     try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));}
     catch(e){console.error(e);alert("Cloud nicht erreichbar. Bitte Internetverbindung prüfen.");}
   }else{sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({...s,commissionEnabled:s.commissionEnabled===undefined?true:s.commissionEnabled,commissionRate:Number(s.commissionRate??15)}));}
+  const selectedRegister=getSelectedRegister();
   const title=document.getElementById("registerTitle");
-  if(title){
-    const selectedRegister=getSelectedRegister();
-    title.textContent=selectedRegister;
-    if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
-  }
-  const top=document.querySelector(".top");if(top){const picker=KBCloud.registerPicker();top.replaceChild(picker,top.lastElementChild);}
+  const pageTitle=document.getElementById("pageTitle");
+  if(title) title.textContent=selectedRegister;
+  if(pageTitle) pageTitle.textContent=selectedRegister;
+  if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
   KBCloud.cloudBanner();render();setActive("seller");
 }
 initCloud();
