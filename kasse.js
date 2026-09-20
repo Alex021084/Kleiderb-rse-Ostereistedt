@@ -24,10 +24,14 @@ function toy(on){isToy=on;toyButton.classList.toggle("active",on);toyButton.setA
 function clearFields(){sellerNumber.value="";size.value="";price.value="";toy(false);sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben."}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update();sellerNumber.focus()}
 function saveItem(){
-  if(!valid())return;
+  checkSeller();
+  if(!valid()) return false;
   const item={sellerNumber:sellerNumber.value.trim(),size:isToy?"Spielzeug":size.value.trim(),price:priceValue()};
-  if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;
-  render();nextArticle();
+  if(editingIndex===null) currentItems.push(item);
+  else currentItems[editingIndex]=item;
+  render();
+  nextArticle();
+  return true;
 }
 function editItem(i){
   const x=currentItems[i]; if(!x)return; editingIndex=i; articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");
@@ -41,7 +45,9 @@ function render(){
   liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()
 }
 function showPayment(){
-  if(valid())saveItem(); if(!currentItems.length)return;
+  checkSeller();
+  if(valid()) saveItem();
+  if(!currentItems.length) return;
   finalCount.textContent=`${currentItems.length} Artikel`;
   finalReceipt.innerHTML=currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`).join("");
   finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")
@@ -57,7 +63,22 @@ sellerNumber.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault
 size.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();if(isToy)price.focus();else if(/^[0-9]+$/.test(size.value.trim()))price.focus()}});
 price.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();if(valid())saveItem()}});
 toyButton.addEventListener("click",()=>{toy(!isToy);if(isToy)price.focus();update()});
-addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
-closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
-document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
+function bindAction(button, handler){
+  let lastTouch=0;
+  button.addEventListener("touchend", e=>{
+    e.preventDefault();
+    lastTouch=Date.now();
+    handler();
+  }, {passive:false});
+  button.addEventListener("click", e=>{
+    if(Date.now()-lastTouch<700) return;
+    handler();
+  });
+}
+bindAction(addButton,saveItem);
+bindAction(finishButton,showPayment);
+bindAction(cancelEditButton,nextArticle);
+bindAction(closePayment,()=>paymentModal.classList.remove("is-open"));
+bindAction(newSaleButton,newSale);
+document.querySelectorAll(".payment").forEach(b=>bindAction(b,()=>saveSale(b.dataset.payment)));
 render();sellerNumber.focus();

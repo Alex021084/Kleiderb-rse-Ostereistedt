@@ -74,3 +74,6 @@ Das Größenfeld verwendet jetzt `inputmode="numeric"`, sodass auf iPhone/iPad b
 
 
 V12: iPad-Enter-Navigation und sichtbarer, bearbeitbarer Kassenbon unterhalb der Eingabe. Artikel können über ✎ geändert oder × gelöscht werden.
+
+
+V13: iPad-Touchbedienung verbessert. Kassenbuttons verwenden explizite Button-Typen und robuste Touch-/Click-Behandlung. Artikel werden beim Weiterer Artikel zuverlässig in den sichtbaren Bon übernommen; Fertig öffnet den Popup-Bon.

@@ -104,3 +104,18 @@ input:focus{border-color:#4357dc}
 .receipt-action{width:38px;height:38px;border:0;border-radius:9px;background:#edf0f5;color:#4357dc;font-weight:800}
 .receipt-delete{color:#b33b3b}.receipt-total{display:flex;justify-content:space-between;border-top:2px solid #172033;padding-top:14px;margin-top:5px;font-size:18px}.receipt-total strong{font-size:22px}
 .cancel-edit{margin-top:10px;width:100%;height:48px;border:0;border-radius:12px;background:#edf0f5;color:#4d5664;font-weight:800}
+
+/* V13 iPad touch fixes */
+.continue,.finish,.cancel-edit,.toy-button,.receipt-action,.payment,.close{
+  -webkit-appearance:none;
+  appearance:none;
+  touch-action:manipulation;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.continue:disabled,.finish:disabled{pointer-events:none}
+.receipt-line{min-width:0}
+@media(pointer:coarse){
+  .continue,.finish{min-height:60px}
+  .receipt-action{min-width:42px;min-height:42px}
+}
