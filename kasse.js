@@ -5,9 +5,9 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
-let currentItems=[],editingIndex=null,isToy=false,activeInput="seller";
+let currentItems=[],editingIndex=null,isToy=false,activeInput="seller",sellers=[],savingSale=false;
 
-function getSellers(){return JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
+function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
 function priceValue(){return parseFloat(price.value.replace(/\./g,"").replace(",","."))}
 function setActive(n){activeInput=n;activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";sellerNumber.classList.toggle("active",n==="seller");price.classList.toggle("active",n==="price")}
@@ -30,12 +30,36 @@ function deleteItem(i){currentItems.splice(i,1);if(editingIndex===i)nextArticle(
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function render(){itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;receiptItems.innerHTML=currentItems.length?currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b><button type="button" class="receipt-action" onclick="editItem(${i})">✎</button><button type="button" class="receipt-action receipt-delete" onclick="deleteItem(${i})">×</button></div>`).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()}
 function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
-function saveSale(payment){const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();currentItems.forEach(x=>{
-  const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
-  const commissionEnabled = seller ? seller.commissionEnabled === true : true;
-  const commissionRate = commissionEnabled ? Number(seller?.commissionRate ?? 15)/100 : 0;
-  sales.push({...x,payment,timestamp,commissionEnabled,commissionRate});
-});localStorage.setItem("kb_sales",JSON.stringify(sales));paymentModal.classList.remove("is-open");successText.textContent=`${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;successModal.classList.add("is-open")}
+async function saveSale(payment){
+ if(savingSale)return;
+ if(!currentItems.length)return;
+ savingSale=true;
+ try{
+   const prepared=currentItems.map(x=>{
+     const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
+     const commissionEnabled=seller?seller.commissionEnabled===true:true;
+     const commissionRate=commissionEnabled?Number(seller?.commissionRate??15)/100:0;
+     return {...x,commissionEnabled,commissionRate};
+   });
+   let receiptNo=null;
+   if(KBCloud.cloudReady()){
+     const receipt=await KBCloud.cloudCreateReceipt(prepared,payment);
+     receiptNo=receipt.receipt_no ?? receipt.id;
+   }else{
+     const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();
+     const receiptId=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;
+     prepared.forEach(x=>sales.push({...x,payment,timestamp,receiptId,registerId:KBCloud.KB_CLOUD.register}));
+     localStorage.setItem("kb_sales",JSON.stringify(sales));
+     receiptNo=receiptId.slice(0,8).toUpperCase();
+   }
+   paymentModal.classList.remove("is-open");
+   successText.textContent=`Bon ${receiptNo} · ${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;
+   successModal.classList.add("is-open");
+ }catch(e){
+   console.error(e);
+   alert("Der Verkauf konnte nicht gespeichert werden. Bitte Internetverbindung prüfen.");
+ }finally{savingSale=false}
+}
 function newSale(){currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
 
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
@@ -69,4 +93,13 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
 closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
-render();setActive("seller");
+async function initCloud(){
+  if(KBCloud.cloudReady()){
+    try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));}
+    catch(e){console.error(e);alert("Cloud nicht erreichbar. Bitte Internetverbindung prüfen.");}
+  }else{sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({...s,commissionEnabled:s.commissionEnabled===undefined?true:s.commissionEnabled,commissionRate:Number(s.commissionRate??15)}));}
+  const title=document.getElementById("registerTitle");if(title)title.textContent=KBCloud.KB_CLOUD.register;
+  const top=document.querySelector(".top");if(top){const picker=KBCloud.registerPicker();top.replaceChild(picker,top.lastElementChild);}
+  KBCloud.cloudBanner();render();setActive("seller");
+}
+initCloud();

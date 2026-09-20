@@ -1,52 +1,38 @@
+
 const $=id=>document.getElementById(id);
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
-function loadSales(){return JSON.parse(localStorage.getItem("kb_sales")||"[]")}
-function render(){
- const sales=loadSales();
- const total=sales.reduce((a,x)=>a+Number(x.price||0),0);
- const cash=sales.filter(x=>x.payment==="Bar").reduce((a,x)=>a+Number(x.price||0),0);
- const card=sales.filter(x=>x.payment==="EC").reduce((a,x)=>a+Number(x.price||0),0);
- const paypal=sales.filter(x=>x.payment==="PayPal").reduce((a,x)=>a+Number(x.price||0),0);
-
- // The commission rule is stored with each sale so changing a seller later
- // does not alter already completed sales.
- const commission=sales.reduce((a,x)=>a+Number(x.price||0)*Number(x.commissionRate ?? (x.commissionEnabled===false?0:0.15)),0);
- const payout=total-commission;
-
- $("totalRevenue").textContent=euro(total);
- $("cashTotal").textContent=euro(cash);
- $("cardTotal").textContent=euro(card);
- $("paypalTotal").textContent=euro(paypal);
- $("commissionGross").textContent=euro(total);
- $("commission").textContent=euro(commission);
- $("payout").textContent=euro(payout);
- $("articleCount").textContent=`${sales.length} ${sales.length===1?"Artikel":"Artikel"}`;
-
- const bySeller={};
- sales.forEach(x=>{
-   const n=String(x.sellerNumber||"");
-   if(!bySeller[n]) bySeller[n]={count:0,gross:0,commission:0,payout:0,commissionEnabled:true};
-   const rate=Number(x.commissionRate ?? (x.commissionEnabled===false?0:0.15));
-   bySeller[n].count++;
-   bySeller[n].gross+=Number(x.price||0);
-   bySeller[n].commission+=Number(x.price||0)*rate;
-   bySeller[n].payout+=Number(x.price||0)*(1-rate);
-   if(rate===0) bySeller[n].commissionEnabled=false;
- });
- const sellerList=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE"));
- $("sellerRows").innerHTML=sellerList.length ? sellerList.map(([n,x])=>{
-   const seller=JSON.parse(localStorage.getItem("kb_sellers")||"[]").find(s=>String(s.number)===n);
-   const name=seller?.name || "Verkäufer "+n;
-   return `<div class="seller-row">
-     <div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"} · ${x.commissionEnabled?"15 % Provision":"Keine Provision"}</div></div>
-     <div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div>
-     <div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div>
-     <div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div>
-   </div>`;
- }).join("") : '<div class="seller-empty">Noch keine Verkäufe.</div>';
-
- const d=new Date();
- $("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+async function loadData(){
+ if(KBCloud.cloudReady()) return await KBCloud.cloudGetReceipts();
+ const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),groups={};
+ sales.forEach(x=>{let id=x.receiptId||x.timestamp;if(!groups[id])groups[id]={id,receipt_no:id.slice(0,8).toUpperCase(),register_id:x.registerId||"Kasse 1",payment:x.payment,created_at:x.timestamp,receipt_items:[]};groups[id].receipt_items.push(x)});
+ return Object.values(groups).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
 }
-function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}$("refreshButton").addEventListener("click",render);
-render();
+function itemsOf(r){return r.receipt_items||[]}
+function priceOf(i){return Number(i.price||0)}
+function rateOf(i){return Number(i.commission_rate??i.commissionRate??(i.commission_enabled===false||i.commissionEnabled===false?0:.15))}
+async function render(){
+ const receipts=await loadData(), items=receipts.flatMap(itemsOf);
+ const total=items.reduce((a,x)=>a+priceOf(x),0);
+ const cash=items.filter(x=>x.payment==="Bar").reduce((a,x)=>a+priceOf(x),0);
+ const card=items.filter(x=>x.payment==="EC").reduce((a,x)=>a+priceOf(x),0);
+ const paypal=items.filter(x=>x.payment==="PayPal").reduce((a,x)=>a+priceOf(x),0);
+ const commission=items.reduce((a,x)=>a+priceOf(x)*rateOf(x),0),payout=total-commission;
+ $("totalRevenue").textContent=euro(total);$("cashTotal").textContent=euro(cash);$("cardTotal").textContent=euro(card);$("paypalTotal").textContent=euro(paypal);
+ $("commissionGross").textContent=euro(total);$("commission").textContent=euro(commission);$("payout").textContent=euro(payout);
+ $("articleCount").textContent=`${items.length} ${items.length===1?"Artikel":"Artikel"}`;
+ const bySeller={};
+ items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"");if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*rateOf(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
+ let sellerData=[];
+ if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
+ else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+ const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
+ $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
+
+ const regs={};receipts.forEach(r=>{const k=r.register_id||"Kasse 1";if(!regs[k])regs[k]={receipts:0,items:0,total:0,cash:0,card:0,paypal:0};const its=itemsOf(r);regs[k].receipts++;regs[k].items+=its.length;its.forEach(x=>{const p=priceOf(x);regs[k].total+=p;if((r.payment||x.payment)==="Bar")regs[k].cash+=p;if((r.payment||x.payment)==="EC")regs[k].card+=p;if((r.payment||x.payment)==="PayPal")regs[k].paypal+=p})});
+ $("registerRows").innerHTML=Object.entries(regs).sort().map(([k,x])=>`<div class="seller-row"><div class="seller-name"><strong>${esc(k)}</strong><div class="muted">${x.receipts} Bons · ${x.items} Artikel</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.total)}</strong></div><div><div class="muted">Bar / EC</div><strong>${euro(x.cash)} / ${euro(x.card)}</strong></div><div><div class="muted">PayPal</div><strong>${euro(x.paypal)}</strong></div></div>`).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+
+ $("receiptRows").innerHTML=receipts.map(r=>{const its=itemsOf(r),totalR=its.reduce((a,x)=>a+priceOf(x),0),d=new Date(r.created_at);return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||"Kasse 1")} · ${d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.map(x=>`<div class="receipt-line-meta">Verkäufer ${esc(x.seller_number??x.sellerNumber)} · ${esc(x.size)} · ${euro(priceOf(x))}</div>`).join("")}</div></details>`}).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+ const d=new Date();$("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+}
+$("refreshButton").addEventListener("click",render);KBCloud.cloudBanner();render();
