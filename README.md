@@ -149,3 +149,6 @@ V34: Verkäufer-PDF optisch als strukturierte DIN-A4-Abrechnung mit Kopfbereich,
 
 
 V35: PDF-Darstellung korrigiert. Textfarbe wird bei jedem PDF-Text explizit gesetzt, damit Inhalte nicht durch vorherige farbige Flächen unsichtbar werden. Kopf weiß auf blau, Verkäufername blau, Auszahlung grün, übriger Text schwarz.
+
+
+V36: Verkäufer-Abrechnung wird nicht mehr als handgebauter PDF-Stream erzeugt. Stattdessen wird eine sauber formatierte A4-Druckansicht im Browser geöffnet und über den iPad-Druckdialog als PDF gespeichert. Einzelne Verkäufer und alle Verkäufer (mehrere A4-Seiten) werden unterstützt. Inhalte: Name, Verkäufernummer, Datum, Teile, Umsatz, Provision, Auszahlung und Größen/Kategorien.
