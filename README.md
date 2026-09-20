@@ -90,3 +90,6 @@ Die Kasse ist jetzt konsequent für Touch/iPad ausgelegt:
 - Der sichtbare Kassenbon wird direkt bei der Artikelerfassung aktualisiert.
 - Artikel können im Bon über ✎ bearbeitet oder × gelöscht werden.
 - Weiterer Artikel und Fertig sind normale Touch-Buttons.
+
+
+V15: Kassenansicht als starrer iPad-Kassenbildschirm. Kein Seiten-Scrollen. Links Artikelerfassung, rechts dauerhaftes Zahlenfeld und darunter der mitlaufende Kassenbon. Nur die Bon-Liste kann bei vielen Artikeln intern scrollen.

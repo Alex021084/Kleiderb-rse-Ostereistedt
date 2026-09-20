@@ -2,104 +2,84 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Kasse</title>
 <link rel="stylesheet" href="kasse.css">
 </head>
 <body>
-<header class="top">
-  <a href="index.html">⌂ Startseite</a>
-  <strong>Kasse</strong>
-  <span></span>
-</header>
+<div class="cash-register">
+  <header class="top">
+    <a href="index.html">⌂ Startseite</a>
+    <strong>Kasse</strong>
+    <span></span>
+  </header>
 
-<main>
-  <h1>Kasse</h1>
+  <div class="cash-main">
+    <section class="entry-panel">
+      <h1>Kasse</h1>
+      <h2 id="articleTitle">Artikel eingeben</h2>
 
-  <section class="kasse-box">
-    <h2 id="articleTitle">Artikel eingeben</h2>
+      <label>Verkäufernummer</label>
+      <input id="sellerNumber" class="touch-input" type="text" inputmode="none" readonly placeholder="Verkäufernummer auswählen">
+      <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
 
-    <label>Verkäufernummer</label>
-    <input id="sellerNumber" class="touch-input" type="text" inputmode="none"
-           readonly placeholder="Verkäufernummer auswählen">
-    <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
+      <label>Größe</label>
+      <div class="size-grid">
+        <button type="button" class="size-button" data-size="98">98</button>
+        <button type="button" class="size-button" data-size="104">104</button>
+        <button type="button" class="size-button" data-size="110">110</button>
+        <button type="button" class="size-button" data-size="116">116</button>
+        <button type="button" class="size-button" data-size="122">122</button>
+        <button type="button" class="size-button" data-size="128">128</button>
+        <button type="button" class="size-button" data-size="134">134</button>
+        <button type="button" class="size-button" data-size="140">140</button>
+        <button type="button" class="size-button" data-size="146">146</button>
+        <button type="button" class="size-button" data-size="152">152</button>
+        <button type="button" class="size-button" data-size="158">158</button>
+        <button type="button" class="size-button" data-size="164">164</button>
+        <button type="button" class="size-button" data-size="170">170</button>
+        <button type="button" class="size-button" data-size="176">176</button>
+      </div>
 
-    <label>Größe</label>
-    <div id="sizeButtons" class="size-grid">
-      <button type="button" class="size-button" data-size="98">98</button>
-      <button type="button" class="size-button" data-size="104">104</button>
-      <button type="button" class="size-button" data-size="110">110</button>
-      <button type="button" class="size-button" data-size="116">116</button>
-      <button type="button" class="size-button" data-size="122">122</button>
-      <button type="button" class="size-button" data-size="128">128</button>
-      <button type="button" class="size-button" data-size="134">134</button>
-      <button type="button" class="size-button" data-size="140">140</button>
-      <button type="button" class="size-button" data-size="146">146</button>
-      <button type="button" class="size-button" data-size="152">152</button>
-      <button type="button" class="size-button" data-size="158">158</button>
-      <button type="button" class="size-button" data-size="164">164</button>
-      <button type="button" class="size-button" data-size="170">170</button>
-      <button type="button" class="size-button" data-size="176">176</button>
-    </div>
+      <button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button>
 
-    <button id="toyButton" class="toy-button" type="button" aria-pressed="false">
-      🧸 &nbsp; Spielzeug
-    </button>
+      <label>Preis</label>
+      <div class="price-wrap">
+        <input id="price" class="touch-input" type="text" inputmode="none" readonly placeholder="0,00">
+        <span>€</span>
+      </div>
 
-    <label>Preis</label>
-    <div class="price-wrap">
-      <input id="price" class="touch-input" type="text" inputmode="none"
-             readonly placeholder="0,00">
-      <span>€</span>
-    </div>
+      <div class="entry-buttons">
+        <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
+        <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
+      </div>
+      <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
+    </section>
 
-    <div class="keypad">
-      <button type="button" data-key="1">1</button>
-      <button type="button" data-key="2">2</button>
-      <button type="button" data-key="3">3</button>
-      <button type="button" data-key="4">4</button>
-      <button type="button" data-key="5">5</button>
-      <button type="button" data-key="6">6</button>
-      <button type="button" data-key="7">7</button>
-      <button type="button" data-key="8">8</button>
-      <button type="button" data-key="9">9</button>
-      <button type="button" data-key="clear">C</button>
-      <button type="button" data-key="0">0</button>
-      <button type="button" data-key="back">⌫</button>
-      <button type="button" data-key="comma">,</button>
-    </div>
+    <section class="right-panel">
+      <div class="keypad-card">
+        <div class="keypad-title"><strong>Zahlenfeld</strong><span id="activeField">Verkäufernummer</span></div>
+        <div class="keypad">
+          <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+          <button type="button" data-key="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-key="back">⌫</button>
+          <button type="button" data-key="comma" class="comma">,</button>
+        </div>
+      </div>
 
-    <div class="active-field" id="activeField">Eingabe: Verkäufernummer</div>
-
-    <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
-    <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
-    <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
-  </section>
-
-  <section class="receipt-live">
-    <div class="receipt-head">
-      <strong>Kassenbon</strong>
-      <span id="itemCount">0 Artikel</span>
-    </div>
-    <div id="receiptItems" class="receipt-items">
-      <div class="receipt-empty">Noch keine Artikel.</div>
-    </div>
-    <div class="receipt-total">
-      <span>Gesamt</span>
-      <strong id="liveTotal">0,00 €</strong>
-    </div>
-  </section>
-</main>
+      <section class="receipt-live">
+        <div class="receipt-head"><strong>Kassenbon</strong><span id="itemCount">0 Artikel</span></div>
+        <div id="receiptItems" class="receipt-items"><div class="receipt-empty">Noch keine Artikel.</div></div>
+        <div class="receipt-total"><span>Gesamt</span><strong id="liveTotal">0,00 €</strong></div>
+      </section>
+    </section>
+  </div>
+</div>
 
 <div id="paymentModal" class="modal">
   <div class="payment-box">
-    <div class="modal-head">
-      <div>
-        <h2>Kassenbon</h2>
-        <div id="finalCount" class="final-count"></div>
-      </div>
-      <button id="closePayment" class="close" type="button">×</button>
-    </div>
+    <div class="modal-head"><div><h2>Kassenbon</h2><div id="finalCount" class="final-count"></div></div><button id="closePayment" class="close" type="button">×</button></div>
     <div id="finalReceipt" class="final-receipt"></div>
     <div class="payment-total"><span>Gesamt</span><strong id="finalTotal">0,00 €</strong></div>
     <div class="payment-buttons">
@@ -112,13 +92,10 @@
 
 <div id="successModal" class="modal">
   <div class="success-box">
-    <div class="success-icon">✓</div>
-    <h2>Verkauf gespeichert</h2>
-    <p id="successText"></p>
+    <div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p>
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-
 <script src="kasse.js"></script>
 </body>
 </html>
