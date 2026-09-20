@@ -266,55 +266,79 @@ function pdfText(x,y,size,text,bold=false){
 function pdfRect(x,y,w,h,fill){
   return `${fill?"0.91 0.95 1 rg":"0.85 0.88 0.93 RG 0.7 w"} ${x} ${y} ${w} ${h} ${fill?"f":"S"}`;
 }
+function pdfRoundRect(x,y,w,h,r,fill,stroke=true){
+  const k=0.5522848, c=r*k;
+  let out=`${fill?"0.91 0.95 1 rg":""}${stroke&&!fill?"0.86 0.88 0.92 RG 0.8 w":""}`;
+  out+=`${x+r} ${y} m ${x+w-r} ${y} l ${x+w-c} ${y} ${x+w} ${y+r-c} ${x+w} ${y+r} c `;
+  out+=`${x+w} ${y+h-r} l ${x+w} ${y+h-c} ${x+w-c} ${y+h} ${x+w-r} ${y+h} c `;
+  out+=`${x+r} ${y+h} l ${x+c} ${y+h} ${x} ${y+h-c} ${x} ${y+h-r} c `;
+  out+=`${x} ${y+r} l ${x} ${y+c} ${x+c} ${y} ${x+r} ${y} c `;
+  out+=fill?"f":"S";
+  return out;
+}
 function makeSellerPdf(data){
-  const W=595.28,H=841.89, margin=42;
+  // Diese PDF folgt bewusst dem gleichen A4-Aufbau wie die Einzelabrechnung
+  // (die Ansicht hinter dem einzelnen "PDF"-Button): blauer Kopf, Infozeile,
+  // Übersicht, grüne Auszahlung und Artikeltabelle.
+  const W=595.28,H=841.89;
+  const x=51, w=493, right=x+w;
   const c=[];
-  // Header
-  c.push("0.19 0.35 0.85 rg 0 780 595 62 re f");
-  c.push(pdfText(42,808,22,"Kleiderbörse",true));
-  c.push(pdfText(42,789,11,"Verkäufer-Abrechnung",false));
-  c.push(pdfText(42,748,9,"Verkäufer",false));
-  c.push(pdfText(42,724,18,String(data.seller.name||"Verkäufer"),true));
-  c.push(pdfText(42,705,10,`Verkäufernummer: ${data.seller.number}`));
-  c.push(pdfText(470,748,9,"Datum",false));
-  c.push(pdfText(470,729,10,dateStamp(),false));
-  // Overview
-  c.push(pdfRect(42,560,511,118,false));
-  c.push(pdfText(58,653,11,"ÜBERSICHT",true));
-  c.push(pdfText(58,626,11,"Verkaufte Teile"));
-  c.push(pdfText(470,626,11,String(data.rows.length),true));
-  c.push(pdfText(58,602,11,"Gesamtumsatz"));
-  c.push(pdfText(420,602,11,sellerMoneyPlain(data.gross),true));
-  if(data.commission>0){
-    c.push(pdfText(58,578,11,"Provision"));
-    c.push(pdfText(420,578,11,"- " + sellerMoneyPlain(data.commission),true));
-  } else {
-    c.push(pdfText(58,578,11,"Provision"));
-    c.push(pdfText(420,578,11,"Keine Provision",true));
-  }
-  // Payout
-  c.push("0.91 0.97 0.93 rg 42 500 511 44 re f");
-  c.push(pdfText(58,520,12,"AUSZAHLUNG",true));
-  c.push(pdfText(430,518,16,sellerMoneyPlain(data.payout),true));
-  // Articles
-  c.push(pdfRect(42,300,511,180,false));
-  c.push(pdfText(58,455,11,"VERKAUFTE ARTIKEL",true));
-  c.push(pdfText(58,430,9,"Größe / Kategorie",true));
-  c.push(pdfText(470,430,9,"Anzahl",true));
-  c.push("0.80 0.83 0.88 RG 58 420 m 537 420 l S");
   const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  let y=398;
+
+  // Header: 18 mm Seitenrand, 6 mm Radius, 8/7 mm Innenabstand.
+  c.push(pdfRoundRect(x,694,w,96,17,false,false));
+  c.push("0.19 0.35 0.85 rg 51 694 493 96 re f");
+  c.push(pdfText(75,750,24,"Kleiderbörse",true));
+  c.push(pdfText(75,727,13,"Verkäufer-Abrechnung",false));
+
+  // Verkäufer / Datum
+  c.push(pdfText(x,666,8,"Verkäufer",false));
+  c.push(pdfText(x,642,20,String(data.seller.name||"Verkäufer"),true));
+  c.push(pdfText(x,621,11,`Verkäufernummer: ${data.seller.number}`));
+  c.push(pdfText(506,666,8,"Datum",false));
+  c.push(pdfText(506,645,11,dateStamp(),false));
+
+  // Übersichtskarte
+  c.push(pdfRoundRect(x,485,w,118,12,false,true));
+  c.push(pdfText(69,570,12,"ÜBERSICHT",true));
+  c.push(pdfText(69,541,12,"Verkaufte Teile"));
+  c.push(pdfText(514,541,13,String(data.rows.length),true));
+  c.push("0.93 0.94 0.96 RG 69 529 m 526 529 l S");
+  c.push(pdfText(69,510,12,"Gesamtumsatz"));
+  c.push(pdfText(454,510,13,sellerMoneyPlain(data.gross),true));
+  if(data.commission>0){
+    c.push("0.93 0.94 0.96 RG 69 498 m 526 498 l S");
+    c.push(pdfText(69,479,12,"Provision"));
+    c.push(pdfText(449,479,13,"- "+sellerMoneyPlain(data.commission),true));
+  }
+
+  // Auszahlungskarte
+  c.push(pdfRoundRect(x,412,w,55,12,true,false));
+  c.push("0.91 0.97 0.93 rg 51 412 493 55 re f");
+  c.push(pdfText(69,433,15,"AUSZAHLUNG",true));
+  c.push(pdfText(465,431,19,sellerMoneyPlain(data.payout),true));
+
+  // Artikelkarte. Höhe wächst bei vielen Kategorien, bleibt aber auf einer A4-Seite.
+  const cardH=Math.max(145, Math.min(250, 92 + rows.length*24));
+  const cardY=412-18-cardH;
+  c.push(pdfRoundRect(x,cardY,w,cardH,12,false,true));
+  c.push(pdfText(69,cardY+cardH-30,12,"VERKAUFTE ARTIKEL",true));
+  c.push(pdfText(69,cardY+cardH-58,10,"Größe / Kategorie",true));
+  c.push(pdfText(526,cardY+cardH-58,10,"Anzahl",true));
+  c.push("0.80 0.83 0.88 RG 69 "+(cardY+cardH-68)+" m 526 "+(cardY+cardH-68)+" l S");
+  let y=cardY+cardH-91;
   if(rows.length){
     for(const [k,v] of rows){
-      if(y<320) break;
-      c.push(pdfText(58,y,10,k));
-      c.push(pdfText(470,y,10,`${v} ${v===1?"Teil":"Teile"}`,true));
-      y-=22;
+      if(y<cardY+22) break;
+      c.push(pdfText(69,y,11,k));
+      c.push(pdfText(470,y,11,`${v} ${v===1?"Teil":"Teile"}`,true));
+      y-=24;
     }
-  } else {
-    c.push(pdfText(58,y,10,"Keine Artikel"));
+  }else{
+    c.push(pdfText(69,y,11,"Keine Artikel"));
   }
-  c.push(pdfText(42,270,8,"Kleiderbörse · Verkäufer-Abrechnung"));
+
+  c.push(pdfText(51,57,9,"Kleiderbörse · Verkäufer-Abrechnung"));
 
   const content=c.join("\n");
   const objects=[];
