@@ -158,3 +158,6 @@ V37: Geldbeträge in der Verkäufer-Druckansicht verwenden jetzt explizit die HT
 
 
 V38: Doppelten alten PDF-Code entfernt, der die neue Druckansicht überschrieben hat und weiterhin die alte Fehlermeldung auslöste. Jetzt wird ausschließlich die neue A4-Druckansicht verwendet.
+
+
+V39: Safari/GitHub-Pages-Cache behoben: tagesabschluss.js wird mit ?v=39 geladen, damit keine alte PDF-Funktion aus dem Browsercache mehr ausgeführt wird. Der aktuelle Code enthält keine Meldung „Die Verkäufer-PDF konnte nicht erstellt werden.“ mehr.
