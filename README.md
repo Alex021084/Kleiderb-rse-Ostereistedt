@@ -132,3 +132,5 @@ V25: Kassenwahl auf der Startseite ist jetzt ohne JavaScript für das Öffnen de
 V26: Startseiten-Button in Kasse und Tagesabschluss optisch kompakter und sauber im Header ausgerichtet.
 
 V27: Auf der Kasse ist kein Kassen-Wechsel mehr möglich. Die beim Einstieg gewählte Kasse wird im Kopf und als Seitentitel angezeigt. Startseite ist kompakt gestaltet.
+
+V28: Verkäufer-Seite hat jetzt denselben kompakten Startseiten-Button wie Kasse/Tagesabschluss.
