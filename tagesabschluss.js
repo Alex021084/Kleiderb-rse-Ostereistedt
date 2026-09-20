@@ -35,10 +35,27 @@ async function render(){
  $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
 
  const regs={};
- allReceipts.forEach(r=>{const k=r.register_id||"Kasse 1";if(!regs[k])regs[k]={receipts:0,items:0,total:0,cash:0,card:0,paypal:0};const its=itemsOf(r);regs[k].receipts++;regs[k].items+=its.length;its.forEach(x=>{const p=priceOf(x);regs[k].total+=p;const pay=r.payment||x.payment;if(pay==="Bar")regs[k].cash+=p;if(pay==="EC")regs[k].card+=p;if(pay==="PayPal")regs[k].paypal+=p})});
- $("registerRows").innerHTML=Object.entries(regs).sort().map(([k,x])=>`<div class="seller-row"><div class="seller-name"><strong>${esc(k)}</strong><div class="muted">${x.receipts} Bons · ${x.items} Artikel</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.total)}</strong></div><div><div class="muted">Bar / EC</div><strong>${euro(x.cash)} / ${euro(x.card)}</strong></div><div><div class="muted">PayPal</div><strong>${euro(x.paypal)}</strong></div></div>`).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+ allReceipts.forEach(r=>{
+   const k=r.register_id||r.registerId||"Kasse 1";
+   if(!regs[k])regs[k]={receipts:0,items:0,total:0,cash:0,card:0,paypal:0};
+   const its=itemsOf(r);
+   regs[k].receipts++;
+   regs[k].items+=its.length;
+   const receiptTotal=Number(r.total);
+   const total=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
+   regs[k].total+=total;
+   const pay=r.payment||"";
+   if(pay==="Bar")regs[k].cash+=total;
+   if(pay==="EC")regs[k].card+=total;
+   if(pay==="PayPal")regs[k].paypal+=total;
+ });
+ $("registerRows").innerHTML=Object.entries(regs).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true})).map(([k,x])=>`<div class="seller-row"><div class="seller-name"><strong>${esc(k)}</strong><div class="muted">${x.receipts} Bons · ${x.items} Artikel</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.total)}</strong></div><div><div class="muted">Bar / EC</div><strong>${euro(x.cash)} / ${euro(x.card)}</strong></div><div><div class="muted">PayPal</div><strong>${euro(x.paypal)}</strong></div></div>`).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
 
- $("receiptRows").innerHTML=receipts.map(r=>{const its=itemsOf(r),totalR=its.reduce((a,x)=>a+priceOf(x),0),d=new Date(r.created_at);return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||"Kasse 1")} · ${d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.map(x=>`<div class="receipt-line-meta">Verkäufer ${esc(x.seller_number??x.sellerNumber)} · ${esc(x.size)} · ${euro(priceOf(x))}</div>`).join("")}</div></details>`}).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+ $("receiptRows").innerHTML=receipts.map(r=>{
+   const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
+   const d=new Date(r.created_at);
+   return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||r.registerId||"Kasse 1")} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">Verkäufer ${esc(x.seller_number??x.sellerNumber??"")} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
+ }).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
  const d=new Date();$("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
 }
 

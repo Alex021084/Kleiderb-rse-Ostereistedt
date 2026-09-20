@@ -41,7 +41,15 @@ async function cloudCreateReceipt(items,payment){
   return receipt;
 }
 async function cloudGetReceipts(){
-  return cloudFetch("receipts?select=*,receipt_items(*)&order=created_at.desc");
+  // Lade Belege und Positionen getrennt. Das ist robuster als die
+  // automatische Supabase-Relation und funktioniert auch dann, wenn
+  // die REST-API die verschachtelte Relation nicht zurückliefert.
+  const receipts=await cloudFetch("receipts?select=*&order=created_at.desc");
+  if(!receipts?.length) return [];
+  const items=await cloudFetch("receipt_items?select=*&order=id.asc");
+  const byReceipt={};
+  (items||[]).forEach(x=>{(byReceipt[x.receipt_id] ||= []).push(x)});
+  return receipts.map(r=>({...r,receipt_items:byReceipt[r.id]||[]}));
 }
 async function cloudResetReceipts(){
   await cloudFetch("receipts?id=gt.0",{method:"DELETE",headers:{"Prefer":"return=minimal"}});

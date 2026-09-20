@@ -15,11 +15,11 @@
   </header>
 
   <div class="menu">
-    <a class="menu-button blue" href="kasse.html">
+    <button class="menu-button blue" id="openRegisterModal" type="button">
       <span class="icon">🧾</span>
       <strong>Kasse</strong>
       <small>Verkäufe erfassen</small>
-    </a>
+    </button>
 
     <a class="menu-button green" href="verkaeufer.html">
       <span class="icon">👤</span>
@@ -34,5 +34,34 @@
     </a>
   </div>
 </main>
+
+<div id="registerModal" class="register-modal" aria-hidden="true">
+  <div class="register-modal-box" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
+    <h2 id="registerModalTitle">Welche Kasse?</h2>
+    <p>Bitte die Kasse auswählen, an der dieses Gerät verwendet wird.</p>
+    <div class="register-choice-grid">
+      <button type="button" data-register="Kasse 1">Kasse 1</button>
+      <button type="button" data-register="Kasse 2">Kasse 2</button>
+      <button type="button" data-register="Kasse 3">Kasse 3</button>
+      <button type="button" data-register="Kasse 4">Kasse 4</button>
+      <button type="button" data-register="Kasse 5">Kasse 5</button>
+    </div>
+    <button type="button" class="register-cancel" id="closeRegisterModal">Abbrechen</button>
+  </div>
+</div>
+<script src="cloud-config.js"></script><script src="cloud.js"></script>
+<script>
+const modal=document.getElementById("registerModal");
+function openRegisterModal(){modal.classList.add("open");modal.setAttribute("aria-hidden","false")}
+function closeRegisterModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true")}
+document.getElementById("openRegisterModal").addEventListener("click",openRegisterModal);
+document.getElementById("closeRegisterModal").addEventListener("click",closeRegisterModal);
+document.querySelectorAll(".register-choice-grid button").forEach(btn=>btn.addEventListener("click",()=>{
+  const reg=btn.dataset.register;
+  if(window.KBCloud?.setRegister) KBCloud.setRegister(reg); else localStorage.setItem("kb_register",reg);
+  window.location.href="kasse.html";
+}));
+modal.addEventListener("click",e=>{if(e.target===modal)closeRegisterModal()});
+</script>
 </body>
 </html>

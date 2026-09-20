@@ -23,6 +23,19 @@
       <button id="refreshButton" type="button">↻ Aktualisieren</button>
     </div>
 
+    <section class="register-filter">
+      <div class="register-filter-title">Kasse auswählen</div>
+      <div class="register-buttons">
+        <button type="button" class="register-filter-button selected" data-register="Alle Kassen">Alle Kassen</button>
+        <button type="button" class="register-filter-button" data-register="Kasse 1">Kasse 1</button>
+        <button type="button" class="register-filter-button" data-register="Kasse 2">Kasse 2</button>
+        <button type="button" class="register-filter-button" data-register="Kasse 3">Kasse 3</button>
+        <button type="button" class="register-filter-button" data-register="Kasse 4">Kasse 4</button>
+        <button type="button" class="register-filter-button" data-register="Kasse 5">Kasse 5</button>
+      </div>
+      <div id="selectedRegisterText" class="selected-register-text">Anzeige: Alle Kassen</div>
+    </section>
+
     <div class="big-total">
       <span>Gesamtumsatz</span>
       <strong id="totalRevenue">0,00 €</strong>
@@ -61,6 +74,11 @@
 
     <section class="seller-summary" style="margin-top:20px"><div class="seller-summary-head"><h2>Umsatz je Kasse</h2></div><div id="registerRows" class="seller-rows"></div></section>
 <section class="seller-summary" style="margin-top:20px"><div class="seller-summary-head"><h2>Kassenbons</h2></div><div id="receiptRows" class="seller-rows"></div></section>
+
+<section class="reset-box">
+  <div><h2>Verkaufszahlen zurücksetzen</h2><p>Setzt die Verkäufe und Kassenbons der aktuell ausgewählten Kasse zurück. Bei „Alle Kassen“ werden alle Verkaufsdaten gelöscht. Verkäufer bleiben erhalten.</p></div>
+  <button id="resetSalesButton" type="button">🔴 Verkaufszahlen zurücksetzen</button>
+</section>
 
 <div class="info-box">
       <strong>Hinweis</strong>
