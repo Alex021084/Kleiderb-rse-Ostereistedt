@@ -85,13 +85,8 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  if(k==="clear")v="";
  else if(k==="back")v=v.slice(0,-1);
  else if(k==="comma"){
-   // Komma ist ausschließlich für die Preiseingabe. Falls noch die Verkäufernummer aktiv ist,
-   // automatisch auf Preis wechseln, damit das Komma auf dem iPad zuverlässig funktioniert.
-   if(activeInput!=="price"){
-     setActive("price");
-     v=price.value;
-   }
-   if(!/[,.]/.test(v)) v=v||"0,";
+   // Dezimal-Komma: einmal pro Preis erlauben, auch bei leerem Feld.
+   if(activeInput==="price"&&!/[,.]/.test(v)) v=v ? v+"," : "0,";
  }else{
    if(activeInput==="price"){
      // Falls ein Dezimaltrennzeichen vorhanden ist, maximal zwei Nachkommastellen zulassen.
@@ -100,6 +95,7 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
    }
    v+=k;
  }
+ if(activeInput==="price" && k==="comma" && !v.includes(",")) v=v.replace(".",",");
  field.value=v;
  if(activeInput==="seller")checkSeller();else update();
 }));
