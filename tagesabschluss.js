@@ -287,111 +287,110 @@ function pdfLogoJpegBytes(){
   window.__kbLogoJpegBytes=out;
   return out;
 }
-function makeSellerPdf(data){
-  // Direkte PDF-Datei im gleichen Layout wie die Einzelabrechnung im Druckfenster.
-  const W=595.28,H=841.89;
-  const x=51,w=493;
-  const c=[];
-  const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  const DARK="0.09 0.13 0.20 rg";
-  const BLUE="0.19 0.35 0.85 rg";
-  const GREEN="0.03 0.45 0.26 rg";
-  const WHITE="1 1 1 rg";
-  const MUTED="0.41 0.45 0.53 rg";
-  const LINE="0.93 0.94 0.96 RG 0.7 w";
+async function makeSellerPdf(data){
+  // ZIP-PDFs als gerenderte A4-Seite erzeugen. Dadurch sehen sie auf iPad/iPhone
+  // exakt sauber aus, ohne die unterschiedlichen PDF-Schrift-Renderer zu nutzen.
+  const CW=1240, CH=1754;
+  const canvas=document.createElement("canvas");
+  canvas.width=CW; canvas.height=CH;
+  const ctx=canvas.getContext("2d");
+  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,CW,CH);
 
-  // Logo oben
-  c.push("q 300 0 0 163 147.64 660 cm /Im1 Do Q");
+  const scale=1;
+  const blue="#3159d8", dark="#172033", muted="#687386", line="#edf0f4", border="#dfe4ec", green="#087443", greenBg="#eaf7ef";
+  const x=91, w=1058;
+  const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+  const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
+  const round=(x,y,w,h,r,fill,stroke)=>{
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}
+  };
+  const text=(txt,px,py,size,color=dark,bold=false,align="left")=>{
+    ctx.fillStyle=color;
+    ctx.font=`${bold?"800":"400"} ${size}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
+    ctx.textAlign=align; ctx.textBaseline="alphabetic";
+    ctx.fillText(String(txt??""),px,py);
+  };
+
+  // Logo
+  try{
+    const logo=new Image();
+    await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src="data:image/jpeg;base64,"+KB_LOGO_JPEG_B64;});
+    const lw=500, lh=272, lx=(CW-lw)/2, ly=30;
+    ctx.drawImage(logo,lx,ly,lw,lh);
+  }catch(e){console.warn("Logo konnte nicht gerendert werden",e)}
 
   // Blauer Kopf
-  c.push(BLUE);
-  c.push(pdfRoundRect(x,555,w,90,17,true,false));
-  c.push(WHITE);
-  c.push(pdfText(75,610,24,"Verkäufer-Abrechnung",true));
+  round(x,360,w,132,34,blue,null);
+  text("Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
 
   // Verkäufer / Datum
-  c.push(MUTED);
-  c.push(pdfText(x,528,8,"Verkäufer",false));
-  c.push(DARK);
-  c.push(pdfText(x,505,20,String(data.seller.name||"Verkäufer"),true));
-  c.push(pdfText(x,484,11,`Verkäufernummer: ${data.seller.number}`));
-  c.push(MUTED);
-  c.push(pdfText(506,528,8,"Datum",false));
-  c.push(DARK);
-  c.push(pdfText(506,507,11,dateStamp(),false));
+  text("Verkäufer",x,501,13,muted,false);
+  text(data.seller.name||"Verkäufer",x,541,28,dark,true);
+  text(`Verkäufernummer: ${data.seller.number}`,x,573,15,"#4f5b6c");
+  text("Datum",x+w,501,13,muted,false,"right");
+  text(dateStamp(),x+w,541,15,dark,false,"right");
 
-  // Übersichtskarte
-  c.push("1 1 1 rg");
-  c.push(pdfRoundRect(x,365,w,143,12,true,true));
-  c.push(DARK);
-  c.push(pdfText(69,475,12,"ÜBERSICHT",true));
-  c.push(pdfText(69,446,12,"Verkaufte Teile"));
-  c.push(pdfText(514,446,13,String(data.rows.length),true));
-  c.push(LINE);
-  c.push("69 434 m 526 434 l S");
-  c.push(pdfText(69,415,12,"Gesamtumsatz"));
-  c.push(pdfText(454,415,13,sellerMoneyPlain(data.gross),true));
+  // Übersicht
+  const oy=614, oh=214;
+  round(x,oy,w,oh,24,"#fff",border);
+  text("ÜBERSICHT",x+42,658,16,"#344054",true);
+  text("Verkaufte Teile",x+42,709,16,dark);
+  text(data.rows.length,x+w-42,709,18,dark,true,"right");
+  ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,724);ctx.lineTo(x+w-42,724);ctx.stroke();
+  text("Gesamtumsatz",x+42,761,16,dark);
+  text(money(data.gross),x+w-42,761,18,dark,true,"right");
   if(data.commission>0){
-    c.push(LINE);
-    c.push("69 403 m 526 403 l S");
-    c.push(pdfText(69,384,12,"Provision"));
-    c.push(pdfText(449,384,13,"- "+sellerMoneyPlain(data.commission),true));
+    ctx.beginPath();ctx.moveTo(x+42,776);ctx.lineTo(x+w-42,776);ctx.stroke();
+    text("Provision",x+42,813,16,dark);
+    text("- "+money(data.commission),x+w-42,813,18,dark,true,"right");
   }
 
-  // Auszahlungskarte
-  c.push("0.91 0.97 0.93 rg");
-  c.push(pdfRoundRect(x,292,w,55,12,true,false));
-  c.push(GREEN);
-  c.push(pdfText(69,313,15,"AUSZAHLUNG",true));
-  c.push(pdfText(465,311,19,sellerMoneyPlain(data.payout),true));
+  // Auszahlung
+  const py=850, ph=82;
+  round(x,py,w,ph,24,greenBg,null);
+  text("AUSZAHLUNG",x+42,902,21,green,true);
+  text(money(data.payout),x+w-42,902,25,green,true,"right");
 
-  // Artikelkarte
-  const cardH=Math.max(145,Math.min(250,92+rows.length*24));
-  const cardY=292-18-cardH;
-  c.push("1 1 1 rg");
-  c.push(pdfRoundRect(x,cardY,w,cardH,12,true,true));
-  c.push(DARK);
-  c.push(pdfText(69,cardY+cardH-30,12,"VERKAUFTE ARTIKEL",true));
-  c.push(MUTED);
-  c.push(pdfText(69,cardY+cardH-58,10,"Größe / Kategorie",true));
-  c.push(pdfText(526,cardY+cardH-58,10,"Anzahl",true));
-  c.push("0.80 0.83 0.88 RG 0.7 w");
-  c.push("69 "+(cardY+cardH-68)+" m 526 "+(cardY+cardH-68)+" l S");
-  c.push(DARK);
-  let y=cardY+cardH-91;
+  // Artikel
+  const ah=Math.max(210,Math.min(370,128+rows.length*35));
+  const ay=954;
+  round(x,ay,w,ah,24,"#fff",border);
+  text("VERKAUFTE ARTIKEL",x+42,1000,16,"#344054",true);
+  text("Größe / Kategorie",x+42,1035,13,muted,true);
+  text("Anzahl",x+w-42,1035,13,muted,true,"right");
+  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1048);ctx.lineTo(x+w-42,1048);ctx.stroke();
+  let y=1083;
   if(rows.length){
     for(const [k,v] of rows){
-      if(y<cardY+22) break;
-      c.push(pdfText(69,y,11,k));
-      c.push(pdfText(470,y,11,`${v} ${v===1?"Teil":"Teile"}`,true));
-      y-=24;
+      text(k,x+42,y,15,dark);
+      text(`${v} ${v===1?"Teil":"Teile"}`,x+w-42,y,15,dark,true,"right");
+      y+=35;
+      if(y<ay+ah-20){ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();}
     }
-  }else{
-    c.push(pdfText(69,y,11,"Keine Artikel"));
-  }
+  }else text("Keine Artikel",x+42,y,15,dark);
 
-  c.push(MUTED);
-  c.push(pdfText(51,57,9,"Kleiderbörse · Verkäufer-Abrechnung"));
+  text("Kleiderbörse · Verkäufer-Abrechnung",CW/2,1560,11,"#7a8494",false,"center");
 
-  const content=c.join("\n");
+  const dataUrl=canvas.toDataURL("image/jpeg",0.94);
+  const b64=dataUrl.split(",")[1];
+  const bin=atob(b64); const jpg=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) jpg[i]=bin.charCodeAt(i);
+  let jpgBinary=""; for(let i=0;i<jpg.length;i++) jpgBinary+=String.fromCharCode(jpg[i]);
+  const content="q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
   const objects=[];
   objects.push("<< /Type /Catalog /Pages 2 0 R >>");
   objects.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
-  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> /XObject << /Im1 6 0 R >> >> /Contents 7 0 R >>");
-  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
-  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
-  const logoBytes=pdfLogoJpegBytes();
-  let logoBinary="";
-  for(let i=0;i<logoBytes.length;i++) logoBinary+=String.fromCharCode(logoBytes[i]);
-  objects.push(`<< /Type /XObject /Subtype /Image /Width 886 /Height 482 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${logoBytes.length} >>\nstream\n${logoBinary}\nendstream`);
-  const stream=content+"\n";
-  objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
-  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
-  const offsets=[0];
-  for(let i=0;i<objects.length;i++){
-    offsets.push(pdf.length);
-    pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;
-  }
+  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>");
+  objects.push(`<< /Type /XObject /Subtype /Image /Width ${CW} /Height ${CH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n${jpgBinary}\nendstream`);
+  objects.push(`<< /Length ${content.length} >>\nstream\n${content}endstream`);
+  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"; const offsets=[0];
+  for(let i=0;i<objects.length;i++){offsets.push(pdf.length);pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;}
   const xref=pdf.length;
   pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
   for(let i=1;i<offsets.length;i++) pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
@@ -418,7 +417,7 @@ async function saveAllSellerPdfs(){
     const entries=[{name:folder+"/",data:new Uint8Array()}];
     for(const seller of sellers){
       const data=sellerPdfData(seller.number,receipts,sellers);
-      const pdf=makeSellerPdf(data);
+      const pdf=await makeSellerPdf(data);
       entries.push({name:`${folder}/${cleanPdfFilename(data.seller.name,data.seller.number)}`,data:new Uint8Array(await pdf.arrayBuffer())});
     }
     const zip=makeZip(entries);
