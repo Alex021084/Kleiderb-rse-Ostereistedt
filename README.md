@@ -77,3 +77,16 @@ V12: iPad-Enter-Navigation und sichtbarer, bearbeitbarer Kassenbon unterhalb der
 
 
 V13: iPad-Touchbedienung verbessert. Kassenbuttons verwenden explizite Button-Typen und robuste Touch-/Click-Behandlung. Artikel werden beim Weiterer Artikel zuverlässig in den sichtbaren Bon übernommen; Fertig öffnet den Popup-Bon.
+
+
+## Kasse – V14
+
+Die Kasse ist jetzt konsequent für Touch/iPad ausgelegt:
+- Keine iPad-Tastatur mehr für Verkäufernummer oder Preis.
+- Ein eigenes Zahlenfeld ist dauerhaft sichtbar.
+- Verkäufernummer wird über das Zahlenfeld eingegeben und weiterhin grün/rot geprüft.
+- Die Kindergrößen 98 bis 176 sind als große Touch-Buttons vorhanden.
+- Zusätzlich gibt es den Spielzeug-Button.
+- Der sichtbare Kassenbon wird direkt bei der Artikelerfassung aktualisiert.
+- Artikel können im Bon über ✎ bearbeitet oder × gelöscht werden.
+- Weiterer Artikel und Fertig sind normale Touch-Buttons.
