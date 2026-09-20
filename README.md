@@ -137,3 +137,6 @@ V28: Verkäufer-Seite hat jetzt denselben kompakten Startseiten-Button wie Kasse
 
 
 V30: Tagesabschluss enthält Verkäufer-PDF-Abrechnungen. 'Speichern aller Verkäufer' erstellt eine ZIP-Datei mit einer einseitigen PDF pro Verkäufer. Dateinamen enthalten Verkäufernummer, Name und Datum. Zusätzlich gibt es pro Verkäufer einen PDF-Button.
+
+
+V32: Verkäufer-PDF/ZIP-Speichern auf iPad/Safari robuster über den nativen Teilen-Dialog (Dateien speichern) mit Fallback auf Download.

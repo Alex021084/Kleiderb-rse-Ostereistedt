@@ -126,10 +126,33 @@ function sellerPdfData(sellerNumber, receipts, sellers){
   rows.forEach(x=>{registers[x.register]=(registers[x.register]||0)+x.price});
   return {seller,rows,gross,commission,payout,payments,sizes,registers};
 }
-function saveBlob(blob,filename){
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+async function saveBlob(blob,filename){
+  // iPad/Safari behandelt Blob-Downloads mit <a download> je nach Version unterschiedlich.
+  // Wenn die Web Share API fuer Dateien vorhanden ist, oeffnen wir direkt den iPad-Teilen-Dialog,
+  // ueber den die PDF/ZIP in "Dateien" gespeichert werden kann.
+  try{
+    const file=new File([blob],filename,{type:blob.type||"application/octet-stream"});
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      await navigator.share({files:[file],title:filename});
+      return true;
+    }
+  }catch(e){
+    // Abbrechen im Teilen-Dialog ist kein Fehler; danach versuchen wir den normalen Download.
+    if(e && e.name==="AbortError") return false;
+    console.warn("Datei teilen nicht moeglich",e);
+  }
+  try{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download=filename;a.rel="noopener";
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},3000);
+    return true;
+  }catch(e){
+    console.error("Datei speichern fehlgeschlagen",e);
+    // Letzter iPad-Fallback: PDF/ZIP in neuem Tab oeffnen.
+    try{window.open(URL.createObjectURL(blob),"_blank");return true}catch(_){return false}
+  }
 }
 function pdfWinAnsi(value){
   const map={"€":128,"‚":130,"ƒ":131,"„":132,"…":133,"†":134,"‡":135,"ˆ":136,"‰":137,"Š":138,"‹":139,"Œ":140,"Ž":142,"‘":145,"’":146,"“":147,"”":148,"•":149,"–":150,"—":151,"˜":152,"™":153,"š":154,"›":155,"œ":156,"ž":158,"Ÿ":159,"Ä":196,"Ö":214,"Ü":220,"ä":228,"ö":246,"ü":252,"ß":223};
@@ -232,7 +255,8 @@ async function saveSellerPdfByNumber(number, receipts, sellers){
   try{
     const data=sellerPdfData(number,receipts,sellers);
     const filename=`Verkaeufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name)}_${dateStamp()}.pdf`;
-    saveBlob(makeSellerPdf(data),filename);
+    const ok=await saveBlob(makeSellerPdf(data),filename);
+    if(!ok) return;
   }catch(e){console.error(e);alert("Die Verkäufer-PDF konnte nicht erstellt werden.")}
 }
 async function saveAllSellerPdfs(){
@@ -252,7 +276,8 @@ async function saveAllSellerPdfs(){
       zipEntries.push({name:filename,data:new Uint8Array(await makeSellerPdf(data).arrayBuffer())});
     }
     const blob=makeZip(zipEntries);
-    saveBlob(blob,`Verkaeufer-Abrechnungen_${dateStamp()}.zip`);
+    const ok=await saveBlob(blob,`Verkaeufer-Abrechnungen_${dateStamp()}.zip`);
+    if(!ok) return;
   }catch(e){
     console.error(e);
     alert("Die Verkäufer-PDFs konnten nicht erstellt werden. Bitte die Seite einmal neu laden und erneut versuchen.");
