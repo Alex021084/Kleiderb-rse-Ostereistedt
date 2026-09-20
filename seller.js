@@ -1,4 +1,9 @@
-let sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");let editId=null;const $=id=>document.getElementById(id);
+let sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({
+  ...s,
+  commissionEnabled: s.commissionEnabled === undefined ? true : s.commissionEnabled,
+  commissionRate: Number.isFinite(Number(s.commissionRate)) ? Number(s.commissionRate) : 15
+}));
+let editId=null;const $=id=>document.getElementById(id);
 const commissionInput = document.getElementById("commissionEnabled");
 const commissionRateInput = document.getElementById("commissionRate");
 const commissionRateWrap = document.getElementById("commissionRateWrap");
@@ -47,7 +52,7 @@ function render(){
         <div class="name">${esc(s.name)}</div>
         <div class="no">Verkäufernummer: ${esc(s.number)}</div>
         ${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}
-        <span class="commission-badge ${s.commissionEnabled!==false?"yes":"no"}">${s.commissionEnabled!==false?`${s.commissionRate ?? 15} % Provision`:"Keine Provision"}</span>
+        <span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate ?? 15} % Provision`:"Keine Provision"}</span>
       </div>
       <div class="seller-actions">
         <button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button>
@@ -68,6 +73,10 @@ function showReport(id){
   $("reportPieces").textContent=st.pieces;
   $("reportTurnover").textContent=euro(st.turnover);
   $("reportPayout").textContent=euro(st.payout);
+  const reportNote=document.querySelector(".reportnote");
+  if(reportNote) reportNote.textContent = st.pieces
+    ? "Die Abrechnung berücksichtigt die beim jeweiligen Verkauf gespeicherte Provision."
+    : (s.commissionEnabled ? `Aktueller Provisionssatz: ${s.commissionRate}%` : "Aktuell keine Provision");
   const note=document.querySelector(".reportnote");
   if(note) note.textContent=`Die Abrechnung wird aus den erfassten Verkäufen dieser Verkäufernummer berechnet. Die beim Verkauf gespeicherte Provision wird berücksichtigt.`;
   $("report").classList.remove("hidden");
@@ -93,7 +102,7 @@ function closeForm(){$("modal").classList.add("hidden")}
 function saveSeller(){
   let number=$("number").value.trim(),name=$("name").value.trim(),phone=$("phone").value.trim();
   let commissionEnabled=commissionInput ? commissionInput.checked : true;
-  let commissionRate=commissionEnabled ? commissionRateValue() : 0;
+  let commissionRate=commissionRateValue();
   if(!number||!name){$("error").textContent="Bitte Nummer und Name eingeben.";return}
   if(sellers.some(s=>s.number===number&&s.id!==editId)){$("error").textContent="Diese Verkäufernummer ist bereits vergeben.";return}
   if(editId){
@@ -111,7 +120,7 @@ function editSeller(id){
   $("number").value=s.number;
   $("name").value=s.name;
   $("phone").value=s.phone||"";
-  if (commissionInput) commissionInput.checked=s.commissionEnabled!==false;
+  if (commissionInput) commissionInput.checked=s.commissionEnabled === true;
   if (commissionRateInput) commissionRateInput.value=String(s.commissionRate ?? 15).replace(".",",");
   updateCommissionVisibility();
   $("error").textContent="";

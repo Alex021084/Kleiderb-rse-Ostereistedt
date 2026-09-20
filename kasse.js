@@ -32,7 +32,7 @@ function render(){itemCount.textContent=`${currentItems.length} ${currentItems.l
 function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
 function saveSale(payment){const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();currentItems.forEach(x=>{
   const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
-  const commissionEnabled = seller ? seller.commissionEnabled !== false : true;
+  const commissionEnabled = seller ? seller.commissionEnabled === true : true;
   const commissionRate = commissionEnabled ? Number(seller?.commissionRate ?? 15)/100 : 0;
   sales.push({...x,payment,timestamp,commissionEnabled,commissionRate});
 });localStorage.setItem("kb_sales",JSON.stringify(sales));paymentModal.classList.remove("is-open");successText.textContent=`${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;successModal.classList.add("is-open")}

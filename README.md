@@ -105,3 +105,6 @@ V18: Verkäufer haben jetzt die Einstellung „15 % Provision berechnen“. Die 
 
 
 V19: Provisionssatz pro Verkäufer frei einstellbar (0–100 %, in 0,5-%-Schritten), standardmäßig 15 %. Die Einstellung wird zusammen mit jedem Verkauf gespeichert, damit spätere Änderungen die alten Verkäufe nicht verändern.
+
+
+V20: Provisionsschalter robust gespeichert. Legacy-Verkäufer werden beim ersten Laden auf 15 % Provision gesetzt; „Provision berechnen“ aus bedeutet eindeutig 0 % für neue Verkäufe. Der Schalter wird beim Bearbeiten geladen und gespeichert.
