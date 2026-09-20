@@ -152,3 +152,6 @@ V35: PDF-Darstellung korrigiert. Textfarbe wird bei jedem PDF-Text explizit gese
 
 
 V36: Verkäufer-Abrechnung wird nicht mehr als handgebauter PDF-Stream erzeugt. Stattdessen wird eine sauber formatierte A4-Druckansicht im Browser geöffnet und über den iPad-Druckdialog als PDF gespeichert. Einzelne Verkäufer und alle Verkäufer (mehrere A4-Seiten) werden unterstützt. Inhalte: Name, Verkäufernummer, Datum, Teile, Umsatz, Provision, Auszahlung und Größen/Kategorien.
+
+
+V37: Geldbeträge in der Verkäufer-Druckansicht verwenden jetzt explizit die HTML-Entität &euro;, damit auf iPad/Safari keine Fragezeichen vor dem Eurozeichen erscheinen. Layout leicht bereinigt und kompakter gestaltet.

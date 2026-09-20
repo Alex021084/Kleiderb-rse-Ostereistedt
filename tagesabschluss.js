@@ -188,13 +188,18 @@ function bytesFromBinaryString(str){
   return out;
 }
 
+function sellerMoneyHtml(v){
+  const n=Number(v||0);
+  const number=n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  return `${number} &euro;`;
+}
 function sellerPrintHtml(data){
   const escHtml=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
   const articles=rows.length
     ? rows.map(([k,v])=>`<tr><td>${escHtml(k)}</td><td>${v} ${v===1?"Teil":"Teile"}</td></tr>`).join("")
     : `<tr><td colspan="2">Keine Artikel</td></tr>`;
-  const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${euro(data.commission)}</strong></div>` : "";
+  const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${sellerMoneyHtml(data.commission)}</strong></div>` : "";
   return `<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Verkäufer_${escHtml(data.seller.number)}_${escHtml(data.seller.name)}</title>
@@ -203,19 +208,19 @@ function sellerPrintHtml(data){
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 .page{width:210mm;min-height:297mm;padding:18mm 18mm 16mm;margin:0 auto}
-.header{background:#3159d8;color:#fff;border-radius:7mm;padding:9mm 10mm 8mm;margin-bottom:10mm}
+.header{background:#3159d8;color:#fff;border-radius:6mm;padding:8mm 10mm 7mm;margin-bottom:9mm}
 .brand{font-size:24px;font-weight:800;letter-spacing:.1px}.subtitle{font-size:13px;margin-top:2mm;opacity:.94}
 .info{display:flex;justify-content:space-between;gap:10mm;margin-bottom:9mm}
 .label{font-size:10px;color:#687386}.name{font-size:20px;font-weight:800;margin-top:1mm}.meta{font-size:11px;color:#4f5b6c;margin-top:2mm}
-.card{border:1px solid #dfe4ec;border-radius:5mm;padding:7mm 8mm;margin-bottom:7mm}
+.card{border:1px solid #dfe4ec;border-radius:4mm;padding:6mm 8mm;margin-bottom:6mm}
 h2{font-size:12px;letter-spacing:.8px;margin:0 0 5mm;color:#344054}
-.row{display:flex;justify-content:space-between;align-items:center;padding:3.2mm 0;border-bottom:1px solid #edf0f4;font-size:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:3mm 0;border-bottom:1px solid #edf0f4;font-size:12px}
 .row:last-child{border-bottom:0}.row strong{font-size:13px}
-.payout{background:#e9f7ef;border:0}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
+.payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1px solid #cfd5df}
 td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}
-.footer{margin-top:12mm;font-size:9px;color:#7a8494;text-align:center}
+.footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
 .printbar{position:sticky;top:0;background:#fff;padding:12px;text-align:center;border-bottom:1px solid #ddd}
 .printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}
 @media print{.printbar{display:none}.page{margin:0}}
@@ -231,15 +236,15 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
   <div class="card">
     <h2>ÜBERSICHT</h2>
     <div class="row"><span>Verkaufte Teile</span><strong>${data.rows.length}</strong></div>
-    <div class="row"><span>Gesamtumsatz</span><strong>${euro(data.gross)}</strong></div>
+    <div class="row"><span>Gesamtumsatz</span><strong>${sellerMoneyHtml(data.gross)}</strong></div>
     ${provision}
   </div>
-  <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${euro(data.payout)}</strong></div></div>
+  <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div></div>
   <div class="card">
     <h2>VERKAUFTE ARTIKEL</h2>
     <table><thead><tr><th>Größe / Kategorie</th><th>Anzahl</th></tr></thead><tbody>${articles}</tbody></table>
   </div>
-  <div class="footer">Vielen Dank für die Teilnahme an der Kleiderbörse.</div>
+  <div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>
 </div>
 </body></html>`;
 }
