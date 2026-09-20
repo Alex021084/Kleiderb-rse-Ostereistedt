@@ -143,3 +143,6 @@ V32: Verkäufer-PDF/ZIP-Speichern auf iPad/Safari robuster über den nativen Tei
 
 
 V33: Verkäufer-PDF auf kompakte, übersichtliche DIN-A4-Abrechnung umgestellt. Zahlungsarten und Umsatz nach Kasse entfernt; Verkäufername/Verkäufernummer, Datum, Teile, Umsatz, Provision, Auszahlung und verkaufte Größen/Kategorien bleiben. PDF-/ZIP-Dateinamen verwenden „Verkäufer“ mit ä.
+
+
+V34: Verkäufer-PDF optisch als strukturierte DIN-A4-Abrechnung mit Kopfbereich, Übersichtskarte, hervorgehobener Auszahlung und Artikeltabelle gestaltet. Einzel-PDF öffnet direkt die PDF-Ansicht, damit iPadOS beim Speichern nicht zusätzlich eine Text/Webseiten-Datei anlegt.

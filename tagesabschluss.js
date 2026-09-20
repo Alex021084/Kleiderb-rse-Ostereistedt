@@ -127,9 +127,25 @@ function sellerPdfData(sellerNumber, receipts, sellers){
   return {seller,rows,gross,commission,payout,payments,sizes,registers};
 }
 async function saveBlob(blob,filename){
-  // iPad/Safari behandelt Blob-Downloads mit <a download> je nach Version unterschiedlich.
-  // Wenn die Web Share API fuer Dateien vorhanden ist, oeffnen wir direkt den iPad-Teilen-Dialog,
-  // ueber den die PDF/ZIP in "Dateien" gespeichert werden kann.
+  const isPdf=blob.type==="application/pdf" || /\.pdf$/i.test(filename);
+  // Bei einer einzelnen PDF öffnen wir direkt die echte PDF-Datei. So legt iPadOS
+  // beim "Sichern unter" nur die PDF ab und keine zusätzliche Text/Webseiten-Datei.
+  if(isPdf){
+    try{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.target="_blank";
+      a.rel="noopener";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)},1000);
+      return true;
+    }catch(e){ console.warn("PDF-Ansicht konnte nicht geöffnet werden",e); }
+  }
+
+  // Für die ZIP-Datei bleibt der iPad-Teilen-Dialog praktisch, weil sie direkt in
+  // "Dateien" gespeichert werden kann.
   try{
     const file=new File([blob],filename,{type:blob.type||"application/octet-stream"});
     if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
@@ -137,9 +153,8 @@ async function saveBlob(blob,filename){
       return true;
     }
   }catch(e){
-    // Abbrechen im Teilen-Dialog ist kein Fehler; danach versuchen wir den normalen Download.
     if(e && e.name==="AbortError") return false;
-    console.warn("Datei teilen nicht moeglich",e);
+    console.warn("Datei teilen nicht möglich",e);
   }
   try{
     const url=URL.createObjectURL(blob);
@@ -150,7 +165,6 @@ async function saveBlob(blob,filename){
     return true;
   }catch(e){
     console.error("Datei speichern fehlgeschlagen",e);
-    // Letzter iPad-Fallback: PDF/ZIP in neuem Tab oeffnen.
     try{window.open(URL.createObjectURL(blob),"_blank");return true}catch(_){return false}
   }
 }
@@ -173,24 +187,79 @@ function bytesFromBinaryString(str){
   for(let i=0;i<str.length;i++) out[i]=str.charCodeAt(i)&255;
   return out;
 }
-function makeSimplePdf(lines){
-  const content=["BT"];
-  let y=800;
-  for(const line of lines){
-    const size=line.size||11;
-    content.push(`/F1 ${size} Tf`);
-    content.push(`1 0 0 1 52 ${y} Tm`);
-    content.push(`(${pdfEscape(line.text)}) Tj`);
-    y-=line.gap||18;
+function makeSellerPdf(data){
+  const W=595,H=842;
+  const cmds=[];
+  const esc=pdfEscape;
+  const money=v=>euro(v);
+  const text=(s,x,y,size=11,bold=false)=>{
+    cmds.push(`${bold?"/F2":"/F1"} ${size} Tf 1 0 0 1 ${x} ${y} Tm (${esc(s)}) Tj`);
+  };
+  const line=(x1,y1,x2,y2)=>{
+    cmds.push(`0.82 0.84 0.88 RG 1 w ${x1} ${y1} m ${x2} ${y2} l S`);
+  };
+  const box=(x,y,w,h,fill)=>{
+    if(fill) cmds.push(`${fill} rg ${x} ${y} ${w} ${h} re f`);
+    cmds.push(`0.86 0.88 0.91 RG 1 w ${x} ${y} ${w} ${h} re S`);
+  };
+
+  // Header
+  cmds.push("0.25 0.34 0.85 rg 0 790 595 52 re f");
+  text("Kleiderbörse",36,812,22,true);
+  text("Verkäufer-Abrechnung",36,795,12,false);
+
+  // Seller information
+  text("Verkäufer",40,755,9,false);
+  text(data.seller.name||"Verkäufer",40,736,16,true);
+  text(`Verkäufernummer: ${data.seller.number}`,40,716,10,false);
+  text(`Datum: ${dateStamp()}`,400,716,10,false);
+
+  // Summary card
+  box(36,555,523,135,"0.97 0.98 0.99");
+  text("ÜBERSICHT",54,665,11,true);
+  line(54,653,541,653);
+  text("Verkaufte Teile",54,630,10,false);
+  text(String(data.rows.length),525,630,12,true);
+  text("Gesamtumsatz",54,606,10,false);
+  text(money(data.gross),525,606,12,true);
+  text("Provision",54,582,10,false);
+  text(money(data.commission),525,582,12,true);
+
+  // Payout highlight
+  cmds.push("0.92 0.96 0.94 rg 36 495 523 45 re f");
+  text("AUSZAHLUNG",54,522,12,true);
+  text(money(data.payout),525,522,17,true);
+
+  // Articles
+  text("VERKAUFTE ARTIKEL",40,465,12,true);
+  line(40,453,555,453);
+  const entries=Object.entries(data.sizes).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
+  let y=430;
+  if(entries.length){
+    entries.forEach(([k,v],idx)=>{
+      if(y<90) return;
+      text(k,54,y,10,false);
+      text(`${v} ${v===1?"Teil":"Teile"}`,300,y,10,false);
+      y-=22;
+      if(idx<entries.length-1) line(54,y+7,541,y+7);
+    });
+  }else{
+    text("Keine Artikel",54,y,10,false);
+    y-=22;
   }
-  content.push("ET");
-  const stream=content.join("\n");
+
+  // Footer
+  text("Vielen Dank für die Teilnahme an der Kleiderbörse.",40,55,9,false);
+
+  const stream=["BT",...cmds,"ET"].join("\n");
   const objects=[];
   objects.push("<< /Type /Catalog /Pages 2 0 R >>");
   objects.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
-  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>");
+  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>");
   objects.push(`<< /Length ${bytesFromBinaryString(stream).length} >>\nstream\n${stream}\nendstream`);
   objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+
   let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
   const offsets=[0];
   for(let i=0;i<objects.length;i++){
@@ -203,34 +272,7 @@ function makeSimplePdf(lines){
   pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return new Blob([bytesFromBinaryString(pdf)],{type:"application/pdf"});
 }
-function makeSellerPdf(data){
-  const lines=[];
-  const add=(text,size=11,gap=18)=>lines.push({text,size,gap});
-  add("Kleiderbörse",24,26);
-  add("Verkäufer-Abrechnung",17,28);
-  add(`Verkäufer: ${data.seller.name||"Verkäufer"}`,12,19);
-  add(`Verkäufernummer: ${data.seller.number}`,11,19);
-  add(`Datum: ${dateStamp()}`,11,28);
 
-  add("ÜBERSICHT",13,22);
-  add(`Verkaufte Teile:        ${data.rows.length}`,12,20);
-  add(`Gesamtumsatz:           ${euro(data.gross)}`,12,20);
-  if(data.commission>0) add(`Provision:              -${euro(data.commission)}`,12,20);
-  else add("Provision:              0,00 €",12,20);
-  add(`AUSZAHLUNG:             ${euro(data.payout)}`,15,30);
-
-  add("VERKAUFTE ARTIKEL",13,22);
-  const sizeEntries=Object.entries(data.sizes).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  if(sizeEntries.length){
-    sizeEntries.forEach(([k,v])=>add(`${k}: ${v} ${v===1?"Teil":"Teile"}`,11,18));
-  }else{
-    add("Keine Artikel",11,18);
-  }
-
-  add("",8,8);
-  add("Vielen Dank für die Teilnahme an der Kleiderbörse.",9,18);
-  return makeSimplePdf(lines);
-}
 function crc32(bytes){
   let table=crc32.table;
   if(!table){table=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);table[n]=c>>>0;}crc32.table=table;}
@@ -255,7 +297,7 @@ function makeZip(entries){
 async function saveSellerPdfByNumber(number, receipts, sellers){
   try{
     const data=sellerPdfData(number,receipts,sellers);
-    const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name).replace(/_/g,"_")}_${dateStamp()}.pdf`;
+    const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}.pdf`;
     const ok=await saveBlob(makeSellerPdf(data),filename);
     if(!ok) return;
   }catch(e){console.error(e);alert("Die Verkäufer-PDF konnte nicht erstellt werden.")}
@@ -273,7 +315,7 @@ async function saveAllSellerPdfs(){
     sellers.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"de-DE"));
     for(const s of sellers){
       const data=sellerPdfData(s.number,receipts,sellers);
-      const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${safeFilePart(data.seller.name).replace(/_/g,"_")}_${dateStamp()}.pdf`;
+      const filename=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}.pdf`;
       zipEntries.push({name:filename,data:new Uint8Array(await makeSellerPdf(data).arrayBuffer())});
     }
     const blob=makeZip(zipEntries);
