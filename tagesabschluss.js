@@ -192,8 +192,9 @@ function makeSellerPdf(data){
   const cmds=[];
   const esc=pdfEscape;
   const money=v=>euro(v);
-  const text=(s,x,y,size=11,bold=false)=>{
-    cmds.push(`${bold?"/F2":"/F1"} ${size} Tf 1 0 0 1 ${x} ${y} Tm (${esc(s)}) Tj`);
+  const text=(s,x,y,size=11,bold=false,color="black")=>{
+    const rgb = color==="white" ? "1 1 1 rg" : color==="green" ? "0.05 0.45 0.30 rg" : "0 0 0 rg";
+    cmds.push(`${rgb} ${bold?"/F2":"/F1"} ${size} Tf 1 0 0 1 ${x} ${y} Tm (${esc(s)}) Tj`);
   };
   const line=(x1,y1,x2,y2)=>{
     cmds.push(`0.82 0.84 0.88 RG 1 w ${x1} ${y1} m ${x2} ${y2} l S`);
@@ -205,12 +206,12 @@ function makeSellerPdf(data){
 
   // Header
   cmds.push("0.25 0.34 0.85 rg 0 790 595 52 re f");
-  text("Kleiderbörse",36,812,22,true);
-  text("Verkäufer-Abrechnung",36,795,12,false);
+  text("Kleiderbörse",36,812,22,true,"white");
+  text("Verkäufer-Abrechnung",36,795,12,false,"white");
 
   // Seller information
   text("Verkäufer",40,755,9,false);
-  text(data.seller.name||"Verkäufer",40,736,16,true);
+  cmds.push("0.15 0.34 0.78 rg"); text(data.seller.name||"Verkäufer",40,736,16,true);
   text(`Verkäufernummer: ${data.seller.number}`,40,716,10,false);
   text(`Datum: ${dateStamp()}`,400,716,10,false);
 
@@ -227,8 +228,8 @@ function makeSellerPdf(data){
 
   // Payout highlight
   cmds.push("0.92 0.96 0.94 rg 36 495 523 45 re f");
-  text("AUSZAHLUNG",54,522,12,true);
-  text(money(data.payout),525,522,17,true);
+  text("AUSZAHLUNG",54,522,12,true,"green");
+  text(money(data.payout),525,522,17,true,"green");
 
   // Articles
   text("VERKAUFTE ARTIKEL",40,465,12,true);

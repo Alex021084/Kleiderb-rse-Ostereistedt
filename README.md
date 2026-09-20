@@ -146,3 +146,6 @@ V33: Verkäufer-PDF auf kompakte, übersichtliche DIN-A4-Abrechnung umgestellt. 
 
 
 V34: Verkäufer-PDF optisch als strukturierte DIN-A4-Abrechnung mit Kopfbereich, Übersichtskarte, hervorgehobener Auszahlung und Artikeltabelle gestaltet. Einzel-PDF öffnet direkt die PDF-Ansicht, damit iPadOS beim Speichern nicht zusätzlich eine Text/Webseiten-Datei anlegt.
+
+
+V35: PDF-Darstellung korrigiert. Textfarbe wird bei jedem PDF-Text explizit gesetzt, damit Inhalte nicht durch vorherige farbige Flächen unsichtbar werden. Kopf weiß auf blau, Verkäufername blau, Auszahlung grün, übriger Text schwarz.
