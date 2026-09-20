@@ -43,6 +43,7 @@
 
       <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
       <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
+<button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
     </section>
 
     <aside id="receiptLive" class="receipt-live hidden-receipt">
@@ -59,6 +60,12 @@
       </div>
     </aside>
   </section>
+
+<section class="receipt-live">
+  <div class="receipt-head"><strong>Kassenbon</strong><span id="itemCount">0 Artikel</span></div>
+  <div id="receiptItems" class="receipt-items"><div class="receipt-empty">Noch keine Artikel.</div></div>
+  <div class="receipt-total"><span>Gesamt</span><strong id="liveTotal">0,00 €</strong></div>
+</section>
 </main>
 
 <div id="paymentModal" class="modal">

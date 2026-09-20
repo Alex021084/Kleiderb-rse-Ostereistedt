@@ -71,3 +71,6 @@ Der Kassenbon wird intern während der Eingabe aufgebaut, aber **nicht auf der K
 ## Kasse – V11
 
 Das Größenfeld verwendet jetzt `inputmode="numeric"`, sodass auf iPhone/iPad beim Eingeben die Zahlentastatur erscheint.
+
+
+V12: iPad-Enter-Navigation und sichtbarer, bearbeitbarer Kassenbon unterhalb der Eingabe. Artikel können über ✎ geändert oder × gelöscht werden.
