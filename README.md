@@ -169,4 +169,4 @@ V40: Einzelne Verkäufer-PDFs werden jetzt direkt als echte PDF-Datei gespeicher
 V42: Sammelfunktion finalisiert: „Alle Verkäufer als ZIP speichern“ erzeugt eine einzige ZIP-Datei mit einer separaten PDF pro Verkäufer. Einzel-PDF bleibt verfügbar.
 
 
-V43: Die PDFs im ZIP verwenden jetzt denselben A4-Aufbau wie die einzelnen Verkäufer-PDFs (blauer Kopf, Übersichtskarte, grüne Auszahlung, Artikeltabelle).
+V44: Die PDFs im ZIP verwenden jetzt denselben A4-Aufbau wie die einzelnen Verkäufer-PDFs (blauer Kopf, Übersichtskarte, grüne Auszahlung, Artikeltabelle).
