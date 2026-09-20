@@ -9,7 +9,10 @@ let currentItems=[],editingIndex=null,isToy=false,activeInput="seller",sellers=[
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
-function priceValue(){return parseFloat(price.value.replace(/\./g,"").replace(",","."))}
+function priceValue(){
+ const raw=String(price.value||"").trim().replace(/\./g,",").replace(",", ".");
+ return Number(raw)||0;
+}
 function setActive(n){activeInput=n;activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";sellerNumber.classList.toggle("active",n==="seller");price.classList.toggle("active",n==="price")}
 function checkSeller(){
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
@@ -82,9 +85,19 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  if(k==="clear")v="";
  else if(k==="back")v=v.slice(0,-1);
  else if(k==="comma"){
-   if(activeInput==="price"&&!v.includes(","))v=v||"0,";
+   // Komma ist ausschließlich für die Preiseingabe. Falls noch die Verkäufernummer aktiv ist,
+   // automatisch auf Preis wechseln, damit das Komma auf dem iPad zuverlässig funktioniert.
+   if(activeInput!=="price"){
+     setActive("price");
+     v=price.value;
+   }
+   if(!/[,.]/.test(v)) v=v||"0,";
  }else{
-   if(activeInput==="price"&&v.includes(",")&&v.split(",")[1].length>=2)return;
+   if(activeInput==="price"){
+     // Falls ein Dezimaltrennzeichen vorhanden ist, maximal zwei Nachkommastellen zulassen.
+     const normalized=v.replace(".",",");
+     if(/[,.]/.test(normalized) && normalized.split(",")[1].length>=2) return;
+   }
    v+=k;
  }
  field.value=v;
