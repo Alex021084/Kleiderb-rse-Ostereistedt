@@ -170,3 +170,5 @@ V42: Sammelfunktion finalisiert: „Alle Verkäufer als ZIP speichern“ erzeugt
 
 
 V44: Die PDFs im ZIP verwenden jetzt denselben A4-Aufbau wie die einzelnen Verkäufer-PDFs (blauer Kopf, Übersichtskarte, grüne Auszahlung, Artikeltabelle).
+
+Version: V52
