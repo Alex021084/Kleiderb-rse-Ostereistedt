@@ -5,10 +5,10 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
-const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
+const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 const shoeModal=$("shoeModal"),closeShoe=$("closeShoe"),shoeSizeButtons=[...document.querySelectorAll("[data-shoe-size]")];
-let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="";
+let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="",unassignedPhoto="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
@@ -31,21 +31,21 @@ function selectSize(v){isToy=false;isShoe=false;shoeSize="";toyButton.classList.
 function selectToy(){isToy=!isToy;isShoe=false;shoeSize="";toyButton.classList.toggle("active",isToy);shoeButton.classList.remove("active");if(isToy)sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("price");update()}
 function openShoe(){shoeModal.classList.add("is-open")}
 function selectShoe(v){isShoe=true;isToy=false;shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));shoeModal.classList.remove("is-open");setActive("price");update()}
-function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";isShoe=false;shoeSize="";unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
+function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedPhoto="";unassignedPhotoInput.value="";unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";isShoe=false;shoeSize="";unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update()}
-function saveItem(){if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
-function editItem(i){const x=currentItems[i];editingIndex=i;unassignedMode=!x.sellerNumber;unassignedNote=String(x.unassignedNote||"");unassignedButton.classList.toggle("active",unassignedMode);unassignedButton.textContent=unassignedMode?"✓ Ohne Verkäufernummer":"＋ Ohne Verkäufernummer";sellerNumber.disabled=unassignedMode;sellerNumber.placeholder=unassignedMode?"Nicht zugeordnet":"Verkäufernummer auswählen";articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber||"";price.value=String(x.price).replace(".",",");if(x.size==="Spielzeug"){isToy=false;selectToy()}else if(String(x.size||"").startsWith("Schuhe ")){isToy=false;isShoe=true;shoeSize=String(x.size).replace(/^Schuhe\s*/,"");shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else{isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}
+function saveItem(){if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",unassignedPhoto:unassignedMode?String(unassignedPhoto||""):"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
+function editItem(i){const x=currentItems[i];editingIndex=i;unassignedMode=!x.sellerNumber;unassignedNote=String(x.unassignedNote||"");unassignedPhoto=String(x.unassignedPhoto||"");setPhotoPreview(unassignedPhoto);unassignedButton.classList.toggle("active",unassignedMode);unassignedButton.textContent=unassignedMode?"✓ Ohne Verkäufernummer":"＋ Ohne Verkäufernummer";sellerNumber.disabled=unassignedMode;sellerNumber.placeholder=unassignedMode?"Nicht zugeordnet":"Verkäufernummer auswählen";articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber||"";price.value=String(x.price).replace(".",",");if(x.size==="Spielzeug"){isToy=false;selectToy()}else if(String(x.size||"").startsWith("Schuhe ")){isToy=false;isShoe=true;shoeSize=String(x.size).replace(/^Schuhe\s*/,"");shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else{isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}
 function deleteItem(i){currentItems.splice(i,1);if(editingIndex===i)nextArticle();render()}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function render(){
  itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;
  receiptItems.innerHTML=currentItems.length?currentItems.map((x,i)=>{
-   const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}</span>`;
+   const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}${x.unassignedPhoto?" · 📷":""}</span>`;
    return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b><button type="button" class="receipt-action" onclick="editItem(${i})">✎</button><button type="button" class="receipt-action receipt-delete" onclick="deleteItem(${i})">×</button></div>`;
  }).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';
  liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()
 }
-function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
+function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}${x.unassignedPhoto?" · 📷":""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
 async function saveSale(payment){
  if(savingSale)return;
  if(!currentItems.length)return;
@@ -92,7 +92,7 @@ async function loadUnassignedItems(){
   }
   return rows;
 }
-function openUnassigned(){unassignedNoteInput.value=unassignedNote||"";unassignedModal.classList.add("is-open");setTimeout(()=>unassignedNoteInput.focus(),50)}
+function openUnassigned(){unassignedNoteInput.value=unassignedNote||"";setPhotoPreview(unassignedPhoto||"");unassignedModal.classList.add("is-open");setTimeout(()=>unassignedNoteInput.focus(),50)}
 function closeUnassignedModal(){unassignedModal.classList.remove("is-open")}
 function openUnassignedItems(){unassignedListModal.classList.add("is-open");renderUnassignedList()}
 function closeUnassignedItems(){unassignedListModal.classList.remove("is-open")}
@@ -103,6 +103,7 @@ async function renderUnassignedList(){
     unassignedListCount.textContent=`${rows.length} ${rows.length===1?'Artikel':'Artikel'} · ${KBCloud.KB_CLOUD.register||'Kasse 1'}`;
     if(!rows.length){unassignedList.innerHTML='<div class="unassigned-empty">Keine offenen Artikel in dieser Kasse.</div>';return;}
     unassignedList.innerHTML=rows.map((x,i)=>`<div class="unassigned-card" data-row="${i}">
+      ${x.unassigned_photo?`<img class="unassigned-card-photo" src="${esc(x.unassigned_photo)}" alt="Foto">`:``}
       <div class="unassigned-card-top"><div><b>${esc(x.size)}</b><div class="unassigned-card-note">${esc(x.unassigned_note||x.unassignedNote||'Keine Notiz')}</div></div><strong>${euro(x.price)}</strong></div>
       <div class="unassigned-card-meta">Bon: ${esc(x.receipt_no||x.receiptId||'–')}</div>
       <div class="assign-row"><input class="assign-input" inputmode="numeric" type="text" placeholder="Verkäufernummer"><button class="assign-button" type="button">Zuordnen</button></div>
@@ -120,7 +121,7 @@ async function assignUnassigned(row,number){
   const rate=enabled?Number(seller.commissionRate??15)/100:0;
   try{
     if(KBCloud.cloudReady()){
-      await KBCloud.cloudUpdateReceiptItem(row.id,{seller_number:String(number),unassigned_note:'',commission_enabled:enabled,commission_rate:rate});
+      await KBCloud.cloudUpdateReceiptItem(row.id,{seller_number:String(number),unassigned_note:'',unassigned_photo:'',commission_enabled:enabled,commission_rate:rate});
     }else{
       const sales=JSON.parse(localStorage.getItem('kb_sales')||'[]');
       const idx=sales.findIndex(x=>String(x.receiptId)===String(row.receiptId||row.receipt_id) && Number(x.price)===Number(row.price) && String(x.size)===String(row.size) && !x.sellerNumber);
@@ -130,6 +131,9 @@ async function assignUnassigned(row,number){
     await renderUnassignedList();
   }catch(e){console.error(e);alert('Die Zuordnung konnte nicht gespeichert werden.');}
 }
+function setPhotoPreview(data){unassignedPhoto=data||"";if(unassignedPhoto){unassignedPhotoPreview.src=unassignedPhoto;unassignedPhotoPreview.classList.remove("hidden");photoStatus.textContent="Foto vorhanden";}else{unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";}}
+function resizePhoto(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);resolve(c.toDataURL("image/jpeg",0.72));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file);});}
+unassignedPhotoInput.addEventListener("change",async()=>{const file=unassignedPhotoInput.files&&unassignedPhotoInput.files[0];if(!file)return;try{setPhotoPreview(await resizePhoto(file));}catch(e){console.error(e);alert("Das Foto konnte nicht verarbeitet werden.");}});
 function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
 unassignedButton.addEventListener("click",openUnassigned);openUnassignedList.addEventListener("click",openUnassignedItems);closeUnassignedList.addEventListener("click",closeUnassignedItems);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));

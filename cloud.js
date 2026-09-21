@@ -34,7 +34,7 @@ async function cloudCreateReceipt(items,payment){
   })});
   const receipt=created[0];
   const rows=items.map(x=>({
-    receipt_id:receipt.id,seller_number:x.sellerNumber?String(x.sellerNumber):null,unassigned_note:x.unassignedNote?String(x.unassignedNote):"",size:String(x.size),price:Number(x.price),
+    receipt_id:receipt.id,seller_number:x.sellerNumber?String(x.sellerNumber):null,unassigned_note:x.unassignedNote?String(x.unassignedNote):"",unassigned_photo:x.unassignedPhoto?String(x.unassignedPhoto):"",size:String(x.size),price:Number(x.price),
     commission_enabled:x.commissionEnabled===true,commission_rate:Number(x.commissionRate||0)
   }));
   await cloudFetch("receipt_items",{method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(rows)});

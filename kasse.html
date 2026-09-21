@@ -125,6 +125,8 @@
     <div class="modal-head"><div><h2>Ohne Verkäufernummer</h2><div class="final-count">Artikel ohne Zuordnung erfassen</div></div><button id="closeUnassigned" class="close" type="button">×</button></div>
     <label for="unassignedNote">Kleine Notiz</label>
     <textarea id="unassignedNote" class="unassigned-note" maxlength="120" placeholder="z. B. Jacke rot, Zettel fehlt"></textarea>
+    <div class="photo-row"><label class="photo-button" for="unassignedPhoto">📷 Foto aufnehmen</label><input id="unassignedPhoto" type="file" accept="image/*" capture="environment" hidden><span id="photoStatus" class="photo-status">Kein Foto</span></div>
+    <img id="unassignedPhotoPreview" class="unassigned-photo-preview hidden" alt="Foto des nicht zugeordneten Artikels">
     <div class="unassigned-hint">Die Notiz wird gespeichert, damit der Artikel später im Tagesabschluss gefunden und einem Verkäufer zugeordnet werden kann.</div>
     <div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div>
   </div>
@@ -144,6 +146,6 @@
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=58"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=60"></script>
 </body>
 </html>

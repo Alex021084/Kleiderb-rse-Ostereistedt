@@ -66,3 +66,4 @@ create index if not exists receipt_items_seller_idx on public.receipt_items(sell
 -- V54: Artikel ohne Verkäufernummer zulassen und mit Notiz speichern.
 alter table public.receipt_items alter column seller_number drop not null;
 alter table public.receipt_items add column if not exists unassigned_note text not null default '';
+alter table public.receipt_items add column if not exists unassigned_photo text not null default '';
