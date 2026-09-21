@@ -102,12 +102,21 @@ async function renderUnassignedList(){
     const rows=await loadUnassignedItems();
     unassignedListCount.textContent=`${rows.length} ${rows.length===1?'Artikel':'Artikel'} · ${KBCloud.KB_CLOUD.register||'Kasse 1'}`;
     if(!rows.length){unassignedList.innerHTML='<div class="unassigned-empty">Keine offenen Artikel in dieser Kasse.</div>';return;}
-    unassignedList.innerHTML=rows.map((x,i)=>`<div class="unassigned-card" data-row="${i}">
-      ${x.unassigned_photo?`<img class="unassigned-card-photo" src="${esc(x.unassigned_photo)}" alt="Foto">`:``}
-      <div class="unassigned-card-top"><div><b>${esc(x.size)}</b><div class="unassigned-card-note">${esc(x.unassigned_note||x.unassignedNote||'Keine Notiz')}</div></div><strong>${euro(x.price)}</strong></div>
-      <div class="unassigned-card-meta">Bon: ${esc(x.receipt_no||x.receiptId||'–')}</div>
-      <div class="assign-row"><input class="assign-input" inputmode="numeric" type="text" placeholder="Verkäufernummer"><button class="assign-button" type="button">Zuordnen</button></div>
-    </div>`).join('');
+    unassignedList.innerHTML=rows.map((x,i)=>{
+      const photo=x.unassigned_photo||x.unassignedPhoto||'';
+      const note=x.unassigned_note||x.unassignedNote||'Keine Notiz';
+      return `<div class="unassigned-card" data-row="${i}">
+        <div class="unassigned-card-main">
+          ${photo?`<img class="unassigned-card-photo" src="${esc(photo)}" alt="Foto">`:``}
+          <div class="unassigned-card-info">
+            <div class="unassigned-card-top"><b>${esc(x.size)}</b><strong>${euro(x.price)}</strong></div>
+            <div class="unassigned-card-note">${esc(note)}</div>
+            <div class="unassigned-card-meta">Bon: ${esc(x.receipt_no||x.receiptId||'–')}</div>
+          </div>
+        </div>
+        <div class="assign-row"><input class="assign-input" inputmode="numeric" type="text" placeholder="Verkäufernummer"><button class="assign-button" type="button">Zuordnen</button></div>
+      </div>`;
+    }).join('');
     [...unassignedList.querySelectorAll('.unassigned-card')].forEach((card,i)=>{
       card.querySelector('.assign-button').addEventListener('click',()=>assignUnassigned(rows[i],card.querySelector('.assign-input').value.trim()));
     });
