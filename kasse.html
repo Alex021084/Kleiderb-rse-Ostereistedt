@@ -19,7 +19,11 @@
       <h1 id="pageTitle">Kasse 1</h1>
       <h2 id="articleTitle">Artikel eingeben</h2>
 
-      <div class="seller-label-row"><label>Verkäufernummer</label><div class="seller-action-buttons"><button id="unassignedButton" class="unassigned-button" type="button">＋ Ohne Verkäufernummer</button><button id="openUnassignedList" class="unassigned-button list-button" type="button">📋 Offene Artikel</button></div></div>
+      <div class="seller-action-row">
+        <button id="unassignedButton" class="unassigned-button" type="button"><span class="action-icon">＋</span><span>Ohne Verkäufernummer</span></button>
+        <button id="openUnassignedList" class="unassigned-button list-button" type="button"><span class="action-icon">▣</span><span>Offene Artikel</span></button>
+      </div>
+      <div class="seller-label-row"><label>Verkäufernummer</label></div>
       <input id="sellerNumber" class="touch-input" type="text" inputmode="none" readonly placeholder="Verkäufernummer auswählen">
       <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
 
@@ -115,6 +119,6 @@
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=55"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=56"></script>
 </body>
 </html>
