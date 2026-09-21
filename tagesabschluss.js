@@ -229,11 +229,11 @@ th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1p
 td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}
 .footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
 .printbar{position:sticky;top:0;background:#fff;padding:12px;text-align:center;border-bottom:1px solid #ddd}
-.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}
+.printbar{display:flex;justify-content:center;gap:10px}.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}.printbar .closebtn{background:#edf0f5;color:#172033}
 @media print{.printbar{display:none}.page{margin:0}}
 </style></head>
 <body>
-<div class="printbar"><button onclick="window.print()">PDF / Drucken</button></div>
+<div class="printbar"><button onclick="window.print()">PDF / Drucken</button><button class="closebtn" onclick="try{window.close()}catch(e){};setTimeout(()=>{try{history.back()}catch(e){}},120)">✕ Schließen</button></div>
 <div class="page">
   <div class="logo-wrap"><img src="${new URL("kleiderboerse-logo.jpg", location.href).href}" alt="Kleiderbörse Ostereistedt"></div>
   <div class="header"><div class="brand">Verkäufer-Abrechnung</div></div>

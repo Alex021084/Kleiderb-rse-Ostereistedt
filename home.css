@@ -38,3 +38,8 @@ header{display:flex;align-items:center;justify-content:center;margin:0 0 22px}
   .register-choice-grid button{min-height:82px}
   .register-choice-grid button:last-child{grid-column:auto}
 }
+
+.archive-button{min-height:68px;border:1px solid #d9dee8;border-radius:17px;background:#fff;color:#172033;text-decoration:none;padding:14px 18px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 5px 14px #17203310;margin-top:2px;cursor:pointer}
+.archive-button:active{transform:scale(.985)}
+.archive-icon{width:42px;height:42px;border-radius:12px;background:#eef1f7;display:grid;place-items:center;font-size:22px}
+.archive-button strong{display:block;font-size:19px;line-height:1.1}.archive-button small{display:block;color:#687382;font-size:13px;margin-top:3px}
