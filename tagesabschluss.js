@@ -13,6 +13,7 @@ function itemsOf(r){return r.receipt_items||[]}
 function priceOf(i){return Number(i.price||0)}
 function rateOf(i){return Number(i.commission_rate??i.commissionRate??(i.commission_enabled===false||i.commissionEnabled===false?0:.15))}
 function filteredReceipts(receipts){return selectedRegister==="Alle Kassen"?receipts:receipts.filter(r=>(r.register_id||r.registerId||"Kasse 1")===selectedRegister)}
+function isUnassigned(i){return !String(i.seller_number??i.sellerNumber??"").trim()}
 
 async function render(){
  const allReceipts=await loadData(),receipts=filteredReceipts(allReceipts),items=receipts.flatMap(itemsOf);
@@ -27,12 +28,17 @@ async function render(){
  $("selectedRegisterText").textContent=`Anzeige: ${selectedRegister}`;
 
  const bySeller={};
- items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"");if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*rateOf(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
+ items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"").trim();if(!n)return;if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*rateOf(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
  let sellerData=[];
  if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
  else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
  const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
  $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div><div class="seller-pdf-cell"><button type="button" class="seller-pdf-button" data-seller-number="${esc(n)}">PDF</button></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
+ const unassigned=[];
+ allReceipts.forEach(r=>{(r.receipt_items||[]).forEach((x,i)=>{if(isUnassigned(x))unassigned.push({r,x,index:i})})});
+ const ur=$("unassignedRows"),uc=$("unassignedCount");
+ if(uc)uc.textContent=`${unassigned.length} ${unassigned.length===1?"Artikel":"Artikel"}`;
+ if(ur)ur.innerHTML=unassigned.map(({r,x})=>{const d=new Date(r.created_at);const note=x.unassigned_note??x.unassignedNote??"";return `<div class="seller-row"><div class="seller-name"><strong>Nicht zugeordnet</strong><div class="muted">Bon ${esc(r.receipt_no??r.id)} · ${esc(r.register_id||r.registerId||"Kasse 1")} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")}</div></div><div><div class="muted">Größe / Kategorie</div><strong>${esc(x.size||"")}</strong></div><div><div class="muted">Preis</div><strong>${euro(priceOf(x))}</strong></div><div><div class="muted">Notiz</div><strong>${esc(note||"—")}</strong></div></div>`}).join("")||'<div class="seller-empty">Keine nicht zugeordneten Artikel.</div>';
  document.querySelectorAll(".seller-pdf-button").forEach(btn=>btn.addEventListener("click",()=>saveSellerPdfByNumber(btn.dataset.sellerNumber, allReceipts, sellerData)));
 
  const regs={};
@@ -55,7 +61,7 @@ async function render(){
  $("receiptRows").innerHTML=receipts.map(r=>{
    const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
    const d=new Date(r.created_at);
-   return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||r.registerId||"Kasse 1")} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">Verkäufer ${esc(x.seller_number??x.sellerNumber??"")} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
+   return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||r.registerId||"Kasse 1")} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
  }).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
  const d=new Date();$("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
 }

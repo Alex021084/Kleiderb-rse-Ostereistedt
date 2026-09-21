@@ -22,7 +22,8 @@ create table if not exists public.receipts (
 create table if not exists public.receipt_items (
   id bigint generated always as identity primary key,
   receipt_id bigint not null references public.receipts(id) on delete cascade,
-  seller_number text not null,
+  seller_number text,
+  unassigned_note text not null default '',
   size text not null,
   price numeric(10,2) not null,
   commission_enabled boolean not null default true,
@@ -61,3 +62,7 @@ create index if not exists receipt_items_receipt_id_idx on public.receipt_items(
 create index if not exists receipts_created_at_idx on public.receipts(created_at desc);
 create index if not exists receipts_register_idx on public.receipts(register_id);
 create index if not exists receipt_items_seller_idx on public.receipt_items(seller_number);
+
+-- V54: Artikel ohne Verkäufernummer zulassen und mit Notiz speichern.
+alter table public.receipt_items alter column seller_number drop not null;
+alter table public.receipt_items add column if not exists unassigned_note text not null default '';

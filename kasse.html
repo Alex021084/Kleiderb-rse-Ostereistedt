@@ -19,7 +19,7 @@
       <h1 id="pageTitle">Kasse 1</h1>
       <h2 id="articleTitle">Artikel eingeben</h2>
 
-      <label>Verkäufernummer</label>
+      <div class="seller-label-row"><label>Verkäufernummer</label><button id="unassignedButton" class="unassigned-button" type="button">＋ Ohne Verkäufernummer</button></div>
       <input id="sellerNumber" class="touch-input" type="text" inputmode="none" readonly placeholder="Verkäufernummer auswählen">
       <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
 
@@ -91,12 +91,22 @@
   </div>
 </div>
 
+<div id="unassignedModal" class="modal">
+  <div class="unassigned-box">
+    <div class="modal-head"><div><h2>Ohne Verkäufernummer</h2><div class="final-count">Artikel ohne Zuordnung erfassen</div></div><button id="closeUnassigned" class="close" type="button">×</button></div>
+    <label for="unassignedNote">Kleine Notiz</label>
+    <textarea id="unassignedNote" class="unassigned-note" maxlength="120" placeholder="z. B. Jacke rot, Zettel fehlt"></textarea>
+    <div class="unassigned-hint">Die Notiz wird gespeichert, damit der Artikel später im Tagesabschluss gefunden und einem Verkäufer zugeordnet werden kann.</div>
+    <div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div>
+  </div>
+</div>
+
 <div id="successModal" class="modal">
   <div class="success-box">
     <div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p>
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=51"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=54"></script>
 </body>
 </html>

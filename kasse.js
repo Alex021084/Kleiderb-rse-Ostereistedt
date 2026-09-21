@@ -5,7 +5,8 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
-let currentItems=[],editingIndex=null,isToy=false,activeInput="seller",sellers=[],savingSale=false;
+const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
+let currentItems=[],editingIndex=null,isToy=false,activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
@@ -13,26 +14,34 @@ function priceValue(){
  const raw=String(price.value||"").trim().replace(/\./g,",").replace(",", ".");
  return Number(raw)||0;
 }
-function setActive(n){activeInput=n;activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";sellerNumber.classList.toggle("active",n==="seller");price.classList.toggle("active",n==="price")}
+function setActive(n){activeInput=n;activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";sellerNumber.classList.toggle("active",n==="seller"&&!unassignedMode);price.classList.toggle("active",n==="price")}
 function checkSeller(){
+ if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
  if(!n){sellerStatus.textContent="Bitte Verkäufernummer eingeben.";update();return false}
  const ok=getSellers().some(s=>String(s.number)===n);sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
  sellerStatus.textContent=ok?"✓ Verkäufernummer gefunden":"✕ Verkäufernummer nicht gefunden";update();return ok
 }
 function currentSize(){const s=document.querySelector(".size-button.selected");return isToy?"Spielzeug":(s?s.dataset.size:"")}
-function valid(){return getSellers().some(s=>String(s.number)===sellerNumber.value.trim())&&!!currentSize()&&priceValue()>0}
-function update(){const ok=sellerNumber.value.trim()&&currentSize()&&priceValue()>0&&getSellers().some(s=>String(s.number)===sellerNumber.value.trim());addButton.disabled=!ok;finishButton.disabled=!(currentItems.length||ok)}
+function valid(){return (unassignedMode || getSellers().some(s=>String(s.number)===sellerNumber.value.trim()))&&!!currentSize()&&priceValue()>0}
+function update(){const sellerOk=unassignedMode||getSellers().some(s=>String(s.number)===sellerNumber.value.trim());const ok=sellerOk&&currentSize()&&priceValue()>0;addButton.disabled=!ok;finishButton.disabled=!(currentItems.length||ok)}
 function selectSize(v){isToy=false;toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
 function selectToy(){isToy=!isToy;toyButton.classList.toggle("active",isToy);if(isToy)sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("price");update()}
-function clearFields(){sellerNumber.value="";price.value="";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;toyButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
+function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;toyButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update()}
-function saveItem(){if(!valid())return false;const item={sellerNumber:sellerNumber.value.trim(),size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
-function editItem(i){const x=currentItems[i];editingIndex=i;articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber;price.value=String(x.price).replace(".",",");if(x.size==="Spielzeug"){isToy=false;selectToy()}else{isToy=false;toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}
+function saveItem(){if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
+function editItem(i){const x=currentItems[i];editingIndex=i;unassignedMode=!x.sellerNumber;unassignedNote=String(x.unassignedNote||"");unassignedButton.classList.toggle("active",unassignedMode);unassignedButton.textContent=unassignedMode?"✓ Ohne Verkäufernummer":"＋ Ohne Verkäufernummer";sellerNumber.disabled=unassignedMode;sellerNumber.placeholder=unassignedMode?"Nicht zugeordnet":"Verkäufernummer auswählen";articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber||"";price.value=String(x.price).replace(".",",");if(x.size==="Spielzeug"){isToy=false;selectToy()}else{isToy=false;toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}
 function deleteItem(i){currentItems.splice(i,1);if(editingIndex===i)nextArticle();render()}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function render(){itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;receiptItems.innerHTML=currentItems.length?currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b><button type="button" class="receipt-action" onclick="editItem(${i})">✎</button><button type="button" class="receipt-action receipt-delete" onclick="deleteItem(${i})">×</button></div>`).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()}
-function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>`<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">Verkäufer ${esc(x.sellerNumber)} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
+function render(){
+ itemCount.textContent=`${currentItems.length} ${currentItems.length===1?"Artikel":"Artikel"}`;
+ receiptItems.innerHTML=currentItems.length?currentItems.map((x,i)=>{
+   const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}</span>`;
+   return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b><button type="button" class="receipt-action" onclick="editItem(${i})">✎</button><button type="button" class="receipt-action receipt-delete" onclick="deleteItem(${i})">×</button></div>`;
+ }).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';
+ liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()
+}
+function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
 async function saveSale(payment){
  if(savingSale)return;
  if(!currentItems.length)return;
@@ -40,8 +49,8 @@ async function saveSale(payment){
  try{
    const prepared=currentItems.map(x=>{
      const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
-     const commissionEnabled=seller?seller.commissionEnabled===true:true;
-     const commissionRate=commissionEnabled?Number(seller?.commissionRate??15)/100:0;
+     const commissionEnabled=x.sellerNumber ? (seller?seller.commissionEnabled===true:true) : false;
+     const commissionRate=x.sellerNumber && commissionEnabled ? Number(seller?.commissionRate??15)/100:0;
      return {...x,commissionEnabled,commissionRate};
    });
    let receiptNo=null;
@@ -65,12 +74,16 @@ async function saveSale(payment){
 }
 function newSale(){currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
 
+function openUnassigned(){unassignedNoteInput.value=unassignedNote||"";unassignedModal.classList.add("is-open");setTimeout(()=>unassignedNoteInput.focus(),50)}
+function closeUnassignedModal(){unassignedModal.classList.remove("is-open")}
+function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
+unassignedButton.addEventListener("click",openUnassigned);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);
 keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  const k=b.dataset.key;
  if(k==="confirm"){
-   if(activeInput==="seller"){
+   if(activeInput==="seller" && !unassignedMode){
      if(checkSeller()){
        setActive("price");
        price.focus({preventScroll:true});
@@ -80,7 +93,7 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
    }
    return;
  }
- const field=activeInput==="seller"?sellerNumber:price;
+ const field=activeInput==="seller"&&!unassignedMode?sellerNumber:price;
  let v=field.value;
  if(k==="clear")v="";
  else if(k==="back")v=v.slice(0,-1);

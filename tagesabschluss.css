@@ -61,3 +61,5 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
   .seller-pdf-cell{grid-column:1/-1;text-align:left}
   .seller-pdf-button{width:100%;min-height:44px}
 }
+
+.unassigned-summary{border:2px solid #f0c47a!important}.unassigned-summary .seller-summary-head h2{color:#9a5a08}.unassigned-meta{color:#b56a12;font-weight:800}
