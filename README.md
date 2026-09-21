@@ -1,3 +1,5 @@
+Version V59 – Kasse 6 ergänzt.
+
 # Kleiderbörse – Projekt V2
 
 Aktueller Stand:

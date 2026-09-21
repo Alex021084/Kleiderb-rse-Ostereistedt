@@ -171,7 +171,7 @@ closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
 function getSelectedRegister(){
   const q=new URLSearchParams(window.location.search).get("kasse");
-  if(q && /^[1-5]$/.test(q)){
+  if(q && /^[1-6]$/.test(q)){
     const r=`Kasse ${q}`;
     try{localStorage.setItem("kb_register",r);}catch(e){}
     return r;

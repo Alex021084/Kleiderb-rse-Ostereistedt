@@ -74,7 +74,7 @@ function registerPicker(){
   wrap.style.cssText="display:flex;align-items:center;gap:8px";
   const s=document.createElement("select");
   s.id="registerSelect";s.style.cssText="font:700 16px system-ui;padding:8px 12px;border-radius:10px;border:1px solid #ffffff55;background:#fff;color:#172033";
-  for(let i=1;i<=5;i++){const o=document.createElement("option");o.value=`Kasse ${i}`;o.textContent=`Kasse ${i}`;s.appendChild(o);}
+  for(let i=1;i<=6;i++){const o=document.createElement("option");o.value=`Kasse ${i}`;o.textContent=`Kasse ${i}`;s.appendChild(o);}
   s.value=KB_CLOUD.register;s.onchange=()=>setRegister(s.value);
   wrap.appendChild(s);return wrap;
 }
