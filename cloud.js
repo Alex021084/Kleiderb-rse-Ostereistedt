@@ -165,7 +165,7 @@ function createLoginBox(){
     try{
       await authLogin(email,password);
     }catch(e){
-      error.textContent="Anmeldung fehlgeschlagen. Bitte Daten prüfen.";
+      error.textContent=e?.message || "Anmeldung fehlgeschlagen.";
     }finally{
       button.disabled=false;
       button.textContent="Anmelden";
