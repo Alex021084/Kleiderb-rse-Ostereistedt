@@ -29,6 +29,14 @@
 
       <label>Größe</label>
       <div class="size-grid">
+        <button type="button" class="size-button" data-size="50">50</button>
+        <button type="button" class="size-button" data-size="56">56</button>
+        <button type="button" class="size-button" data-size="62">62</button>
+        <button type="button" class="size-button" data-size="68">68</button>
+        <button type="button" class="size-button" data-size="74">74</button>
+        <button type="button" class="size-button" data-size="80">80</button>
+        <button type="button" class="size-button" data-size="86">86</button>
+        <button type="button" class="size-button" data-size="92">92</button>
         <button type="button" class="size-button" data-size="98">98</button>
         <button type="button" class="size-button" data-size="104">104</button>
         <button type="button" class="size-button" data-size="110">110</button>
@@ -45,7 +53,10 @@
         <button type="button" class="size-button" data-size="176">176</button>
       </div>
 
+      <div class="special-item-row">
       <button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button>
+      <button id="shoeButton" class="toy-button shoe-button" type="button" aria-pressed="false">👟 &nbsp; Schuhe</button>
+      </div>
 
       <label>Preis</label>
       <div class="price-wrap">
@@ -79,6 +90,20 @@
         <div class="receipt-total"><span>Gesamt</span><strong id="liveTotal">0,00 €</strong></div>
       </section>
     </section>
+  </div>
+</div>
+
+
+<div id="shoeModal" class="modal">
+  <div class="shoe-box">
+    <div class="modal-head"><div><h2>Schuhgröße auswählen</h2><div class="final-count">Bitte die passende Schuhgröße auswählen.</div></div><button id="closeShoe" class="close" type="button">×</button></div>
+    <div id="shoeSizes" class="shoe-size-grid">
+      <button type="button" data-shoe-size="16">16</button><button type="button" data-shoe-size="17">17</button><button type="button" data-shoe-size="18">18</button><button type="button" data-shoe-size="19">19</button><button type="button" data-shoe-size="20">20</button><button type="button" data-shoe-size="21">21</button>
+      <button type="button" data-shoe-size="22">22</button><button type="button" data-shoe-size="23">23</button><button type="button" data-shoe-size="24">24</button><button type="button" data-shoe-size="25">25</button><button type="button" data-shoe-size="26">26</button><button type="button" data-shoe-size="27">27</button>
+      <button type="button" data-shoe-size="28">28</button><button type="button" data-shoe-size="29">29</button><button type="button" data-shoe-size="30">30</button><button type="button" data-shoe-size="31">31</button><button type="button" data-shoe-size="32">32</button><button type="button" data-shoe-size="33">33</button>
+      <button type="button" data-shoe-size="34">34</button><button type="button" data-shoe-size="35">35</button><button type="button" data-shoe-size="36">36</button><button type="button" data-shoe-size="37">37</button><button type="button" data-shoe-size="38">38</button><button type="button" data-shoe-size="39">39</button>
+      <button type="button" data-shoe-size="40">40</button><button type="button" data-shoe-size="41">41</button><button type="button" data-shoe-size="42">42</button>
+    </div>
   </div>
 </div>
 
@@ -119,6 +144,6 @@
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=56"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=58"></script>
 </body>
 </html>
