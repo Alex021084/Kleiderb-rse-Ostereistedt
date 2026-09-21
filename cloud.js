@@ -51,6 +51,10 @@ async function cloudGetReceipts(){
   (items||[]).forEach(x=>{(byReceipt[x.receipt_id] ||= []).push(x)});
   return receipts.map(r=>({...r,receipt_items:byReceipt[r.id]||[]}));
 }
+async function cloudUpdateReceiptItem(id,patch){
+  const data=await cloudFetch(`receipt_items?id=eq.${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Prefer":"return=minimal"},body:JSON.stringify(patch)});
+  return data;
+}
 async function cloudResetReceipts(){
   await cloudFetch("receipts?id=gt.0",{method:"DELETE",headers:{"Prefer":"return=minimal"}});
 }
@@ -74,4 +78,4 @@ function registerPicker(){
   s.value=KB_CLOUD.register;s.onchange=()=>setRegister(s.value);
   wrap.appendChild(s);return wrap;
 }
-window.KBCloud={cloudReady,cloudGetSellers,cloudSaveSeller,cloudDeleteSeller,cloudCreateReceipt,cloudGetReceipts,cloudResetReceipts,cloudResetReceiptsForRegister,cloudBanner,registerPicker,setRegister,KB_CLOUD};
+window.KBCloud={cloudReady,cloudGetSellers,cloudSaveSeller,cloudDeleteSeller,cloudCreateReceipt,cloudGetReceipts,cloudUpdateReceiptItem,cloudResetReceipts,cloudResetReceiptsForRegister,cloudBanner,registerPicker,setRegister,KB_CLOUD};

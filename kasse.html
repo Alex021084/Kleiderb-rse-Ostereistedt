@@ -19,7 +19,7 @@
       <h1 id="pageTitle">Kasse 1</h1>
       <h2 id="articleTitle">Artikel eingeben</h2>
 
-      <div class="seller-label-row"><label>Verkäufernummer</label><button id="unassignedButton" class="unassigned-button" type="button">＋ Ohne Verkäufernummer</button></div>
+      <div class="seller-label-row"><label>Verkäufernummer</label><div class="seller-action-buttons"><button id="unassignedButton" class="unassigned-button" type="button">＋ Ohne Verkäufernummer</button><button id="openUnassignedList" class="unassigned-button list-button" type="button">📋 Offene Artikel</button></div></div>
       <input id="sellerNumber" class="touch-input" type="text" inputmode="none" readonly placeholder="Verkäufernummer auswählen">
       <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
 
@@ -101,12 +101,20 @@
   </div>
 </div>
 
+
+<div id="unassignedListModal" class="modal">
+  <div class="unassigned-list-box">
+    <div class="modal-head"><div><h2>Offene Artikel</h2><div id="unassignedListCount" class="final-count"></div></div><button id="closeUnassignedList" class="close" type="button">×</button></div>
+    <div class="unassigned-list-hint">Nur Artikel ohne Verkäufernummer aus dieser Kasse.</div>
+    <div id="unassignedList" class="unassigned-list"></div>
+  </div>
+</div>
 <div id="successModal" class="modal">
   <div class="success-box">
     <div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p>
     <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
   </div>
 </div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=54"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=55"></script>
 </body>
 </html>

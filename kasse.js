@@ -6,6 +6,7 @@ const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveT
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
+const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 let currentItems=[],editingIndex=null,isToy=false,activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
@@ -74,10 +75,60 @@ async function saveSale(payment){
 }
 function newSale(){currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
 
+async function loadUnassignedItems(){
+  const register=KBCloud.KB_CLOUD.register || localStorage.getItem("kb_register") || "Kasse 1";
+  let rows=[];
+  if(KBCloud.cloudReady()){
+    const receipts=await KBCloud.cloudGetReceipts();
+    receipts.filter(r=>String(r.register_id)===String(register)).forEach(r=>{
+      (r.receipt_items||[]).filter(x=>!x.seller_number).forEach(x=>rows.push({...x,receipt_id:r.id,receipt_no:r.receipt_no||r.receipt_no||r.id,register_id:r.register_id}));
+    });
+  }else{
+    const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]");
+    sales.filter(x=>String(x.registerId||"")===String(register)&&!x.sellerNumber).forEach(x=>rows.push({...x}));
+  }
+  return rows;
+}
 function openUnassigned(){unassignedNoteInput.value=unassignedNote||"";unassignedModal.classList.add("is-open");setTimeout(()=>unassignedNoteInput.focus(),50)}
 function closeUnassignedModal(){unassignedModal.classList.remove("is-open")}
+function openUnassignedItems(){unassignedListModal.classList.add("is-open");renderUnassignedList()}
+function closeUnassignedItems(){unassignedListModal.classList.remove("is-open")}
+async function renderUnassignedList(){
+  unassignedList.innerHTML='<div class="unassigned-loading">Lade offene Artikel …</div>';
+  try{
+    const rows=await loadUnassignedItems();
+    unassignedListCount.textContent=`${rows.length} ${rows.length===1?'Artikel':'Artikel'} · ${KBCloud.KB_CLOUD.register||'Kasse 1'}`;
+    if(!rows.length){unassignedList.innerHTML='<div class="unassigned-empty">Keine offenen Artikel in dieser Kasse.</div>';return;}
+    unassignedList.innerHTML=rows.map((x,i)=>`<div class="unassigned-card" data-row="${i}">
+      <div class="unassigned-card-top"><div><b>${esc(x.size)}</b><div class="unassigned-card-note">${esc(x.unassigned_note||x.unassignedNote||'Keine Notiz')}</div></div><strong>${euro(x.price)}</strong></div>
+      <div class="unassigned-card-meta">Bon: ${esc(x.receipt_no||x.receiptId||'–')}</div>
+      <div class="assign-row"><input class="assign-input" inputmode="numeric" type="text" placeholder="Verkäufernummer"><button class="assign-button" type="button">Zuordnen</button></div>
+    </div>`).join('');
+    [...unassignedList.querySelectorAll('.unassigned-card')].forEach((card,i)=>{
+      card.querySelector('.assign-button').addEventListener('click',()=>assignUnassigned(rows[i],card.querySelector('.assign-input').value.trim()));
+    });
+  }catch(e){console.error(e);unassignedList.innerHTML='<div class="unassigned-empty">Die offenen Artikel konnten nicht geladen werden.</div>';}
+}
+async function assignUnassigned(row,number){
+  if(!number){alert('Bitte Verkäufernummer eingeben.');return;}
+  const seller=getSellers().find(s=>String(s.number)===String(number));
+  if(!seller){alert('Verkäufernummer nicht gefunden.');return;}
+  const enabled=seller.commissionEnabled===true;
+  const rate=enabled?Number(seller.commissionRate??15)/100:0;
+  try{
+    if(KBCloud.cloudReady()){
+      await KBCloud.cloudUpdateReceiptItem(row.id,{seller_number:String(number),unassigned_note:'',commission_enabled:enabled,commission_rate:rate});
+    }else{
+      const sales=JSON.parse(localStorage.getItem('kb_sales')||'[]');
+      const idx=sales.findIndex(x=>String(x.receiptId)===String(row.receiptId||row.receipt_id) && Number(x.price)===Number(row.price) && String(x.size)===String(row.size) && !x.sellerNumber);
+      if(idx<0){alert('Artikel nicht gefunden.');return;}
+      sales[idx].sellerNumber=String(number);sales[idx].unassignedNote='';sales[idx].commissionEnabled=enabled;sales[idx].commissionRate=rate;localStorage.setItem('kb_sales',JSON.stringify(sales));
+    }
+    await renderUnassignedList();
+  }catch(e){console.error(e);alert('Die Zuordnung konnte nicht gespeichert werden.');}
+}
 function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
-unassignedButton.addEventListener("click",openUnassigned);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
+unassignedButton.addEventListener("click",openUnassigned);openUnassignedList.addEventListener("click",openUnassignedItems);closeUnassignedList.addEventListener("click",closeUnassignedItems);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
 sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);
 keypadButtons.forEach(b=>b.addEventListener("click",()=>{
