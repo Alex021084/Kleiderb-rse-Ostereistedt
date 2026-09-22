@@ -194,6 +194,59 @@ async function authLogin(email,password){
   if(!cloudReady()){
     throw new Error("Cloud ist noch nicht eingerichtet.");
   }
+
+  try{
+    if(!window.supabase?.createClient){
+      await new Promise((resolve,reject)=>{
+        const script=document.createElement("script");
+        script.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+        script.onload=resolve;
+        script.onerror=()=>{
+          reject(new Error("Supabase-Bibliothek konnte nicht geladen werden."));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    const client=window.supabase.createClient(
+      KB_CLOUD.url,
+      KB_CLOUD.key
+    );
+
+    const {data,error}=await client.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if(error){
+      throw new Error(error.message || "Anmeldung fehlgeschlagen.");
+    }
+
+    if(!data?.session){
+      throw new Error("Supabase hat keine Sitzung zurückgegeben.");
+    }
+
+    saveAuthSession(data.session);
+    hideLogin();
+
+    if(kbLoginWaitResolve){
+      kbLoginWaitResolve(true);
+      kbLoginWaitResolve=null;
+      kbLoginWaitPromise=null;
+    }
+
+    return data.session;
+
+  }catch(e){
+    throw new Error(
+      "Supabase-Login: " +
+      (e?.message || "unbekannter Fehler")
+    );
+  }
+}
+  if(!cloudReady()){
+    throw new Error("Cloud ist noch nicht eingerichtet.");
+  }
 let r;
 
 try{
