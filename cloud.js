@@ -194,8 +194,11 @@ async function authLogin(email,password){
   if(!cloudReady()){
     throw new Error("Cloud ist noch nicht eingerichtet.");
   }
+let r;
 
-  const r=await fetch(
+try{
+  r=await fetch(
+  
     `${KB_CLOUD.url}/auth/v1/token?grant_type=password`,
     {
       method:"POST",
@@ -206,7 +209,12 @@ async function authLogin(email,password){
       body:JSON.stringify({email,password})
     }
   );
-
+}catch(e){
+  throw new Error(
+    "Supabase-Verbindung fehlgeschlagen: " +
+    (e?.message || "Unbekannter Netzwerkfehler")
+  );
+}
   if(!r.ok){
     throw new Error(await r.text());
   }
