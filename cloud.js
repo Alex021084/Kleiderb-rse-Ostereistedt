@@ -211,8 +211,10 @@ try{
   );
 }catch(e){
   throw new Error(
-    "Supabase-Verbindung fehlgeschlagen: " +
-    (e?.message || "Unbekannter Netzwerkfehler")
+    "Netzwerkfehler beim Supabase-Login. " +
+    "URL: " + KB_CLOUD.url +
+    " | Fehler: " + (e?.name || "unbekannt") +
+    " | " + (e?.message || "unbekannt")
   );
 }
   if(!r.ok){
