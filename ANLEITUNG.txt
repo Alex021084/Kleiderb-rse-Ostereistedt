@@ -1,0 +1,15 @@
+Tagesabschluss – Zahlungsarten-Fix
+
+In tagesabschluss.js im Bereich async function render() die drei Zeilen für
+cash, card und paypal ersetzen durch den Inhalt aus
+tagesabschluss_payment_fix.js.
+
+Wichtig:
+- cloud.js NICHT ändern
+- cloud-config.js NICHT ändern
+- Alle Kassenfilter bleiben erhalten
+- Bar/EC/PayPal werden aus dem Zahlungsfeld des Kassenbons (receipt.payment)
+  und dem Bon-Gesamtbetrag (receipt.total) berechnet.
+
+Der Fix behebt genau den Fehler, dass Gesamtumsatz angezeigt wird, Bar/EC/PayPal
+aber jeweils 0,00 € sind.
