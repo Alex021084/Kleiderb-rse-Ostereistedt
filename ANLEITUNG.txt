@@ -1,3 +1,4 @@
-Diese ZIP enthält die angepasste kasse.html.
-Änderung: Nur die beiden unteren Buttons 'Weiterer Artikel' und 'Bezahlen' sind etwas höher/größer und haben Symbole. Der übrige Kassenaufbau bleibt unverändert.
-Die Datei kasse.html im GitHub-Projekt ersetzen. cloud.js und cloud-config.js bleiben unverändert.
+V2 – Nur die beiden unteren Kassenbuttons angepasst.
+
+Weiterer Artikel und Bezahlen stehen jetzt etwas höher und sind minimal größer. Die Symbole bleiben erhalten. Cloud verbunden bleibt unverändert.
+Bitte nur kasse.html im GitHub-Projekt ersetzen. cloud.js und cloud-config.js nicht ändern.
