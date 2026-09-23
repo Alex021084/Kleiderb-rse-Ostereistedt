@@ -6,16 +6,47 @@
 <title>Kasse</title>
 <link rel="stylesheet" href="kasse.css">
 <style>
-/* Nur die beiden unteren Kassen-Aktionen: etwas höher, größer und mit Symbol */
-.entry-buttons{padding-bottom:42px}
+/* Nur die beiden unteren Kassen-Aktionen */
+.entry-buttons{padding-top:8px!important;padding-bottom:48px!important;gap:10px!important}
 .entry-buttons .continue,
-.entry-buttons .finish{height:56px;font-size:18px;display:flex;align-items:center;justify-content:center;gap:9px}
-.entry-buttons .btn-icon{font-size:25px;line-height:1;font-weight:900}
+.entry-buttons .finish{
+  height:62px!important;
+  font-size:19px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:11px!important;
+  border-radius:12px!important;
+}
+.entry-buttons .btn-icon{
+  width:31px!important;
+  height:31px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 31px!important;
+}
+.entry-buttons .btn-icon svg{
+  width:31px!important;
+  height:31px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:2.6!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+.entry-buttons .finish{
+  background:#16a34a!important;
+  color:#fff!important;
+}
+.entry-buttons .finish:disabled{
+  background:#cbd1dc!important;
+  color:#78818e!important;
+}
 @media (orientation:landscape) and (max-height:900px){
-  .entry-buttons{padding-top:7px;padding-bottom:42px}
+  .entry-buttons{padding-top:8px!important;padding-bottom:50px!important}
   .entry-buttons .continue,
-  .entry-buttons .finish{height:56px;font-size:17px}
-  .entry-buttons .btn-icon{font-size:24px}
+  .entry-buttons .finish{height:62px!important;font-size:18px!important}
 }
 </style>
 </head>
@@ -53,8 +84,12 @@
         <span>€</span>
       </div>
       <div class="entry-buttons">
-        <button id="addButton" class="continue" type="button" disabled><span class="btn-icon" aria-hidden="true">⊕</span><span>Weiterer Artikel</span></button>
-        <button id="finishButton" class="finish" type="button" disabled><span class="btn-icon" aria-hidden="true">▣</span><span>Bezahlen</span></button>
+        <button id="addButton" class="continue" type="button" disabled><span class="btn-icon" aria-hidden="true">
+      <svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="16" r="11"></circle><path d="M16 10v12M10 16h12"></path></svg>
+    </span><span>Weiterer Artikel</span></button>
+        <button id="finishButton" class="finish" type="button" disabled><span class="btn-icon" aria-hidden="true">
+      <svg viewBox="0 0 36 32" focusable="false"><rect x="3" y="5" width="30" height="22" rx="4"></rect><path d="M4 12h28"></path><path d="M9 21h7"></path></svg>
+    </span><span>Bezahlen</span></button>
       </div>
       <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
     </section>

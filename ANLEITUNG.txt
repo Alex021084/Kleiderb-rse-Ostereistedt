@@ -1,4 +1,10 @@
-V2 – Nur die beiden unteren Kassenbuttons angepasst.
+FINAL – Kasse Buttons
 
-Weiterer Artikel und Bezahlen stehen jetzt etwas höher und sind minimal größer. Die Symbole bleiben erhalten. Cloud verbunden bleibt unverändert.
-Bitte nur kasse.html im GitHub-Projekt ersetzen. cloud.js und cloud-config.js nicht ändern.
+Nur die beiden unteren Buttons wurden angepasst:
+- Weiterer Artikel: höher und größer, mit sauberem Plus-Symbol
+- Bezahlen: höher und größer, mit sauberem Karten-Symbol und GRÜN, sobald aktiv
+- Deaktivierter Bezahlen-Button bleibt grau
+- Cloud verbunden bleibt unverändert
+- Keine Änderung an cloud.js oder cloud-config.js
+
+Bitte nur kasse.html im GitHub-Projekt ersetzen.
