@@ -173,10 +173,10 @@ async function authRefresh(){
 }
 
 function apiHeaders(extra={}){
-
   return Object.assign(
     {
-      "apikey": KB_CLOUD.key
+      "apikey": KB_CLOUD.key,
+      "Content-Type":"application/json"
     },
     extra
   );
