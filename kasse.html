@@ -29,6 +29,7 @@
 
       <label>Größe</label>
       <div class="size-grid">
+        <button type="button" class="size-button" data-size="44">44</button>
         <button type="button" class="size-button" data-size="50">50</button>
         <button type="button" class="size-button" data-size="56">56</button>
         <button type="button" class="size-button" data-size="62">62</button>
@@ -54,8 +55,8 @@
       </div>
 
       <div class="special-item-row">
-      <button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button>
-      <button id="shoeButton" class="toy-button shoe-button" type="button" aria-pressed="false">👟 &nbsp; Schuhe</button>
+        <button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button>
+        <button id="shoeButton" class="toy-button shoe-button" type="button" aria-pressed="false">👟 &nbsp; Schuhe</button>
       </div>
 
       <label>Preis</label>
@@ -66,7 +67,7 @@
 
       <div class="entry-buttons">
         <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
-        <button id="finishButton" class="finish" type="button" disabled>Fertig</button>
+        <button id="finishButton" class="finish" type="button" disabled>Bezahlen</button>
       </div>
       <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
     </section>
@@ -92,7 +93,6 @@
     </section>
   </div>
 </div>
-
 
 <div id="shoeModal" class="modal">
   <div class="shoe-box">
@@ -131,7 +131,6 @@
     <div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div>
   </div>
 </div>
-
 
 <div id="unassignedListModal" class="modal">
   <div class="unassigned-list-box">
