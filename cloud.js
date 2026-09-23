@@ -174,14 +174,9 @@ async function authRefresh(){
 
 function apiHeaders(extra={}){
 
-  const s = getAuthSession();
-
   return Object.assign(
     {
-      "apikey":KB_CLOUD.key,
-      "Authorization":
-        "Bearer " + (s?.access_token || ""),
-      "Content-Type":"application/json"
+      "apikey": KB_CLOUD.key
     },
     extra
   );
