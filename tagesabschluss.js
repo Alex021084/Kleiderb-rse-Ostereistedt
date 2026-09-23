@@ -18,9 +18,20 @@ function isUnassigned(i){return !String(i.seller_number??i.sellerNumber??"").tri
 async function render(){
  const allReceipts=await loadData(),receipts=filteredReceipts(allReceipts),items=receipts.flatMap(itemsOf);
  const total=items.reduce((a,x)=>a+priceOf(x),0);
- const cash=items.filter(x=>x.payment==="Bar").reduce((a,x)=>a+priceOf(x),0);
- const card=items.filter(x=>x.payment==="EC").reduce((a,x)=>a+priceOf(x),0);
- const paypal=items.filter(x=>x.payment==="PayPal").reduce((a,x)=>a+priceOf(x),0);
+ const cash=receipts.filter(r=>(r.payment||"")==="Bar").reduce((a,r)=>{
+  const t=Number(r.total);
+  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+},0);
+
+const card=receipts.filter(r=>(r.payment||"")==="EC").reduce((a,r)=>{
+  const t=Number(r.total);
+  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+},0);
+
+const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
+  const t=Number(r.total);
+  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+},0);
  const commission=items.reduce((a,x)=>a+priceOf(x)*rateOf(x),0),payout=total-commission;
  $("totalRevenue").textContent=euro(total);$("cashTotal").textContent=euro(cash);$("cardTotal").textContent=euro(card);$("paypalTotal").textContent=euro(paypal);
  $("commissionGross").textContent=euro(total);$("commission").textContent=euro(commission);$("payout").textContent=euro(payout);
