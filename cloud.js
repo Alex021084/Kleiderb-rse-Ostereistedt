@@ -435,6 +435,23 @@ function hideLogin(){
 
 /* VERKÄUFER */
 
+async function cloudClient(){
+
+  if(!cloudReady()){
+    throw new Error("Cloud ist noch nicht eingerichtet.");
+  }
+
+  if(authSessionValid()){
+    return true;
+  }
+
+  if(await authRefresh()){
+    return true;
+  }
+
+  showLogin();
+  throw new Error("Bitte anmelden.");
+}
 async function cloudGetSellers(){
 
   await cloudClient();
