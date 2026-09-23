@@ -245,41 +245,7 @@ async function authLogin(email,password){
   }
 }
   if(!cloudReady()){
-    throw new Error("Cloud ist noch nicht eingerichtet.");
-  }
-let r;
-
-try{
-  r=await fetch(
-  
-    `${KB_CLOUD.url}/auth/v1/token?grant_type=password`,
-    {
-      method:"POST",
-      headers:{
-        "apikey":KB_CLOUD.key,
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({email,password})
-    }
-  );
-}catch(e){
-  throw new Error(
-    "Netzwerkfehler beim Supabase-Login. " +
-    "URL: " + KB_CLOUD.url +
-    " | Fehler: " + (e?.name || "unbekannt") +
-    " | " + (e?.message || "unbekannt")
-  );
-}
-  if(!r.ok){
-    throw new Error(await r.text());
-  }
-
-  const data=await r.json();
-
-  const session={
-    ...data,
-    expires_at:authNow()+Number(data.expires_in || 3600)
-  };
+    
 
   saveAuthSession(session);
   hideLogin();
