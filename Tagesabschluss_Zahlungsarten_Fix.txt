@@ -1,0 +1,34 @@
+TAGESABSCHLUSS – Zahlungsarten reparieren
+
+Datei: tagesabschluss.js
+
+Suche in der Funktion render() diesen Block:
+
+ const cash=items.filter(x=>x.payment==="Bar").reduce((a,x)=>a+priceOf(x),0);
+ const card=items.filter(x=>x.payment==="EC").reduce((a,x)=>a+priceOf(x),0);
+ const paypal=items.filter(x=>x.payment==="PayPal").reduce((a,x)=>a+priceOf(x),0);
+
+Ersetze ihn durch:
+
+ const cash=receipts.filter(r=>(r.payment||"")==="Bar").reduce((a,r)=>{
+   const t=Number(r.total);
+   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+ },0);
+
+ const card=receipts.filter(r=>(r.payment||"")==="EC").reduce((a,r)=>{
+   const t=Number(r.total);
+   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+ },0);
+
+ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
+   const t=Number(r.total);
+   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+ },0);
+
+Grund:
+Die Zahlungsart wird am Kassenbon gespeichert. Die bisherige Berechnung hat bei den einzelnen Artikeln nach x.payment gesucht und deshalb 0,00 € angezeigt.
+
+Nach der Änderung werden Bar, EC und PayPal korrekt aus den gespeicherten Kassenbons berechnet.
+
+Wichtig:
+cloud.js und cloud-config.js NICHT ändern.
