@@ -72,7 +72,7 @@ function editSeller(id){
 }
 async function del(id){
   let s=sellers.find(x=>x.id===id);if(!s||!confirm(`„${s.name}“ löschen?`))return;
-  try{if(KBCloud.cloudReady())await KBCloud.cloudDeleteSeller(id);else localStorage.setItem("kb_sellers",JSON.stringify(sellers.filter(x=>x.id!==id)));sellers=sellers.filter(x=>x.id!==id);render()}catch(e){alert("Löschen fehlgeschlagen.")}
+  try{if(KBCloud.cloudReady())await KBCloud.cloudDeleteSeller(id);else localStorage.setItem("kb_sellers",JSON.stringify(sellers.filter(x=>x.id!==id)));sellers=sellers.filter(x=>x.id!==id);render()}catch(e){alert("Löschen fehlgeschlagen: " + (e?.message || e)); console.error(e)}
 }
 $("search").oninput=render;
 if(commissionInput)commissionInput.addEventListener("change",updateCommissionVisibility);
