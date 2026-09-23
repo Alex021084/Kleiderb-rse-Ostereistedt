@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Kasse</title>
 <link rel="stylesheet" href="kasse.css">
+<style>
+/* Nur die beiden unteren Kassen-Aktionen: etwas höher, größer und mit Symbol */
+.entry-buttons{padding-bottom:14px}
+.entry-buttons .continue,
+.entry-buttons .finish{height:54px;font-size:18px;display:flex;align-items:center;justify-content:center;gap:9px}
+.entry-buttons .btn-icon{font-size:25px;line-height:1;font-weight:900}
+@media (orientation:landscape) and (max-height:900px){
+  .entry-buttons{padding-top:7px;padding-bottom:16px}
+  .entry-buttons .continue,
+  .entry-buttons .finish{height:54px;font-size:17px}
+  .entry-buttons .btn-icon{font-size:24px}
+}
+</style>
 </head>
 <body>
 <div class="cash-register">
@@ -13,12 +26,10 @@
     <strong id="registerTitle">Kasse 1</strong>
     <span></span>
   </header>
-
   <div class="cash-main">
     <section class="entry-panel">
       <h1 id="pageTitle">Kasse 1</h1>
       <h2 id="articleTitle">Artikel eingeben</h2>
-
       <div class="seller-action-row">
         <button id="unassignedButton" class="unassigned-button" type="button"><span class="action-icon">＋</span><span>Ohne Verkäufernummer</span></button>
         <button id="openUnassignedList" class="unassigned-button list-button" type="button"><span class="action-icon">▣</span><span>Offene Artikel</span></button>
@@ -26,52 +37,27 @@
       <div class="seller-label-row"><label>Verkäufernummer</label></div>
       <input id="sellerNumber" class="touch-input" type="text" inputmode="none" readonly placeholder="Verkäufernummer auswählen">
       <div id="sellerStatus" class="seller-status">Bitte Verkäufernummer eingeben.</div>
-
       <label>Größe</label>
       <div class="size-grid">
-        <button type="button" class="size-button" data-size="44">44</button>
-        <button type="button" class="size-button" data-size="50">50</button>
-        <button type="button" class="size-button" data-size="56">56</button>
-        <button type="button" class="size-button" data-size="62">62</button>
-        <button type="button" class="size-button" data-size="68">68</button>
-        <button type="button" class="size-button" data-size="74">74</button>
-        <button type="button" class="size-button" data-size="80">80</button>
-        <button type="button" class="size-button" data-size="86">86</button>
-        <button type="button" class="size-button" data-size="92">92</button>
-        <button type="button" class="size-button" data-size="98">98</button>
-        <button type="button" class="size-button" data-size="104">104</button>
-        <button type="button" class="size-button" data-size="110">110</button>
-        <button type="button" class="size-button" data-size="116">116</button>
-        <button type="button" class="size-button" data-size="122">122</button>
-        <button type="button" class="size-button" data-size="128">128</button>
-        <button type="button" class="size-button" data-size="134">134</button>
-        <button type="button" class="size-button" data-size="140">140</button>
-        <button type="button" class="size-button" data-size="146">146</button>
-        <button type="button" class="size-button" data-size="152">152</button>
-        <button type="button" class="size-button" data-size="158">158</button>
-        <button type="button" class="size-button" data-size="164">164</button>
-        <button type="button" class="size-button" data-size="170">170</button>
-        <button type="button" class="size-button" data-size="176">176</button>
+        <button type="button" class="size-button" data-size="44">44</button><button type="button" class="size-button" data-size="50">50</button><button type="button" class="size-button" data-size="56">56</button><button type="button" class="size-button" data-size="62">62</button><button type="button" class="size-button" data-size="68">68</button><button type="button" class="size-button" data-size="74">74</button><button type="button" class="size-button" data-size="80">80</button><button type="button" class="size-button" data-size="86">86</button>
+        <button type="button" class="size-button" data-size="92">92</button><button type="button" class="size-button" data-size="98">98</button><button type="button" class="size-button" data-size="104">104</button><button type="button" class="size-button" data-size="110">110</button><button type="button" class="size-button" data-size="116">116</button><button type="button" class="size-button" data-size="122">122</button><button type="button" class="size-button" data-size="128">128</button><button type="button" class="size-button" data-size="134">134</button>
+        <button type="button" class="size-button" data-size="140">140</button><button type="button" class="size-button" data-size="146">146</button><button type="button" class="size-button" data-size="152">152</button><button type="button" class="size-button" data-size="158">158</button><button type="button" class="size-button" data-size="164">164</button><button type="button" class="size-button" data-size="170">170</button><button type="button" class="size-button" data-size="176">176</button>
       </div>
-
       <div class="special-item-row">
         <button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button>
         <button id="shoeButton" class="toy-button shoe-button" type="button" aria-pressed="false">👟 &nbsp; Schuhe</button>
       </div>
-
       <label>Preis</label>
       <div class="price-wrap">
         <input id="price" class="touch-input" type="text" inputmode="none" readonly placeholder="0,00">
         <span>€</span>
       </div>
-
       <div class="entry-buttons">
-        <button id="addButton" class="continue" type="button" disabled>Weiterer Artikel</button>
-        <button id="finishButton" class="finish" type="button" disabled>Bezahlen</button>
+        <button id="addButton" class="continue" type="button" disabled><span class="btn-icon" aria-hidden="true">⊕</span><span>Weiterer Artikel</span></button>
+        <button id="finishButton" class="finish" type="button" disabled><span class="btn-icon" aria-hidden="true">▣</span><span>Bezahlen</span></button>
       </div>
       <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
     </section>
-
     <section class="right-panel">
       <div class="keypad-card">
         <div class="keypad-title"><strong>Zahlenfeld</strong><span id="activeField">Verkäufernummer</span></div>
@@ -80,11 +66,9 @@
           <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
           <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
           <button type="button" data-key="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-key="back">⌫</button>
-          <button type="button" data-key="comma" class="comma">,</button>
-          <button type="button" data-key="confirm" class="confirm-key">➜</button>
+          <button type="button" data-key="comma" class="comma">,</button><button type="button" data-key="confirm" class="confirm-key">➜</button>
         </div>
       </div>
-
       <section class="receipt-live">
         <div class="receipt-head"><strong>Kassenbon</strong><span id="itemCount">0 Artikel</span></div>
         <div id="receiptItems" class="receipt-items"><div class="receipt-empty">Noch keine Artikel.</div></div>
@@ -93,58 +77,17 @@
     </section>
   </div>
 </div>
-
-<div id="shoeModal" class="modal">
-  <div class="shoe-box">
-    <div class="modal-head"><div><h2>Schuhgröße auswählen</h2><div class="final-count">Bitte die passende Schuhgröße auswählen.</div></div><button id="closeShoe" class="close" type="button">×</button></div>
-    <div id="shoeSizes" class="shoe-size-grid">
-      <button type="button" data-shoe-size="16">16</button><button type="button" data-shoe-size="17">17</button><button type="button" data-shoe-size="18">18</button><button type="button" data-shoe-size="19">19</button><button type="button" data-shoe-size="20">20</button><button type="button" data-shoe-size="21">21</button>
-      <button type="button" data-shoe-size="22">22</button><button type="button" data-shoe-size="23">23</button><button type="button" data-shoe-size="24">24</button><button type="button" data-shoe-size="25">25</button><button type="button" data-shoe-size="26">26</button><button type="button" data-shoe-size="27">27</button>
-      <button type="button" data-shoe-size="28">28</button><button type="button" data-shoe-size="29">29</button><button type="button" data-shoe-size="30">30</button><button type="button" data-shoe-size="31">31</button><button type="button" data-shoe-size="32">32</button><button type="button" data-shoe-size="33">33</button>
-      <button type="button" data-shoe-size="34">34</button><button type="button" data-shoe-size="35">35</button><button type="button" data-shoe-size="36">36</button><button type="button" data-shoe-size="37">37</button><button type="button" data-shoe-size="38">38</button><button type="button" data-shoe-size="39">39</button>
-      <button type="button" data-shoe-size="40">40</button><button type="button" data-shoe-size="41">41</button><button type="button" data-shoe-size="42">42</button>
-    </div>
-  </div>
-</div>
-
-<div id="paymentModal" class="modal">
-  <div class="payment-box">
-    <div class="modal-head"><div><h2>Kassenbon</h2><div id="finalCount" class="final-count"></div></div><button id="closePayment" class="close" type="button">×</button></div>
-    <div id="finalReceipt" class="final-receipt"></div>
-    <div class="payment-total"><span>Gesamt</span><strong id="finalTotal">0,00 €</strong></div>
-    <div class="payment-buttons">
-      <button class="payment cash" data-payment="Bar" type="button">Bar</button>
-      <button class="payment card" data-payment="EC" type="button">EC</button>
-      <button class="payment paypal" data-payment="PayPal" type="button">PayPal</button>
-    </div>
-  </div>
-</div>
-
-<div id="unassignedModal" class="modal">
-  <div class="unassigned-box">
-    <div class="modal-head"><div><h2>Ohne Verkäufernummer</h2><div class="final-count">Artikel ohne Zuordnung erfassen</div></div><button id="closeUnassigned" class="close" type="button">×</button></div>
-    <label for="unassignedNote">Kleine Notiz</label>
-    <textarea id="unassignedNote" class="unassigned-note" maxlength="120" placeholder="z. B. Jacke rot, Zettel fehlt"></textarea>
-    <div class="photo-row"><label class="photo-button" for="unassignedPhoto">📷 Foto aufnehmen</label><input id="unassignedPhoto" type="file" accept="image/*" capture="environment" hidden><span id="photoStatus" class="photo-status">Kein Foto</span></div>
-    <img id="unassignedPhotoPreview" class="unassigned-photo-preview hidden" alt="Foto des nicht zugeordneten Artikels">
-    <div class="unassigned-hint">Die Notiz wird gespeichert, damit der Artikel später im Tagesabschluss gefunden und einem Verkäufer zugeordnet werden kann.</div>
-    <div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div>
-  </div>
-</div>
-
-<div id="unassignedListModal" class="modal">
-  <div class="unassigned-list-box">
-    <div class="modal-head"><div><h2>Offene Artikel</h2><div id="unassignedListCount" class="final-count"></div></div><button id="closeUnassignedList" class="close" type="button">×</button></div>
-    <div class="unassigned-list-hint">Nur Artikel ohne Verkäufernummer aus dieser Kasse.</div>
-    <div id="unassignedList" class="unassigned-list"></div>
-  </div>
-</div>
-<div id="successModal" class="modal">
-  <div class="success-box">
-    <div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p>
-    <button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button>
-  </div>
-</div>
+<div id="shoeModal" class="modal"><div class="shoe-box"><div class="modal-head"><div><h2>Schuhgröße auswählen</h2><div class="final-count">Bitte die passende Schuhgröße auswählen.</div></div><button id="closeShoe" class="close" type="button">×</button></div><div id="shoeSizes" class="shoe-size-grid">
+<button type="button" data-shoe-size="16">16</button><button type="button" data-shoe-size="17">17</button><button type="button" data-shoe-size="18">18</button><button type="button" data-shoe-size="19">19</button><button type="button" data-shoe-size="20">20</button><button type="button" data-shoe-size="21">21</button>
+<button type="button" data-shoe-size="22">22</button><button type="button" data-shoe-size="23">23</button><button type="button" data-shoe-size="24">24</button><button type="button" data-shoe-size="25">25</button><button type="button" data-shoe-size="26">26</button><button type="button" data-shoe-size="27">27</button>
+<button type="button" data-shoe-size="28">28</button><button type="button" data-shoe-size="29">29</button><button type="button" data-shoe-size="30">30</button><button type="button" data-shoe-size="31">31</button><button type="button" data-shoe-size="32">32</button><button type="button" data-shoe-size="33">33</button>
+<button type="button" data-shoe-size="34">34</button><button type="button" data-shoe-size="35">35</button><button type="button" data-shoe-size="36">36</button><button type="button" data-shoe-size="37">37</button><button type="button" data-shoe-size="38">38</button><button type="button" data-shoe-size="39">39</button>
+<button type="button" data-shoe-size="40">40</button><button type="button" data-shoe-size="41">41</button><button type="button" data-shoe-size="42">42</button>
+</div></div></div>
+<div id="paymentModal" class="modal"><div class="payment-box"><div class="modal-head"><div><h2>Kassenbon</h2><div id="finalCount" class="final-count"></div></div><button id="closePayment" class="close" type="button">×</button></div><div id="finalReceipt" class="final-receipt"></div><div class="payment-total"><span>Gesamt</span><strong id="finalTotal">0,00 €</strong></div><div class="payment-buttons"><button class="payment cash" data-payment="Bar" type="button">Bar</button><button class="payment card" data-payment="EC" type="button">EC</button><button class="payment paypal" data-payment="PayPal" type="button">PayPal</button></div></div></div>
+<div id="unassignedModal" class="modal"><div class="unassigned-box"><div class="modal-head"><div><h2>Ohne Verkäufernummer</h2><div class="final-count">Artikel ohne Zuordnung erfassen</div></div><button id="closeUnassigned" class="close" type="button">×</button></div><label for="unassignedNote">Kleine Notiz</label><textarea id="unassignedNote" class="unassigned-note" maxlength="120" placeholder="z. B. Jacke rot, Zettel fehlt"></textarea><div class="photo-row"><label class="photo-button" for="unassignedPhoto">📷 Foto aufnehmen</label><input id="unassignedPhoto" type="file" accept="image/*" capture="environment" hidden><span id="photoStatus" class="photo-status">Kein Foto</span></div><img id="unassignedPhotoPreview" class="unassigned-photo-preview hidden" alt="Foto des nicht zugeordneten Artikels"><div class="unassigned-hint">Die Notiz wird gespeichert, damit der Artikel später im Tagesabschluss gefunden und einem Verkäufer zugeordnet werden kann.</div><div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div></div></div>
+<div id="unassignedListModal" class="modal"><div class="unassigned-list-box"><div class="modal-head"><div><h2>Offene Artikel</h2><div id="unassignedListCount" class="final-count"></div></div><button id="closeUnassignedList" class="close" type="button">×</button></div><div class="unassigned-list-hint">Nur Artikel ohne Verkäufernummer aus dieser Kasse.</div><div id="unassignedList" class="unassigned-list"></div></div></div>
+<div id="successModal" class="modal"><div class="success-box"><div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p><button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button></div></div>
 <script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=61"></script>
 </body>
 </html>
