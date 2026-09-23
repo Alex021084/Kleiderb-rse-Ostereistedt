@@ -387,6 +387,15 @@ async function cloudGetSellers(){
 }
 
 async function cloudSaveSeller(s){
+  if(!window.supabase?.createClient){
+    throw new Error("Supabase-Client nicht geladen.");
+  }
+
+  const client=window.supabase.createClient(
+    KB_CLOUD.url,
+    KB_CLOUD.key
+  );
+
   const body={
     id:s.id,
     number:s.number,
@@ -396,18 +405,17 @@ async function cloudSaveSeller(s){
     commission_rate:Number(s.commissionRate??15)
   };
 
-  const data=await cloudFetch(
-    "sellers?on_conflict=id",
-    {
-      method:"POST",
-      headers:{
-        "Prefer":"resolution=merge-duplicates,return=representation"
-      },
-      body:JSON.stringify(body)
-    }
-  );
+  const {data,error}=await client
+    .from("sellers")
+    .upsert(body,{onConflict:"id"})
+    .select()
+    .single();
 
-  return data?.[0]||body;
+  if(error){
+    throw new Error(error.message);
+  }
+
+  return data;
 }
 
 async function cloudDeleteSeller(id){
