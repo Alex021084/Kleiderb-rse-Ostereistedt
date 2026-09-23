@@ -1,4 +1,6 @@
-/* Kleiderbörse – Cloud / Supabase */
+/* Kleiderbörse – Cloud / Supabase
+   Direkte REST-Verbindung – keine externe Supabase-Bibliothek.
+*/
 
 const KB_CLOUD = {
   get url(){
@@ -15,11 +17,7 @@ const KB_CLOUD = {
   }
 };
 
-const KB_AUTH_KEY="kb_auth_session";
-let kbSupabase=null;
-let kbSupabasePromise=null;
-let kbLoginWaitPromise=null;
-let kbLoginWaitResolve=null;
+const KB_AUTH_KEY = "kb_auth_session";
 
 function cloudReady(){
   return !!(KB_CLOUD.url && KB_CLOUD.key);
@@ -32,7 +30,7 @@ function authNow(){
 function getAuthSession(){
   try{
     return JSON.parse(
-      localStorage.getItem(KB_AUTH_KEY)||"null"
+      localStorage.getItem(KB_AUTH_KEY) || "null"
     );
   }catch(e){
     return null;
@@ -47,34 +45,65 @@ function saveAuthSession(s){
 
   s.expires_at =
     Number(s.expires_at) ||
-    authNow()+Number(s.expires_in||3600);
+    authNow() + Number(s.expires_in || 3600);
 
   localStorage.setItem(
     KB_AUTH_KEY,
     JSON.stringify(s)
   );
 
-  window.KB_AUTH_SESSION=s;
+  window.KB_AUTH_SESSION = s;
 }
 
 function clearAuthSession(){
   localStorage.removeItem(KB_AUTH_KEY);
-  window.KB_AUTH_SESSION=null;
+  window.KB_AUTH_SESSION = null;
 }
 
 function authSessionValid(){
-  const s=getAuthSession();
+  const s = getAuthSession();
 
   return !!(
     s &&
     s.access_token &&
-    Number(s.expires_at||0)>authNow()+60
+    Number(s.expires_at || 0) > authNow() + 60
   );
 }
 
-async function getSupabaseClient(){
+async function authRequest(path,body){
 
-  if(kbSupabase) return kbSupabase;
+  const response = await fetch(
+    KB_CLOUD.url + "/auth/v1/" + path,
+    {
+      method:"POST",
+      headers:{
+        "apikey":KB_CLOUD.key,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body)
+    }
+  );
+
+  let data = null;
+
+  try{
+    data = await response.json();
+  }catch(e){}
+
+  if(!response.ok){
+    throw new Error(
+      data?.msg ||
+      data?.message ||
+      data?.error_description ||
+      data?.error ||
+      ("HTTP " + response.status)
+    );
+  }
+
+  return data;
+}
+
+async function authLogin(email,password){
 
   if(!cloudReady()){
     throw new Error(
@@ -82,57 +111,133 @@ async function getSupabaseClient(){
     );
   }
 
-  if(!window.supabase?.createClient){
-
-    if(!kbSupabasePromise){
-
-      kbSupabasePromise=new Promise(
-        (resolve,reject)=>{
-
-          const script=
-            document.createElement("script");
-
-          script.src=
-            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-          script.onload=()=>{
-            if(window.supabase?.createClient){
-              resolve();
-            }else{
-              reject(
-                new Error(
-                  "Supabase-Bibliothek konnte nicht geladen werden."
-                )
-              );
-            }
-          };
-
-          script.onerror=()=>{
-            reject(
-              new Error(
-                "Supabase-Bibliothek konnte nicht geladen werden."
-              )
-            );
-          };
-
-          document.head.appendChild(script);
-        }
-      );
+  const data = await authRequest(
+    "token?grant_type=password",
+    {
+      email:email,
+      password:password
     }
+  );
 
-    await kbSupabasePromise;
+  if(!data?.access_token){
+    throw new Error(
+      "Supabase hat keine Sitzung zurückgegeben."
+    );
   }
 
-  kbSupabase=
-    window.supabase.createClient(
-      KB_CLOUD.url,
-      KB_CLOUD.key
-    );
+  saveAuthSession(data);
+  hideLogin();
+  updateCloudBanner();
 
-  return kbSupabase;
+  if(window.KB_LOGIN_WAIT_RESOLVE){
+    window.KB_LOGIN_WAIT_RESOLVE(true);
+    window.KB_LOGIN_WAIT_RESOLVE = null;
+    window.KB_LOGIN_WAIT_PROMISE = null;
+  }
+
+  return data;
 }
 
+async function authRefresh(){
 
+  const s = getAuthSession();
+
+  if(!s?.refresh_token)
+    return false;
+
+  try{
+
+    const data = await authRequest(
+      "token?grant_type=refresh_token",
+      {
+        refresh_token:s.refresh_token
+      }
+    );
+
+    if(!data?.access_token){
+      clearAuthSession();
+      return false;
+    }
+
+    saveAuthSession(data);
+    hideLogin();
+    updateCloudBanner();
+
+    return true;
+
+  }catch(e){
+
+    clearAuthSession();
+    return false;
+  }
+}
+
+function apiHeaders(extra={}){
+
+  const s = getAuthSession();
+
+  return Object.assign(
+    {
+      "apikey":KB_CLOUD.key,
+      "Authorization":
+        "Bearer " + (s?.access_token || ""),
+      "Content-Type":"application/json"
+    },
+    extra
+  );
+}
+
+async function apiRequest(path,options={}){
+
+  if(!cloudReady()){
+    throw new Error(
+      "Cloud ist noch nicht eingerichtet."
+    );
+  }
+
+  const response = await fetch(
+    KB_CLOUD.url + "/rest/v1/" + path,
+    Object.assign(
+      {},
+      options,
+      {
+        headers:apiHeaders(
+          options.headers || {}
+        )
+      }
+    )
+  );
+
+  if(response.status === 401){
+    throw new Error(
+      "Sitzung abgelaufen. Bitte erneut anmelden."
+    );
+  }
+
+  let data = null;
+  const text = await response.text();
+
+  if(text){
+    try{
+      data = JSON.parse(text);
+    }catch(e){
+      data = text;
+    }
+  }
+
+  if(!response.ok){
+    throw new Error(
+      data?.message ||
+      data?.details ||
+      data?.hint ||
+      data?.code ||
+      (typeof data === "string" ? data : "") ||
+      ("HTTP " + response.status)
+    );
+  }
+
+  return data;
+}
 /* LOGIN */
 
 function createLoginBox(){
@@ -261,7 +366,7 @@ function createLoginBox(){
 
     error.textContent="";
 
-    if(!email||!password){
+    if(!email || !password){
       error.textContent=
         "Bitte E-Mail und Passwort eingeben.";
       return;
@@ -271,12 +376,21 @@ function createLoginBox(){
     button.textContent="Anmelden …";
 
     try{
-      await authLogin(email,password);
+
+      await authLogin(
+        email,
+        password
+      );
+
     }catch(e){
+
       error.textContent=
-        e?.message||
-        "Anmeldung fehlgeschlagen.";
+        "Supabase-Login: " +
+        (e?.message ||
+        "Anmeldung fehlgeschlagen.");
+
     }finally{
+
       button.disabled=false;
       button.textContent="Anmelden";
     }
@@ -289,11 +403,13 @@ function createLoginBox(){
   document.getElementById(
     "kbLoginPassword"
   ).onkeydown=e=>{
-    if(e.key==="Enter") login();
+    if(e.key==="Enter")
+      login();
   };
 }
 
 function showLogin(){
+
   createLoginBox();
 
   const e=
@@ -301,7 +417,8 @@ function showLogin(){
       "kbLoginOverlay"
     );
 
-  if(e) e.style.display="flex";
+  if(e)
+    e.style.display="flex";
 }
 
 function hideLogin(){
@@ -311,105 +428,8 @@ function hideLogin(){
       "kbLoginOverlay"
     );
 
-  if(e) e.style.display="none";
-}
-
-async function authLogin(email,password){
-
-  const client=
-    await getSupabaseClient();
-
-  const {data,error}=
-    await client.auth.signInWithPassword({
-      email,
-      password
-    });
-
-  if(error){
-    throw new Error(
-      "Supabase-Login: "+
-      (error.message||"Anmeldung fehlgeschlagen.")
-    );
-  }
-
-  if(!data?.session){
-    throw new Error(
-      "Supabase hat keine Sitzung zurückgegeben."
-    );
-  }
-
-  saveAuthSession(data.session);
-  hideLogin();
-  updateCloudBanner();
-
-  if(kbLoginWaitResolve){
-    kbLoginWaitResolve(true);
-    kbLoginWaitResolve=null;
-    kbLoginWaitPromise=null;
-  }
-
-  return data.session;
-}
-
-async function authRefresh(){
-
-  try{
-
-    const client=
-      await getSupabaseClient();
-
-    const {data,error}=
-      await client.auth.getSession();
-
-    if(error||!data?.session){
-      clearAuthSession();
-      return false;
-    }
-
-    saveAuthSession(data.session);
-    hideLogin();
-    updateCloudBanner();
-
-    return true;
-
-  }catch(e){
-
-    clearAuthSession();
-    return false;
-  }
-}
-
-async function ensureAuth(){
-
-  if(!cloudReady())
-    return false;
-
-  if(authSessionValid())
-    return true;
-
-  if(await authRefresh())
-    return true;
-
-  showLogin();
-
-  if(!kbLoginWaitPromise){
-
-    kbLoginWaitPromise=
-      new Promise(resolve=>{
-        kbLoginWaitResolve=resolve;
-      });
-  }
-
-  return kbLoginWaitPromise;
-}
-
-async function cloudClient(){
-
-  if(!await ensureAuth()){
-    throw new Error("Nicht angemeldet.");
-  }
-
-  return await getSupabaseClient();
+  if(e)
+    e.style.display="none";
 }
 
 
@@ -417,60 +437,71 @@ async function cloudClient(){
 
 async function cloudGetSellers(){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {data,error}=
-    await c
-      .from("sellers")
-      .select("*")
-      .order("name",{ascending:true});
+  const data=
+    await apiRequest(
+      "sellers?select=*&order=name.asc"
+    );
 
-  if(error)
-    throw new Error(error.message);
-
-  return data||[];
+  return data || [];
 }
 
 async function cloudSaveSeller(s){
 
-  const c=await cloudClient();
+  await cloudClient();
 
   const body={
+
     id:s.id,
+
     number:s.number,
+
     name:s.name,
-    phone:s.phone||"",
+
+    phone:s.phone || "",
+
     commission_enabled:
-      s.commissionEnabled===true,
+      s.commissionEnabled === true,
+
     commission_rate:
-      Number(s.commissionRate??15)
+      Number(s.commissionRate ?? 15)
   };
 
-  const {data,error}=
-    await c
-      .from("sellers")
-      .upsert(body,{onConflict:"id"})
-      .select()
-      .single();
+  const data=
+    await apiRequest(
+      "sellers?on_conflict=id",
+      {
+        method:"POST",
 
-  if(error)
-    throw new Error(error.message);
+        headers:{
+          "Prefer":
+            "resolution=merge-duplicates,return=representation"
+        },
 
-  return data;
+        body:JSON.stringify(body)
+      }
+    );
+
+  return Array.isArray(data)
+    ? data[0]
+    : data;
 }
 
 async function cloudDeleteSeller(id){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {error}=
-    await c
-      .from("sellers")
-      .delete()
-      .eq("id",id);
-
-  if(error)
-    throw new Error(error.message);
+  await apiRequest(
+    "sellers?id=eq." +
+    encodeURIComponent(id),
+    {
+      method:"DELETE",
+      headers:{
+        "Prefer":"return=minimal"
+      }
+    }
+  );
 
   return true;
 }
@@ -483,80 +514,116 @@ async function cloudCreateReceipt(
   payment
 ){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const total=items.reduce(
-    (sum,item)=>
-      sum+(Number(item.price)||0),
-    0
-  );
+  const total=
+    items.reduce(
+      (sum,item)=>
+        sum + (Number(item.price) || 0),
+      0
+    );
 
-  const {data:receipt,error:receiptError}=
-    await c
-      .from("receipts")
-      .insert({
-        register_id:KB_CLOUD.register,
-        payment:payment,
-        total:total
-      })
-      .select()
-      .single();
+  const receiptData=
+    await apiRequest(
+      "receipts",
+      {
+        method:"POST",
 
-  if(receiptError){
+        headers:{
+          "Prefer":"return=representation"
+        },
+
+        body:JSON.stringify({
+          register_id:
+            KB_CLOUD.register,
+
+          payment:payment,
+
+          total:total
+        })
+      }
+    );
+
+  const receipt=
+    Array.isArray(receiptData)
+      ? receiptData[0]
+      : receiptData;
+
+  if(!receipt?.id){
+
     throw new Error(
-      "Kassenbon: "+
-      receiptError.message
+      "Kassenbon konnte nicht angelegt werden."
     );
   }
 
-  const rows=items.map(item=>({
+  const rows=
+    items.map(item=>({
 
-    receipt_id:receipt.id,
+      receipt_id:
+        receipt.id,
 
-    seller_number:
-      item.sellerNumber
-        ? String(item.sellerNumber)
-        : null,
+      seller_number:
+        item.sellerNumber
+          ? String(item.sellerNumber)
+          : null,
 
-    unassigned_note:
-      item.unassignedNote
-        ? String(item.unassignedNote)
-        : "",
+      unassigned_note:
+        item.unassignedNote
+          ? String(item.unassignedNote)
+          : "",
 
-    unassigned_photo:
-      item.unassignedPhoto
-        ? String(item.unassignedPhoto)
-        : "",
+      unassigned_photo:
+        item.unassignedPhoto
+          ? String(item.unassignedPhoto)
+          : "",
 
-    size:String(item.size),
+      size:
+        String(item.size),
 
-    price:Number(item.price),
+      price:
+        Number(item.price),
 
-    commission_enabled:
-      item.commissionEnabled===true,
+      commission_enabled:
+        item.commissionEnabled === true,
 
-    commission_rate:
-      Number(item.commissionRate||0)
+      commission_rate:
+        Number(item.commissionRate || 0)
+    }));
 
-  }));
+  try{
 
-  const {error:itemError}=
-    await c
-      .from("receipt_items")
-      .insert(rows);
+    await apiRequest(
+      "receipt_items",
+      {
+        method:"POST",
 
-  if(itemError){
+        headers:{
+          "Prefer":"return=minimal"
+        },
+
+        body:JSON.stringify(rows)
+      }
+    );
+
+  }catch(e){
 
     try{
-      await c
-        .from("receipts")
-        .delete()
-        .eq("id",receipt.id);
-    }catch(e){}
+
+      await apiRequest(
+        "receipts?id=eq." +
+        encodeURIComponent(receipt.id),
+        {
+          method:"DELETE",
+          headers:{
+            "Prefer":"return=minimal"
+          }
+        }
+      );
+
+    }catch(ignore){}
 
     throw new Error(
-      "Artikel: "+
-      itemError.message
+      "Artikel: " + e.message
     );
   }
 
@@ -568,40 +635,24 @@ async function cloudCreateReceipt(
 
 async function cloudGetReceipts(){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {data:receipts,error:receiptError}=
-    await c
-      .from("receipts")
-      .select("*")
-      .order("created_at",{ascending:false});
-
-  if(receiptError){
-    throw new Error(
-      "Belege: "+
-      receiptError.message
+  const receipts=
+    await apiRequest(
+      "receipts?select=*&order=created_at.desc"
     );
-  }
 
   if(!receipts?.length)
     return [];
 
-  const {data:items,error:itemError}=
-    await c
-      .from("receipt_items")
-      .select("*")
-      .order("id",{ascending:true});
-
-  if(itemError){
-    throw new Error(
-      "Artikel: "+
-      itemError.message
+  const items=
+    await apiRequest(
+      "receipt_items?select=*&order=id.asc"
     );
-  }
 
   const byReceipt={};
 
-  (items||[]).forEach(item=>{
+  (items || []).forEach(item=>{
 
     if(!byReceipt[item.receipt_id])
       byReceipt[item.receipt_id]=[];
@@ -614,8 +665,7 @@ async function cloudGetReceipts(){
     ...receipt,
 
     receipt_items:
-      byReceipt[receipt.id]||[]
-
+      byReceipt[receipt.id] || []
   }));
 }
 
@@ -627,20 +677,26 @@ async function cloudUpdateReceiptItem(
   patch
 ){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {data,error}=
-    await c
-      .from("receipt_items")
-      .update(patch)
-      .eq("id",id)
-      .select()
-      .single();
+  const data=
+    await apiRequest(
+      "receipt_items?id=eq." +
+      encodeURIComponent(id),
+      {
+        method:"PATCH",
 
-  if(error)
-    throw new Error(error.message);
+        headers:{
+          "Prefer":"return=representation"
+        },
 
-  return data;
+        body:JSON.stringify(patch)
+      }
+    );
+
+  return Array.isArray(data)
+    ? data[0]
+    : data;
 }
 
 
@@ -648,16 +704,17 @@ async function cloudUpdateReceiptItem(
 
 async function cloudResetReceipts(){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {error}=
-    await c
-      .from("receipts")
-      .delete()
-      .gt("id",0);
-
-  if(error)
-    throw new Error(error.message);
+  await apiRequest(
+    "receipts?id=gt.0",
+    {
+      method:"DELETE",
+      headers:{
+        "Prefer":"return=minimal"
+      }
+    }
+  );
 
   return true;
 }
@@ -666,29 +723,28 @@ async function cloudResetReceiptsForRegister(
   registerId
 ){
 
-  const c=await cloudClient();
+  await cloudClient();
 
-  const {error}=
-    await c
-      .from("receipts")
-      .delete()
-      .eq("register_id",registerId);
-
-  if(error)
-    throw new Error(error.message);
+  await apiRequest(
+    "receipts?register_id=eq." +
+    encodeURIComponent(registerId),
+    {
+      method:"DELETE",
+      headers:{
+        "Prefer":"return=minimal"
+      }
+    }
+  );
 
   return true;
 }
-
-
 /* CLOUD-STATUS */
 
 function cloudBanner(){
 
   if(!document.getElementById("cloudStatus")){
 
-    const e=
-      document.createElement("div");
+    const e=document.createElement("div");
 
     e.id="cloudStatus";
 
@@ -698,13 +754,14 @@ function cloudBanner(){
       "padding:8px 14px;border-radius:999px;"+
       "background:#172033;color:#fff;"+
       "font:600 13px system-ui;"+
-      "box-shadow:0 4px 14px #0002";
+      "box-shadow:0 4px 14px #0002;";
 
     document.body.appendChild(e);
   }
 
   updateCloudBanner();
 }
+
 
 function updateCloudBanner(){
 
@@ -713,7 +770,8 @@ function updateCloudBanner(){
       "cloudStatus"
     );
 
-  if(!e) return;
+  if(!e)
+    return;
 
   if(!cloudReady()){
 
@@ -723,7 +781,8 @@ function updateCloudBanner(){
   }else if(authSessionValid()){
 
     e.textContent=
-      `☁ Cloud verbunden · ${KB_CLOUD.register}`;
+      "☁ Cloud verbunden · " +
+      KB_CLOUD.register;
 
   }else{
 
@@ -738,8 +797,10 @@ function updateCloudBanner(){
 function setRegister(v){
 
   KB_CLOUD.register=v;
+
   updateCloudBanner();
 }
+
 
 function registerPicker(){
 
@@ -756,20 +817,24 @@ function registerPicker(){
     "padding:8px 12px;"+
     "border-radius:10px;"+
     "border:1px solid #ffffff55;"+
-    "background:#fff;color:#172033";
+    "background:#fff;color:#172033;";
 
   for(let i=1;i<=6;i++){
 
     const option=
       document.createElement("option");
 
-    option.value=`Kasse ${i}`;
-    option.textContent=`Kasse ${i}`;
+    option.value=
+      "Kasse " + i;
+
+    option.textContent=
+      "Kasse " + i;
 
     select.appendChild(option);
   }
 
-  select.value=KB_CLOUD.register;
+  select.value=
+    KB_CLOUD.register;
 
   select.onchange=()=>{
     setRegister(select.value);
@@ -784,30 +849,43 @@ function registerPicker(){
 /* ÖFFENTLICH */
 
 window.KBAuth={
+
   get session(){
     return getAuthSession();
   },
-  signIn:authLogin,
-  refresh:authRefresh
+
+  signIn:
+    authLogin,
+
+  refresh:
+    authRefresh
 };
+
 
 window.KBCloud={
 
   cloudReady,
 
   cloudGetSellers,
+
   cloudSaveSeller,
+
   cloudDeleteSeller,
 
   cloudCreateReceipt,
+
   cloudGetReceipts,
+
   cloudUpdateReceiptItem,
 
   cloudResetReceipts,
+
   cloudResetReceiptsForRegister,
 
   cloudBanner,
+
   registerPicker,
+
   setRegister,
 
   KB_CLOUD
@@ -823,20 +901,20 @@ window.KBCloud={
 
   try{
 
-    const client=
-      await getSupabaseClient();
+    if(authSessionValid()){
 
-    const {data}=
-      await client.auth.getSession();
-
-    if(data?.session){
-
-      saveAuthSession(data.session);
       hideLogin();
+
+    }else if(
+      await authRefresh()
+    ){
+
+      // Sitzung erfolgreich erneuert.
 
     }else{
 
       clearAuthSession();
+
       showLogin();
     }
 
