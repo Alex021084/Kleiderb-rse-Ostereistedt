@@ -21,8 +21,8 @@ function checkSeller(){
  if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
  if(!n){sellerStatus.textContent="Bitte Verkäufernummer eingeben.";update();return false}
- const seller=getSellers().find(s=>String(s.number)===n);const ok=!!seller;
- sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden · ${seller.name||""}`:"✕ Verkäufernummer nicht gefunden";
+ const seller=getSellers().find(s=>String(s.number)===n);const ok=!!seller;sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
+ sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden · ${seller.name||""}`:"✕ Verkäufernummer nicht gefunden";update();return ok
 }
 function currentSize(){const s=document.querySelector(".size-button.selected");return isShoe?(shoeSize?`Schuhe ${shoeSize}`:""):isToy?"Spielzeug":(s?s.dataset.size:"")}
 function valid(){return (unassignedMode || getSellers().some(s=>String(s.number)===sellerNumber.value.trim()))&&!!currentSize()&&priceValue()>0}
