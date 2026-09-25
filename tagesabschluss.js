@@ -128,12 +128,15 @@ function dateStamp(){
   const d=new Date();
   return `${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}`;
 }
-function payoutSentence(method){
+function payoutSentence(method, salutation){
   const m=String(method||"Bar");
-  if(m==="PayPal") return "Der Verkäufer hat seinen Erlös per PayPal erhalten.";
-  if(m==="EC") return "Der Verkäufer hat seinen Erlös per EC erhalten.";
-  if(m==="Überweisung") return "Der Verkäufer hat seinen Erlös per Überweisung erhalten.";
-  return "Der Verkäufer hat seinen Erlös in Bar erhalten.";
+  const female=String(salutation||"")==="Frau";
+  const subject=female?"Die Verkäuferin":"Der Verkäufer";
+  const possessive=female?"ihren":"seinen";
+  if(m==="PayPal") return `${subject} hat ${possessive} Erlös per PayPal erhalten.`;
+  if(m==="EC") return `${subject} hat ${possessive} Erlös per EC erhalten.`;
+  if(m==="Überweisung") return `${subject} hat ${possessive} Erlös per Überweisung erhalten.`;
+  return `${subject} hat ${possessive} Erlös in Bar erhalten.`;
 }
 
 function sellerPdfData(sellerNumber, receipts, sellers){
@@ -310,7 +313,7 @@ function sellerPrintHtml(data){
         <div class="row"><span>Gesamtumsatz</span><strong>${sellerMoneyHtml(data.gross)}</strong></div>
         ${provision}
       </div>
-      <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
+      <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod, data.seller.salutation)}</small></div>
       ${articleCard(firstRows, rows.length<=firstCount)}
       ${rows.length<=firstCount?`<div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>`:""}
     </div>`);
@@ -523,7 +526,7 @@ async function makeSellerPdf(data){
       const py=936,ph=112;
       round(ctx,x,py,w,ph,24,greenBg,null);
       text(ctx,"AUSZAHLUNG",x+42,py+40,21,green,true);
-      text(ctx,payoutSentence(data.seller.payoutMethod),x+42,py+73,14,green);
+      text(ctx,payoutSentence(data.seller.payoutMethod, data.seller.salutation),x+42,py+73,14,green);
       text(ctx,money(data.payout),x+w-42,py+52,25,green,true,"right");
 
       const ah=Math.max(290,Math.min(525,180+rows.length*40));
