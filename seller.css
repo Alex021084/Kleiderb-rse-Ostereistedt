@@ -40,6 +40,9 @@ h1{font-size:31px;margin:0 0 17px}
 label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
 label span{font-weight:400;color:#89919d}
 .box input{width:100%;height:52px;border:1px solid #cdd4de;border-radius:10px;padding:11px;font-size:16px}
+
+.salutation-select{width:100%;height:58px;border:2px solid #cdd4de;border-radius:11px;background:#fff;color:#172033;padding:0 14px;font-size:19px;font-weight:700;outline:none;-webkit-appearance:auto;appearance:auto}
+.salutation-select:focus{border-color:#4357dc}
 .actions{display:grid;grid-template-columns:1fr 1fr;margin-top:18px}
 .actions button{height:52px;border:0;background:#e9edf4;font-weight:700}
 .actions .save{background:#4357dc;color:#fff}
