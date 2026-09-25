@@ -523,14 +523,14 @@ async function makeSellerPdf(data){
         text(ctx,"- "+money(data.commission),x+w-42,oy+207,18,dark,true,"right");
       }
 
-      const py=936,ph=112;
+      const py=970,ph=112;
       round(ctx,x,py,w,ph,24,greenBg,null);
       text(ctx,"AUSZAHLUNG",x+42,py+40,21,green,true);
       text(ctx,payoutSentence(data.seller.payoutMethod, data.seller.salutation),x+42,py+73,14,green);
       text(ctx,money(data.payout),x+w-42,py+52,25,green,true,"right");
 
       const ah=Math.max(290,Math.min(525,180+rows.length*40));
-      const ay=1070;
+      const ay=1104;
       round(ctx,x,ay,w,ah,24,"#fff",border);
       drawArticleTable(ctx,rows,ay,ay+ah-20);
       // Keine zusätzliche "Verkaufte Artikel"-Zeile am Ende.
