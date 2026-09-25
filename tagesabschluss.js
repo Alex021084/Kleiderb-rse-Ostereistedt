@@ -362,12 +362,15 @@ async function saveSellerPdfByNumber(number, receipts, sellers){
   try{
     const data=sellerPdfData(number,receipts,sellers);
     const title=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}`;
-    const html=sellerPrintHtml(data);
-    const win=window.open("about:blank","_blank");
-    if(!win){ alert("Das PDF-Fenster konnte nicht geöffnet werden. Bitte Pop-ups für diese Seite erlauben."); return; }
-    win.document.open(); win.document.write(html); win.document.close();
-    win.document.title=title;
-    setTimeout(()=>{try{win.focus();win.print()}catch(e){}},500);
+    const blob=await makeSellerPdf(data);
+    const url=URL.createObjectURL(blob);
+    const win=window.open(url,"_blank");
+    if(!win){
+      const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+      return;
+    }
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
   }catch(e){console.error(e);alert("Die Verkäufer-Abrechnung konnte nicht geöffnet werden.")}
 }
 function pdfText(x,y,size,text,bold=false){
@@ -396,127 +399,150 @@ function pdfLogoJpegBytes(){
   return out;
 }
 async function makeSellerPdf(data){
-  // ZIP-PDFs als gerenderte A4-Seite erzeugen. Dadurch sehen sie auf iPad/iPhone
-  // exakt sauber aus, ohne die unterschiedlichen PDF-Schrift-Renderer zu nutzen.
   const CW=1240, CH=1754;
-  const canvas=document.createElement("canvas");
-  canvas.width=CW; canvas.height=CH;
-  const ctx=canvas.getContext("2d");
-  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,CW,CH);
-
-  const scale=1;
   const blue="#3159d8", dark="#172033", muted="#687386", line="#edf0f4", border="#dfe4ec", green="#087443", greenBg="#eaf7ef";
   const x=91, w=1058;
   const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
-  const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
-  const round=(x,y,w,h,r,fill,stroke)=>{
+  const allRows=data.rows||[];
+  const firstCapacity=6;
+  const nextCapacity=18;
+  const pages=[];
+  const chunks=[allRows.slice(0,firstCapacity)];
+  for(let i=firstCapacity;i<allRows.length;i+=nextCapacity) chunks.push(allRows.slice(i,i+nextCapacity));
+
+  const round=(ctx,x,y,w,h,r,fill,stroke)=>{
     ctx.beginPath();
-    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
     if(fill){ctx.fillStyle=fill;ctx.fill();}
     if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}
   };
-  const text=(txt,px,py,size,color=dark,bold=false,align="left")=>{
+  const text=(ctx,txt,px,py,size,color=dark,bold=false,align="left")=>{
     ctx.fillStyle=color;
     ctx.font=`${bold?"800":"400"} ${size}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
-    ctx.textAlign=align; ctx.textBaseline="alphabetic";
-    ctx.fillText(String(txt??""),px,py);
+    ctx.textAlign=align;ctx.textBaseline="alphabetic";ctx.fillText(String(txt??""),px,py);
   };
 
-  // Logo
-  try{
-    const logo=new Image();
-    await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src="data:image/jpeg;base64,"+KB_LOGO_JPEG_B64;});
-    const lw=500, lh=272, lx=(CW-lw)/2, ly=30;
-    ctx.drawImage(logo,lx,ly,lw,lh);
-  }catch(e){console.warn("Logo konnte nicht gerendert werden",e)}
-
-  // Blauer Kopf
-  round(x,360,w,132,34,blue,null);
-  text("Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
-
-  // Verkäufer / Datum
-  text("Verkäufer",x,536,13,muted,false);
-  text(data.seller.name||"Verkäufer",x,576,28,dark,true);
-  const addressLine=[data.seller.street,data.seller.houseNumber].filter(Boolean).join(" ");
-  const cityLine=[data.seller.zip,data.seller.city].filter(Boolean).join(" ");
-  let contactY=610;
-  if(addressLine) { text(addressLine,x,contactY,15,muted,false); contactY+=22; }
-  if(cityLine) { text(cityLine,x,contactY,15,muted,false); contactY+=22; }
-  if(data.seller.phone) { text("Tel.: "+data.seller.phone,x,contactY,14,muted,false); contactY+=21; }
-  if(data.seller.email) { text("E-Mail: "+data.seller.email,x,contactY,14,muted,false); contactY+=21; }
-
-  text(`Verkäufernummer: ${data.seller.number}`,x,contactY+21,15,"#4f5b6c");
-  text("Datum",x+w,536,13,muted,false,"right");
-  text(dateStamp(),x+w,576,15,dark,false,"right");
-
-  // Übersicht
-  const oy=700, oh=214;
-  round(x,oy,w,oh,24,"#fff",border);
-  text("ÜBERSICHT",x+42,658,16,"#344054",true);
-  text("Verkaufte Teile",x+42,709,16,dark);
-  text(data.rows.length,x+w-42,709,18,dark,true,"right");
-  ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,724);ctx.lineTo(x+w-42,724);ctx.stroke();
-  text("Gesamtumsatz",x+42,761,16,dark);
-  text(money(data.gross),x+w-42,761,18,dark,true,"right");
-  if(data.commission>0){
-    ctx.beginPath();ctx.moveTo(x+42,776);ctx.lineTo(x+w-42,776);ctx.stroke();
-    text("Provision",x+42,813,16,dark);
-    text("- "+money(data.commission),x+w-42,813,18,dark,true,"right");
-  }
-
-  // Auszahlung
-  const py=936, ph=112;
-  round(x,py,w,ph,24,greenBg,null);
-  text("AUSZAHLUNG",x+42,959,21,green,true);
-  text(payoutSentence(data.seller.payoutMethod),x+42,993,14,green,false);
-  text(money(data.payout),x+w-42,975,25,green,true,"right");
-
-  // Artikel
-  const articleCount=(data.rows||[]).length;
-  const ah=Math.max(210,Math.min(500,155+articleCount*35));
-  const ay=1070;
-  round(x,ay,w,ah,24,"#fff",border);
-  text("VERKAUFTE ARTIKEL",x+42,1086,16,"#344054",true);
-  text("Spielzeug / Kleidung / Schuhe",x+42,1121,12,muted,true);
-  text("Größe",x+760,1121,13,muted,true);
-  text("Verkaufspreis",x+w-42,1121,13,muted,true,"right");
-  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1134);ctx.lineTo(x+w-42,1134);ctx.stroke();
-  let y=1169;
-  if(articleCount){
-    for(const r of data.rows){
-      text(r.category||"Kleidung",x+42,y,15,dark);
-      const size=(r.category==="Spielzeug"||r.category==="Schuhe") ? "" : (r.size||"—");
-      text(size,x+760,y,15,dark);
-      text(money(r.price),x+w-42,y,15,dark,true,"right");
+  const drawArticleTable=(ctx, rows, top, bottom)=>{
+    const titleY=top+16, headY=top+51, lineY=top+64, rowY=top+99;
+    text(ctx,"VERKAUFTE ARTIKEL",x+42,titleY,16,"#344054",true);
+    text(ctx,"Spielzeug / Kleidung / Schuhe",x+42,headY,12,muted,true);
+    text(ctx,"Größe",x+760,headY,13,muted,true);
+    text(ctx,"Verkaufspreis",x+w-42,headY,13,muted,true,"right");
+    ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,lineY);ctx.lineTo(x+w-42,lineY);ctx.stroke();
+    let y=rowY;
+    for(const r of rows){
+      const cat=r.category==="Schuhe"?"Schuhe":(r.category==="Spielzeug"?"Spielzeug":"Kleidung");
+      const size=cat==="Spielzeug"?"":(r.size||"");
+      text(ctx,cat,x+42,y,15,dark);
+      text(ctx,size,x+760,y,15,dark);
+      text(ctx,money(r.price),x+w-42,y,15,dark,true,"right");
       y+=35;
-      if(y<ay+ah-45){
-        ctx.strokeStyle=line;ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
+      if(y<bottom-18){
+        ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
       }
     }
-  }else{
-    text("Keine Artikel",x+42,y,15,dark);
+    return y;
+  };
+
+  for(let pageIndex=0;pageIndex<chunks.length;pageIndex++){
+    const rows=chunks[pageIndex];
+    const first=pageIndex===0;
+    const canvas=document.createElement("canvas");
+    canvas.width=CW;canvas.height=CH;
+    const ctx=canvas.getContext("2d");
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,CW,CH);
+
+    if(first){
+      try{
+        const logo=new Image();
+        await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src="data:image/jpeg;base64,"+KB_LOGO_JPEG_B64;});
+        ctx.drawImage(logo,(CW-500)/2,30,500,272);
+      }catch(e){}
+      round(ctx,x,360,w,132,34,blue,null);
+      text(ctx,"Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
+
+      text(ctx,"Verkäufer",x,536,13,muted);
+      text(ctx,data.seller.name||"Verkäufer",x,576,28,dark,true);
+      const addressLine=[data.seller.street,data.seller.houseNumber].filter(Boolean).join(" ");
+      const cityLine=[data.seller.zip,data.seller.city].filter(Boolean).join(" ");
+      let contactY=610;
+      if(addressLine){text(ctx,addressLine,x,contactY,15,muted);contactY+=22;}
+      if(cityLine){text(ctx,cityLine,x,contactY,15,muted);contactY+=22;}
+      if(data.seller.phone){text(ctx,"Tel.: "+data.seller.phone,x,contactY,14,muted);contactY+=21;}
+      if(data.seller.email){text(ctx,"E-Mail: "+data.seller.email,x,contactY,14,muted);contactY+=21;}
+      text(ctx,`Verkäufernummer: ${data.seller.number}`,x,contactY+21,15,"#4f5b6c");
+      text(ctx,"Datum",x+w,536,13,muted,false,"right");
+      text(ctx,dateStamp(),x+w,576,15,dark,false,"right");
+
+      const oy=700,oh=214;
+      round(ctx,x,oy,w,oh,24,"#fff",border);
+      text(ctx,"ÜBERSICHT",x+42,oy+58,16,"#344054",true);
+      text(ctx,"Verkaufte Teile",x+42,oy+109,16,dark);
+      text(ctx,data.rows.length,x+w-42,oy+109,18,dark,true,"right");
+      ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,oy+124);ctx.lineTo(x+w-42,oy+124);ctx.stroke();
+      text(ctx,"Gesamtumsatz",x+42,oy+161,16,dark);
+      text(ctx,money(data.gross),x+w-42,oy+161,18,dark,true,"right");
+      if(data.commission>0){
+        ctx.beginPath();ctx.moveTo(x+42,oy+176);ctx.lineTo(x+w-42,oy+176);ctx.stroke();
+        text(ctx,"Provision",x+42,oy+213,16,dark);
+        text(ctx,"- "+money(data.commission),x+w-42,oy+213,18,dark,true,"right");
+      }
+
+      const py=936,ph=112;
+      round(ctx,x,py,w,ph,24,greenBg,null);
+      text(ctx,"AUSZAHLUNG",x+42,py+23,21,green,true);
+      text(ctx,payoutSentence(data.seller.payoutMethod),x+42,py+57,14,green);
+      text(ctx,money(data.payout),x+w-42,py+39,25,green,true,"right");
+
+      const ah=Math.max(260,Math.min(500,155+rows.length*35));
+      const ay=1070;
+      round(ctx,x,ay,w,ah,24,"#fff",border);
+      drawArticleTable(ctx,rows,ay,ay+ah-35);
+      if(pageIndex===chunks.length-1) text(ctx,`Verkaufte Artikel: ${allRows.length}`,x+42,ay+ah-24,14,"#4f5b6c",true);
+      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",CW/2,1660,11,"#7a8494",false,"center");
+    }else{
+      // Clean A4 continuation page: the article section starts at the top.
+      const ay=90, ah=Math.min(1530,Math.max(300,120+rows.length*35+80));
+      round(ctx,x,ay,w,ah,24,"#fff",border);
+      drawArticleTable(ctx,rows,ay,ay+ah-35);
+      if(pageIndex===chunks.length-1) text(ctx,`Verkaufte Artikel: ${allRows.length}`,x+42,ay+ah-24,14,"#4f5b6c",true);
+      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",CW/2,1690,11,"#7a8494",false,"center");
+    }
+    pages.push(canvas);
   }
-  text(`Verkaufte Artikel: ${articleCount}`,x+42,ay+ah-24,14,"#4f5b6c",true);
 
-  text("Kleiderbörse · Verkäufer-Abrechnung",CW/2,1560,11,"#7a8494",false,"center");
-
-  const dataUrl=canvas.toDataURL("image/jpeg",0.94);
-  const b64=dataUrl.split(",")[1];
-  const bin=atob(b64); const jpg=new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) jpg[i]=bin.charCodeAt(i);
-  let jpgBinary=""; for(let i=0;i<jpg.length;i++) jpgBinary+=String.fromCharCode(jpg[i]);
-  const content="q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
+  // Build a real multi-page A4 PDF from the rendered pages.
   const objects=[];
-  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
-  objects.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
-  objects.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>");
-  objects.push(`<< /Type /XObject /Subtype /Image /Width ${CW} /Height ${CH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n${jpgBinary}\nendstream`);
-  objects.push(`<< /Length ${content.length} >>\nstream\n${content}endstream`);
-  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"; const offsets=[0];
+  const pageObjNums=[], imageObjNums=[], contentObjNums=[];
+  let nextObj=3;
+  for(let i=0;i<pages.length;i++){
+    pageObjNums.push(nextObj++);
+    imageObjNums.push(nextObj++);
+    contentObjNums.push(nextObj++);
+  }
+  const pagesObj=2, catalogObj=1;
+  const kids=pageObjNums.map(n=>`${n} 0 R`).join(" ");
+  objects[catalogObj-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
+  objects[pagesObj-1]=`<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
+
+  const pageChunks=[];
+  for(let i=0;i<pages.length;i++){
+    const dataUrl=pages[i].toDataURL("image/jpeg",0.94);
+    const b64=dataUrl.split(",")[1],bin=atob(b64);
+    const jpg=new Uint8Array(bin.length);
+    for(let j=0;j<bin.length;j++) jpg[j]=bin.charCodeAt(j);
+    let jpgBinary="";for(let j=0;j<jpg.length;j++)jpgBinary+=String.fromCharCode(jpg[j]);
+    const content="q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
+    objects[pageObjNums[i]-1]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 ${imageObjNums[i]} 0 R >> >> /Contents ${contentObjNums[i]} 0 R >>`;
+    objects[imageObjNums[i]-1]=`<< /Type /XObject /Subtype /Image /Width ${CW} /Height ${CH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n${jpgBinary}\nendstream`;
+    objects[contentObjNums[i]-1]=`<< /Length ${content.length} >>\nstream\n${content}endstream`;
+  }
+
+  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
+  const offsets=[0];
   for(let i=0;i<objects.length;i++){offsets.push(pdf.length);pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;}
   const xref=pdf.length;
   pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
@@ -524,6 +550,7 @@ async function makeSellerPdf(data){
   pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return new Blob([bytesFromBinaryString(pdf)],{type:"application/pdf"});
 }
+
 function sellerMoneyPlain(v){
   return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
 }
