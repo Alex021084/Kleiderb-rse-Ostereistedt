@@ -12,11 +12,29 @@ async function loadData(){
 function itemsOf(r){return r.receipt_items||[]}
 function priceOf(i){return Number(i.price||0)}
 function rateOf(i){return Number(i.commission_rate??i.commissionRate??(i.commission_enabled===false||i.commissionEnabled===false?0:.15))}
+function currentSellerRate(seller){
+  if(!seller) return 0;
+  const enabled=seller.commissionEnabled===undefined
+    ? seller.commission_enabled!==false
+    : seller.commissionEnabled===true;
+  if(!enabled) return 0;
+  let v=Number(String(seller.commissionRate??seller.commission_rate??15).replace(",","."));
+  if(!Number.isFinite(v)) v=15;
+  return Math.min(100,Math.max(0,v))/100;
+}
 function filteredReceipts(receipts){return selectedRegister==="Alle Kassen"?receipts:receipts.filter(r=>(r.register_id||r.registerId||"Kasse 1")===selectedRegister)}
 function isUnassigned(i){return !String(i.seller_number??i.sellerNumber??"").trim()}
 
 async function render(){
  const allReceipts=await loadData(),receipts=filteredReceipts(allReceipts),items=receipts.flatMap(itemsOf);
+ let sellerData=[];
+ if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
+ else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+ const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
+ const currentRateForItem=x=>{
+   const n=String(x.seller_number??x.sellerNumber??"").trim();
+   return n && sellerMap[n] ? currentSellerRate(sellerMap[n]) : rateOf(x);
+ };
  const total=items.reduce((a,x)=>a+priceOf(x),0);
  const cash=receipts.filter(r=>(r.payment||"")==="Bar").reduce((a,r)=>{
   const t=Number(r.total);
@@ -32,18 +50,14 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
   const t=Number(r.total);
   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
 },0);
- const commission=items.reduce((a,x)=>a+priceOf(x)*rateOf(x),0),payout=total-commission;
+ const commission=items.reduce((a,x)=>a+priceOf(x)*currentRateForItem(x),0),payout=total-commission;
  $("totalRevenue").textContent=euro(total);$("cashTotal").textContent=euro(cash);$("cardTotal").textContent=euro(card);$("paypalTotal").textContent=euro(paypal);
  $("commissionGross").textContent=euro(total);$("commission").textContent=euro(commission);$("payout").textContent=euro(payout);
  $("articleCount").textContent=`${items.length} ${items.length===1?"Artikel":"Artikel"}`;
  $("selectedRegisterText").textContent=`Anzeige: ${selectedRegister}`;
 
  const bySeller={};
- items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"").trim();if(!n)return;if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*rateOf(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
- let sellerData=[];
- if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
- else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
- const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
+ items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"").trim();if(!n)return;if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*currentRateForItem(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
  $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;return `<div class="seller-row"><div class="seller-name">${esc(name)}<div class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div><div><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div><div class="seller-pdf-cell"><button type="button" class="seller-pdf-button" data-seller-number="${esc(n)}">PDF</button></div></div>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
  const unassigned=[];
  allReceipts.forEach(r=>{(r.receipt_items||[]).forEach((x,i)=>{if(isUnassigned(x))unassigned.push({r,x,index:i})})});
@@ -163,7 +177,7 @@ function sellerPdfData(sellerNumber, receipts, sellers){
         payment:pay,
         register:r.register_id||r.registerId||"Kasse 1",
         created:r.created_at,
-        commission:rateOf(i)
+        commission:currentSellerRate(seller)
       });
     });
   });
