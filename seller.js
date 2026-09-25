@@ -4,7 +4,10 @@ const $=id=>document.getElementById(id);
 const commissionInput=document.getElementById("commissionEnabled");
 const commissionRateInput=document.getElementById("commissionRate");
 const commissionRateWrap=document.getElementById("commissionRateWrap");
-const addressInput=document.getElementById("address");
+const streetInput=document.getElementById("street");
+const houseNumberInput=document.getElementById("houseNumber");
+const zipInput=document.getElementById("zip");
+const cityInput=document.getElementById("city");
 const emailInput=document.getElementById("email");
 const payoutMethodInput=document.getElementById("payoutMethod");
 
@@ -12,6 +15,18 @@ function commissionRateValue(){let v=parseFloat((commissionRateInput?.value||"15
 function updateCommissionVisibility(){if(commissionRateWrap)commissionRateWrap.classList.toggle("hidden",!commissionInput?.checked)}
 function getExtras(){try{return JSON.parse(localStorage.getItem("kb_seller_extras")||"{}")}catch(e){return {}}}
 function saveExtras(x){try{localStorage.setItem("kb_seller_extras",JSON.stringify(x))}catch(e){console.error(e)}}
+function splitLegacyAddress(v){
+  const a=String(v||"").trim();
+  if(!a)return {street:"",houseNumber:"",zip:"",city:""};
+  const m=a.match(/^(.*?)[, ]+([0-9]+[A-Za-z]?)[, ]+([0-9]{5})[ ]+(.*)$/);
+  if(m)return {street:m[1].trim(),houseNumber:m[2].trim(),zip:m[3].trim(),city:m[4].trim()};
+  return {street:a,houseNumber:"",zip:"",city:""};
+}
+function addressParts(s){
+  const p={street:s.street||"",houseNumber:s.houseNumber||"",zip:s.zip||"",city:s.city||""};
+  if(!p.street&&!p.houseNumber&&!p.zip&&!p.city&&s.address) return splitLegacyAddress(s.address);
+  return p;
+}
 function normalize(s){
   const e=getExtras()[String(s.number)]||{};
   return {...s,
@@ -19,6 +34,10 @@ function normalize(s){
     commissionRate:Number(s.commissionRate??s.commission_rate??15),
     phone:s.phone||"",
     address:s.address??e.address??"",
+    street:s.street??e.street??"",
+    houseNumber:s.houseNumber??e.houseNumber??"",
+    zip:s.zip??e.zip??"",
+    city:s.city??e.city??"",
     email:s.email??e.email??"",
     payoutMethod:s.payoutMethod??s.payout_method??e.payoutMethod??"Bar"
   }
@@ -62,19 +81,23 @@ async function showReport(id){
 function closeReport(){$("report").classList.add("hidden");document.documentElement.classList.remove("modal-open");document.body.classList.remove("modal-open")}
 function openForm(){
   editId=null;$("number").value="";$("name").value="";$("phone").value="";
-  if(addressInput)addressInput.value="";if(emailInput)emailInput.value="";if(payoutMethodInput)payoutMethodInput.value="Bar";
+  if(streetInput)streetInput.value="";if(houseNumberInput)houseNumberInput.value="";
+  if(zipInput)zipInput.value="";if(cityInput)cityInput.value="";
+  if(emailInput)emailInput.value="";if(payoutMethodInput)payoutMethodInput.value="Bar";
   if(commissionInput)commissionInput.checked=true;if(commissionRateInput)commissionRateInput.value="15";updateCommissionVisibility();
   $("error").textContent="";document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");$("modalTitle").textContent="Verkäufer hinzufügen";$("modal").classList.remove("hidden");$("number").focus();
 }
 function closeForm(){$("modal").classList.add("hidden");document.documentElement.classList.remove("modal-open");document.body.classList.remove("modal-open")}
 async function saveSeller(){
   let number=$("number").value.trim(),name=$("name").value.trim(),phone=$("phone").value.trim();
-  let address=addressInput?.value.trim()||"",email=emailInput?.value.trim()||"",payoutMethod=payoutMethodInput?.value||"Bar";
+  let street=streetInput?.value.trim()||"",houseNumber=houseNumberInput?.value.trim()||"",zip=zipInput?.value.trim()||"",city=cityInput?.value.trim()||"";
+  let address=[street,houseNumber,zip,city].filter(Boolean).join(", ");
+  let email=emailInput?.value.trim()||"",payoutMethod=payoutMethodInput?.value||"Bar";
   let commissionEnabled=commissionInput?commissionInput.checked:true,commissionRate=commissionRateValue();
   if(!number||!name){$("error").textContent="Bitte Nummer und Name eingeben.";return}
   if(sellers.some(s=>s.number===number&&s.id!==editId)){$("error").textContent="Diese Verkäufernummer ist bereits vergeben.";return}
   let s=editId?sellers.find(x=>x.id===editId):{id:crypto.randomUUID?crypto.randomUUID():Date.now().toString()};
-  Object.assign(s,{number,name,phone,address,email,payoutMethod,commissionEnabled,commissionRate});
+  Object.assign(s,{number,name,phone,address,street,houseNumber,zip,city,email,payoutMethod,commissionEnabled,commissionRate});
   try{
     if(KBCloud.cloudReady()){
       const cloudSeller={...s};
@@ -83,7 +106,7 @@ async function saveSeller(){
     }else{
       let i=sellers.findIndex(x=>x.id===s.id);if(i<0)sellers.push(s);localStorage.setItem("kb_sellers",JSON.stringify(sellers))
     }
-    const ex=getExtras();ex[String(number)]={address,email,payoutMethod};saveExtras(ex);
+    const ex=getExtras();ex[String(number)]={address,street,houseNumber,zip,city,email,payoutMethod};saveExtras(ex);
     if(!sellers.some(x=>x.id===s.id))sellers.push(s);
     closeForm();render();
   }catch(e){$("error").textContent="Speichern fehlgeschlagen. Bitte Internetverbindung prüfen.";console.error(e)}
@@ -91,7 +114,10 @@ async function saveSeller(){
 function editSeller(id){
   let s=sellers.find(x=>x.id===id);if(!s)return;editId=id;
   $("number").value=s.number;$("name").value=s.name;$("phone").value=s.phone||"";
-  if(addressInput)addressInput.value=s.address||"";if(emailInput)emailInput.value=s.email||"";if(payoutMethodInput)payoutMethodInput.value=s.payoutMethod||"Bar";
+  const ap=addressParts(s);
+  if(streetInput)streetInput.value=ap.street;if(houseNumberInput)houseNumberInput.value=ap.houseNumber;
+  if(zipInput)zipInput.value=ap.zip;if(cityInput)cityInput.value=ap.city;
+  if(emailInput)emailInput.value=s.email||"";if(payoutMethodInput)payoutMethodInput.value=s.payoutMethod||"Bar";
   if(commissionInput)commissionInput.checked=s.commissionEnabled===true;if(commissionRateInput)commissionRateInput.value=String(s.commissionRate??15).replace(".",",");
   updateCommissionVisibility();$("error").textContent="";document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");$("modalTitle").textContent="Verkäufer bearbeiten";$("modal").classList.remove("hidden");
 }

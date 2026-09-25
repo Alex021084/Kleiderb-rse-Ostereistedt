@@ -128,11 +128,19 @@ function sellerPdfData(sellerNumber, receipts, sellers){
     const extras=JSON.parse(localStorage.getItem("kb_seller_extras")||"{}");
     const extra=extras[String(seller.number)]||{};
     seller.address=extra.address||seller.address||"";
+    seller.street=extra.street||seller.street||"";
+    seller.houseNumber=extra.houseNumber||seller.houseNumber||"";
+    seller.zip=extra.zip||seller.zip||"";
+    seller.city=extra.city||seller.city||"";
     seller.phone=extra.phone||seller.phone||"";
     seller.email=extra.email||seller.email||"";
     seller.payoutMethod=extra.payoutMethod||seller.payoutMethod||"Bar";
   }catch(e){
     seller.address=seller.address||"";
+    seller.street=seller.street||"";
+    seller.houseNumber=seller.houseNumber||"";
+    seller.zip=seller.zip||"";
+    seller.city=seller.city||"";
     seller.phone=seller.phone||"";
     seller.email=seller.email||"";
     seller.payoutMethod=seller.payoutMethod||"Bar";
@@ -270,7 +278,17 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
   <div class="logo-wrap"><img src="${new URL("kleiderboerse-logo.jpg", location.href).href}" alt="Kleiderbörse Ostereistedt"></div>
   <div class="header"><div class="brand">Verkäufer-Abrechnung</div></div>
   <div class="info">
-    <div><div class="label">Verkäufer</div><div class="name">${escHtml(data.seller.name||"Verkäufer")}</div><div class="meta">Verkäufernummer: ${escHtml(data.seller.number)}</div></div>
+    <div>
+      <div class="label">Verkäufer</div>
+      <div class="name">${escHtml(data.seller.name||"Verkäufer")}</div>
+      <div class="contact">
+        ${escHtml([data.seller.street,data.seller.houseNumber].filter(Boolean).join(" "))}
+        ${(data.seller.zip||data.seller.city)?`<br>${escHtml([data.seller.zip,data.seller.city].filter(Boolean).join(" "))}`:""}
+        ${data.seller.phone?`<br>Tel.: ${escHtml(data.seller.phone)}`:""}
+        ${data.seller.email?`<br>E-Mail: ${escHtml(data.seller.email)}`:""}
+      </div>
+      <div class="meta">Verkäufernummer: ${escHtml(data.seller.number)}</div>
+    </div>
     <div style="text-align:right"><div class="label">Datum</div><div class="meta" style="font-size:12px">${escHtml(dateStamp())}</div></div>
   </div>
   <div class="card">
@@ -370,19 +388,20 @@ async function makeSellerPdf(data){
   // Verkäufer / Datum
   text("Verkäufer",x,536,13,muted,false);
   text(data.seller.name||"Verkäufer",x,576,28,dark,true);
-  let contactY=390;
-  const contactLines=[];
-  if(data.seller.address) contactLines.push(data.seller.address);
-  if(data.seller.phone) contactLines.push("Tel.: "+data.seller.phone);
-  if(data.seller.email) contactLines.push("E-Mail: "+data.seller.email);
-  contactLines.forEach((line,idx)=>text(line,x+42,contactY+idx*24,16,muted,false));
+  const addressLine=[data.seller.street,data.seller.houseNumber].filter(Boolean).join(" ");
+  const cityLine=[data.seller.zip,data.seller.city].filter(Boolean).join(" ");
+  let contactY=610;
+  if(addressLine) { text(addressLine,x,contactY,15,muted,false); contactY+=22; }
+  if(cityLine) { text(cityLine,x,contactY,15,muted,false); contactY+=22; }
+  if(data.seller.phone) { text("Tel.: "+data.seller.phone,x,contactY,14,muted,false); contactY+=21; }
+  if(data.seller.email) { text("E-Mail: "+data.seller.email,x,contactY,14,muted,false); contactY+=21; }
 
-  text(`Verkäufernummer: ${data.seller.number}`,x,608,15,"#4f5b6c");
+  text(`Verkäufernummer: ${data.seller.number}`,x,contactY+21,15,"#4f5b6c");
   text("Datum",x+w,536,13,muted,false,"right");
   text(dateStamp(),x+w,576,15,dark,false,"right");
 
   // Übersicht
-  const oy=649, oh=214;
+  const oy=700, oh=214;
   round(x,oy,w,oh,24,"#fff",border);
   text("ÜBERSICHT",x+42,658,16,"#344054",true);
   text("Verkaufte Teile",x+42,709,16,dark);
@@ -397,21 +416,21 @@ async function makeSellerPdf(data){
   }
 
   // Auszahlung
-  const py=885, ph=112;
+  const py=936, ph=112;
   round(x,py,w,ph,24,greenBg,null);
-  text("AUSZAHLUNG",x+42,908,21,green,true);
-  text(payoutSentence(data.seller.payoutMethod),x+42,942,14,green,false);
-  text(money(data.payout),x+w-42,924,25,green,true,"right");
+  text("AUSZAHLUNG",x+42,959,21,green,true);
+  text(payoutSentence(data.seller.payoutMethod),x+42,993,14,green,false);
+  text(money(data.payout),x+w-42,975,25,green,true,"right");
 
   // Artikel
   const ah=Math.max(210,Math.min(370,128+rows.length*35));
-  const ay=1019;
+  const ay=1070;
   round(x,ay,w,ah,24,"#fff",border);
-  text("VERKAUFTE ARTIKEL",x+42,1035,16,"#344054",true);
-  text("Größe / Kategorie",x+42,1070,13,muted,true);
-  text("Anzahl",x+w-42,1070,13,muted,true,"right");
-  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1083);ctx.lineTo(x+w-42,1083);ctx.stroke();
-  let y=1118;
+  text("VERKAUFTE ARTIKEL",x+42,1086,16,"#344054",true);
+  text("Größe / Kategorie",x+42,1121,13,muted,true);
+  text("Anzahl",x+w-42,1121,13,muted,true,"right");
+  ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1134);ctx.lineTo(x+w-42,1134);ctx.stroke();
+  let y=1169;
   if(rows.length){
     for(const [k,v] of rows){
       text(k,x+42,y,15,dark);

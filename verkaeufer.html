@@ -6,6 +6,15 @@
 .payout-box{margin-top:14px;padding:12px 14px;border:1px solid #e1e5eb;border-radius:12px;background:#f8fafc}
 .payout-box label{margin-top:0}
 .payout-box select{width:100%;box-sizing:border-box;height:48px;border:1px solid #cfd5dd;border-radius:10px;background:#fff;padding:0 12px;font-size:17px}
+.address-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px;margin-bottom:12px}
+.address-grid input{width:100%;box-sizing:border-box}
+.address-grid #zip{grid-column:1 / 2}
+.address-grid #city{grid-column:2 / 3}
+.address-grid #street{grid-column:1 / 2}
+.address-grid #houseNumber{grid-column:2 / 3}
+@media (max-width:520px){
+  .address-grid{grid-template-columns:minmax(0,1fr) 120px}
+}
 
 /* v2: Modal-Inhalt auf iPhone/iPad selbst scrollen */
 html.modal-open, body.modal-open{overflow:hidden!important;height:100%!important;}
@@ -32,7 +41,12 @@ body.modal-open{overscroll-behavior:none!important;}
 
   <div class="seller-extra-fields">
     <label>Adresse <span>(optional)</span></label>
-    <input id="address" type="text" autocomplete="street-address" placeholder="Straße, Hausnummer, PLZ Ort">
+    <div class="address-grid">
+      <input id="street" type="text" autocomplete="street-address" placeholder="Straße">
+      <input id="houseNumber" type="text" autocomplete="address-line2" placeholder="Hausnummer">
+      <input id="zip" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="PLZ">
+      <input id="city" type="text" autocomplete="address-level2" placeholder="Ort">
+    </div>
     <label>E-Mail-Adresse <span>(optional)</span></label>
     <input id="email" type="email" autocomplete="email" placeholder="z. B. name@beispiel.de">
     <div class="payout-box">
@@ -40,6 +54,7 @@ body.modal-open{overscroll-behavior:none!important;}
       <span class="field-note">Wie soll der Verkäufer sein Geld erhalten?</span>
       <select id="payoutMethod">
         <option value="Bar">Bar</option>
+        <option value="EC">EC</option>
         <option value="Überweisung">Überweisung</option>
         <option value="PayPal">PayPal</option>
       </select>
