@@ -248,22 +248,76 @@ function sellerMoneyHtml(v){
 function sellerPrintHtml(data){
   const escHtml=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const rows=data.rows||[];
-  const articles=rows.length
-    ? rows.map(x=>{
-        const cat=x.category==="Schuhe" ? "Schuhe" : (x.category==="Spielzeug" ? "Spielzeug" : "Kleidung");
-        const size=(cat==="Spielzeug"||cat==="Schuhe") ? (cat==="Schuhe" ? escHtml(String(x.size||"")) : "") : escHtml(x.size||"");
-        return `<tr><td>${cat}</td><td>${size}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`;
-      }).join("")
-    : `<tr><td colspan="3">Keine Artikel</td></tr>`;
+  const rowHtml=x=>{
+    const cat=x.category==="Schuhe" ? "Schuhe" : (x.category==="Spielzeug" ? "Spielzeug" : "Kleidung");
+    const size=(cat==="Spielzeug") ? "" : escHtml(x.size||"");
+    return `<tr><td>${cat}</td><td>${size}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`;
+  };
   const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${sellerMoneyHtml(data.commission)}</strong></div>` : "";
+  const articleCard=(list, showTotal=false)=>`
+    <div class="card article-card">
+      <h2>VERKAUFTE ARTIKEL</h2>
+      <table>
+        <thead><tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr></thead>
+        <tbody>${list.length?list.map(rowHtml).join(""):`<tr><td colspan="3">Keine Artikel</td></tr>`}</tbody>
+      </table>
+      ${showTotal?`<div class="article-total">Verkaufte Artikel: ${rows.length}</div>`:""}
+    </div>`;
+
+  // Erste Seite: Kopf + Abrechnung + ein kompakter erster Artikelblock.
+  // Folgeseiten beginnen immer wieder mit "VERKAUFTE ARTIKEL" und den Spalten.
+  const firstCount=3;
+  const nextCount=10;
+  const firstRows=rows.slice(0,firstCount);
+  const pages=[];
+  pages.push(`
+    <div class="page first-page">
+      <div class="logo-wrap"><img src="${new URL("kleiderboerse-logo.jpg", location.href).href}" alt="Kleiderbörse Ostereistedt"></div>
+      <div class="header"><div class="brand">Verkäufer-Abrechnung</div></div>
+      <div class="info">
+        <div>
+          <div class="label">Verkäufer</div>
+          <div class="name">${escHtml(data.seller.name||"Verkäufer")}</div>
+          <div class="contact">
+            ${escHtml([data.seller.street,data.seller.houseNumber].filter(Boolean).join(" "))}
+            ${(data.seller.zip||data.seller.city)?`<br>${escHtml([data.seller.zip,data.seller.city].filter(Boolean).join(" "))}`:""}
+            ${data.seller.phone?`<br>Tel.: ${escHtml(data.seller.phone)}`:""}
+            ${data.seller.email?`<br>E-Mail: ${escHtml(data.seller.email)}`:""}
+          </div>
+          <div class="meta">Verkäufernummer: ${escHtml(data.seller.number)}</div>
+        </div>
+        <div style="text-align:right"><div class="label">Datum</div><div class="meta" style="font-size:12px">${escHtml(dateStamp())}</div></div>
+      </div>
+      <div class="card">
+        <h2>ÜBERSICHT</h2>
+        <div class="row"><span>Verkaufte Teile</span><strong>${rows.length}</strong></div>
+        <div class="row"><span>Gesamtumsatz</span><strong>${sellerMoneyHtml(data.gross)}</strong></div>
+        ${provision}
+      </div>
+      <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
+      ${articleCard(firstRows, rows.length<=firstCount)}
+      ${rows.length<=firstCount?`<div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>`:""}
+    </div>`);
+
+  for(let i=firstCount;i<rows.length;i+=nextCount){
+    const chunk=rows.slice(i,i+nextCount);
+    const last=i+nextCount>=rows.length;
+    pages.push(`
+      <div class="page continuation-page">
+        ${articleCard(chunk,last)}
+        ${last?`<div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>`:""}
+      </div>`);
+  }
+
   return `<!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Verkäufer_${escHtml(data.seller.number)}_${escHtml(data.seller.name)}</title>
 <style>
 @page{size:A4 portrait;margin:0}
 *{box-sizing:border-box}
-body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.page{width:210mm;min-height:297mm;padding:8mm 18mm 16mm;margin:0 auto}
+html,body{margin:0;padding:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.page{width:210mm;height:297mm;padding:8mm 18mm 16mm;margin:0 auto;break-after:page;page-break-after:always;overflow:hidden}
+.page:last-of-type{break-after:auto;page-break-after:auto}
 .logo-wrap{text-align:center;margin:0 auto 5mm}.logo-wrap img{width:85mm;height:auto;display:block;margin:0 auto}
 .header{background:#3159d8;color:#fff;border-radius:6mm;padding:8mm 10mm 7mm;margin-bottom:14mm}
 .brand{font-size:24px;font-weight:800;letter-spacing:.1px}
@@ -277,63 +331,30 @@ h2{font-size:12px;letter-spacing:.8px;margin:0 0 5mm;color:#344054}
 .payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout small{display:block;margin-top:3mm;color:#087443;font-size:12px}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
 .article-card{padding-bottom:5mm}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead{display:table-header-group}
-.article-title th{border:0;text-align:left;padding:0 0 5mm;font-size:12px;letter-spacing:.8px;color:#344054}
 th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1px solid #cfd5df}
 th:last-child{text-align:right}
 td{padding:4mm 0;border-bottom:1px solid #edf0f4}
 td:last-child{text-align:right;font-weight:700}
 .article-total{margin-top:4mm;font-size:11px;font-weight:700;color:#4f5b6c}
+.continuation-page{padding-top:18mm}
 .footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
 .printbar{position:sticky;top:0;background:#fff;padding:12px;text-align:center;border-bottom:1px solid #ddd}
 .printbar{display:flex;justify-content:center;gap:10px}.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}.printbar .closebtn{background:#edf0f5;color:#172033}
+@media screen and (max-width:600px){
+  body{overflow-x:hidden}
+  .page{margin:0 auto}
+  .printbar{position:sticky;z-index:10}
+  /* A4-Blatt komplett im iPhone/iPad-Fenster anzeigen, nicht hineingezoomt. */
+  .page{zoom:calc((100vw - 24px) / 793.7px)}
+}
 @media print{
   .printbar{display:none}
-  .page{margin:0}
-  .article-card{break-inside:auto;page-break-inside:auto}
-  table{break-inside:auto;page-break-inside:auto}
-  tr{break-inside:avoid;page-break-inside:avoid}
-  thead{display:table-header-group}
+  .page{margin:0;width:210mm;height:297mm}
 }
 </style></head>
 <body>
 <div class="printbar"><button onclick="window.print()">PDF / Drucken</button><button class="closebtn" onclick="try{window.close()}catch(e){};setTimeout(()=>{try{history.back()}catch(e){}},120)">✕ Schließen</button></div>
-<div class="page">
-  <div class="logo-wrap"><img src="${new URL("kleiderboerse-logo.jpg", location.href).href}" alt="Kleiderbörse Ostereistedt"></div>
-  <div class="header"><div class="brand">Verkäufer-Abrechnung</div></div>
-  <div class="info">
-    <div>
-      <div class="label">Verkäufer</div>
-      <div class="name">${escHtml(data.seller.name||"Verkäufer")}</div>
-      <div class="contact">
-        ${escHtml([data.seller.street,data.seller.houseNumber].filter(Boolean).join(" "))}
-        ${(data.seller.zip||data.seller.city)?`<br>${escHtml([data.seller.zip,data.seller.city].filter(Boolean).join(" "))}`:""}
-        ${data.seller.phone?`<br>Tel.: ${escHtml(data.seller.phone)}`:""}
-        ${data.seller.email?`<br>E-Mail: ${escHtml(data.seller.email)}`:""}
-      </div>
-      <div class="meta">Verkäufernummer: ${escHtml(data.seller.number)}</div>
-    </div>
-    <div style="text-align:right"><div class="label">Datum</div><div class="meta" style="font-size:12px">${escHtml(dateStamp())}</div></div>
-  </div>
-  <div class="card">
-    <h2>ÜBERSICHT</h2>
-    <div class="row"><span>Verkaufte Teile</span><strong>${data.rows.length}</strong></div>
-    <div class="row"><span>Gesamtumsatz</span><strong>${sellerMoneyHtml(data.gross)}</strong></div>
-    ${provision}
-  </div>
-  <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
-  <div class="card article-card">
-    <table>
-      <thead>
-        <tr class="article-title"><th colspan="3">VERKAUFTE ARTIKEL</th></tr>
-        <tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr>
-      </thead>
-      <tbody>${articles}</tbody>
-    </table>
-    <div class="article-total">Verkaufte Artikel: ${data.rows.length}</div>
-  </div>
-  <div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>
-</div>
+${pages.join("")}
 </body></html>`;
 }
 
