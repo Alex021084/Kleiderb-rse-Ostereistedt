@@ -108,3 +108,15 @@ if(commissionInput)commissionInput.addEventListener("change",updateCommissionVis
 updateCommissionVisibility();
 loadSellers();
 KBCloud.cloudBanner();
+
+
+// Kompatibilität für die Verkäufer-Abrechnung:
+// Die PDF-Abrechnung kann damit die beim Verkäufer gewählte Auszahlungsart auslesen.
+window.getSellerPayoutMethod=function(sellerNumber){
+  try{
+    const extras=JSON.parse(localStorage.getItem("kb_seller_extras")||"{}");
+    return extras[String(sellerNumber)]?.payoutMethod || "Bar";
+  }catch(e){
+    return "Bar";
+  }
+};
