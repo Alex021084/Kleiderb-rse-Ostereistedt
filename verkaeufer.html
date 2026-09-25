@@ -37,6 +37,11 @@ body.modal-open{overscroll-behavior:none!important;}
   <div class="modalhead"><h2 id="modalTitle">Verkäufer hinzufügen</h2><button onclick="closeForm()">×</button></div>
   <label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
   <label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
+  <label for="salutation">Anrede</label>
+  <select id="salutation">
+    <option value="Frau">Frau</option>
+    <option value="Herr">Herr</option>
+  </select>
   <label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
 
   <div class="seller-extra-fields">
@@ -54,7 +59,6 @@ body.modal-open{overscroll-behavior:none!important;}
       <span class="field-note">Wie soll der Verkäufer sein Geld erhalten?</span>
       <select id="payoutMethod">
         <option value="Bar">Bar</option>
-        <option value="EC">EC</option>
         <option value="Überweisung">Überweisung</option>
         <option value="PayPal">PayPal</option>
       </select>

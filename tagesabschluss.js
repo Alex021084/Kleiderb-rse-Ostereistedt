@@ -148,6 +148,7 @@ function sellerPdfData(sellerNumber, receipts, sellers){
     seller.city=extra.city||seller.city||"";
     seller.phone=extra.phone||seller.phone||"";
     seller.email=extra.email||seller.email||"";
+    seller.salutation=extra.salutation||seller.salutation||"Frau";
     seller.payoutMethod=extra.payoutMethod||seller.payoutMethod||"Bar";
   }catch(e){
     seller.address=seller.address||"";
@@ -157,6 +158,7 @@ function sellerPdfData(sellerNumber, receipts, sellers){
     seller.city=seller.city||"";
     seller.phone=seller.phone||"";
     seller.email=seller.email||"";
+    seller.salutation=seller.salutation||"Frau";
     seller.payoutMethod=seller.payoutMethod||"Bar";
   }
   const rows=[];
@@ -491,7 +493,7 @@ async function makeSellerPdf(data){
       round(ctx,x,360,w,132,34,blue,null);
       text(ctx,"Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
 
-      text(ctx,"Verkäufer",x,536,13,muted);
+      text(ctx,data.seller.salutation==="Frau"?"Verkäuferin":"Verkäufer",x,536,13,muted);
       text(ctx,data.seller.name||"Verkäufer",x,576,28,dark,true);
       const addressLine=[data.seller.street,data.seller.houseNumber].filter(Boolean).join(" ");
       const cityLine=[data.seller.zip,data.seller.city].filter(Boolean).join(" ");
