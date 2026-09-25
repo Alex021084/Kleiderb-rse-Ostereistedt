@@ -5,7 +5,7 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
-const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),closeMobileKeypad=$("closeMobileKeypad");
+const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),mobilePriceValue=$("mobilePriceValue"),closeMobileKeypad=$("closeMobileKeypad");
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 const shoeModal=$("shoeModal"),closeShoe=$("closeShoe"),shoeSizeButtons=[...document.querySelectorAll("[data-shoe-size]")];
@@ -175,6 +175,7 @@ function openMobileKeypad(field){
   if(!mobilePortrait() || !mobileKeypadModal)return;
   setActive(field);
   if(mobileKeypadTitle)mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";
+  if(mobilePriceValue){ mobilePriceValue.classList.toggle("show",field==="price"); mobilePriceValue.textContent=euro(priceValue()); }
   updateMobileSellerStatus();
   mobileKeypadModal.classList.add("is-open");
 }
@@ -197,8 +198,8 @@ mobileKeypadButtons.forEach(b=>b.addEventListener("click",()=>{
        setActive("price");
      }
    }else if(valid()){
-     saveItem();
      closeMobileKeypadModal();
+     setActive("price");
    }
    return;
  }
@@ -248,7 +249,7 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  }
  if(activeInput==="price" && k==="comma" && !v.includes(",")) v=v.replace(".",",");
  field.value=v;
- if(activeInput==="seller")checkSeller();else update();
+ if(activeInput==="seller")checkSeller();else { update(); if(mobilePriceValue){ mobilePriceValue.textContent=euro(priceValue()); mobilePriceValue.classList.add("show"); } }
 }));
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
 closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
