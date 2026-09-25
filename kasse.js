@@ -148,7 +148,7 @@ function resizePhoto(file){return new Promise((resolve,reject)=>{const reader=ne
 unassignedPhotoInput.addEventListener("change",async()=>{const file=unassignedPhotoInput.files&&unassignedPhotoInput.files[0];if(!file)return;try{setPhotoPreview(await resizePhoto(file));}catch(e){console.error(e);alert("Das Foto konnte nicht verarbeitet werden.");}});
 function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
 unassignedButton.addEventListener("click",openUnassigned);openUnassignedList.addEventListener("click",openUnassignedItems);closeUnassignedList.addEventListener("click",closeUnassignedItems);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
-function mobilePortrait(){return window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;}
+function mobilePortrait(){return window.matchMedia("(max-width:700px) and (orientation:portrait) and (pointer:coarse)").matches;}
 function openMobileKeypad(field){
   if(!mobilePortrait() || !mobileKeypadModal)return;
   setActive(field);
@@ -157,7 +157,9 @@ function openMobileKeypad(field){
 }
 function closeMobileKeypadModal(){if(mobileKeypadModal)mobileKeypadModal.classList.remove("is-open");}
 sellerNumber.addEventListener("click",()=>openMobileKeypad("seller"));
+sellerNumber.addEventListener("pointerup",()=>openMobileKeypad("seller"));
 price.addEventListener("click",()=>openMobileKeypad("price"));
+price.addEventListener("pointerup",()=>openMobileKeypad("price"));
 if(closeMobileKeypad)closeMobileKeypad.addEventListener("click",closeMobileKeypadModal);
 if(mobileKeypadModal)mobileKeypadModal.addEventListener("click",e=>{if(e.target===mobileKeypadModal)closeMobileKeypadModal()});
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);shoeButton.addEventListener("click",openShoe);closeShoe.addEventListener("click",()=>shoeModal.classList.remove("is-open"));shoeSizeButtons.forEach(b=>b.addEventListener("click",()=>selectShoe(b.dataset.shoeSize)));
