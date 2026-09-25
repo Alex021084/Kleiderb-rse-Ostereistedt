@@ -426,23 +426,34 @@ async function makeSellerPdf(data){
     ctx.textAlign=align;ctx.textBaseline="alphabetic";ctx.fillText(String(txt??""),px,py);
   };
   const drawArticleTable=(ctx,rows,top,bottom)=>{
+    // Feste Zellhöhen und gemeinsame Grundlinie: Text steht optisch mittig in jeder Zelle.
+    const headerTop=top+30, headerBottom=top+64;
+    const headerBaseline=top+53;
+    const rowHeight=38;
+    const firstRowBaseline=headerBottom+25;
+
     text(ctx,"VERKAUFTE ARTIKEL",x+42,top+16,16,"#344054",true);
-    text(ctx,"Spielzeug / Kleidung / Schuhe",x+42,top+51,12,muted,true);
-    text(ctx,"Größe",x+760,top+51,13,muted,true);
-    text(ctx,"Verkaufspreis",x+w-42,top+51,13,muted,true,"right");
-    ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,top+64);ctx.lineTo(x+w-42,top+64);ctx.stroke();
-    let y=top+99;
+    text(ctx,"Kategorie",x+42,headerBaseline,13,muted,true);
+    text(ctx,"Größe",x+700,headerBaseline,13,muted,true);
+    text(ctx,"Verkaufspreis",x+w-42,headerBaseline,13,muted,true,"right");
+
+    ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(x+42,headerBottom);ctx.lineTo(x+w-42,headerBottom);ctx.stroke();
+
+    let y=firstRowBaseline;
     for(const r of rows){
       const cat=r.category==="Schuhe"?"Schuhe":(r.category==="Spielzeug"?"Spielzeug":"Kleidung");
       const size=cat==="Spielzeug"?"":(r.size||"");
       text(ctx,cat,x+42,y,15,dark);
-      text(ctx,size,x+760,y,15,dark);
+      text(ctx,size,x+700,y,15,dark);
       text(ctx,money(r.price),x+w-42,y,15,dark,true,"right");
-      y+=35;
-      if(y<bottom-18){
+
+      const rowLine=y+13;
+      if(rowLine<bottom-10){
         ctx.strokeStyle=line;ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+42,rowLine);ctx.lineTo(x+w-42,rowLine);ctx.stroke();
       }
+      y+=rowHeight;
     }
   };
 
