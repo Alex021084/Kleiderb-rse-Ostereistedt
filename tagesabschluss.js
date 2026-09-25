@@ -154,6 +154,7 @@ function sellerPdfData(sellerNumber, receipts, sellers){
       rows.push({
         price:priceOf(i),
         size:String(i.size||""),
+        category:(String(i.size||"").toLowerCase()==="spielzeug" ? "Spielzeug" : (String(i.size||"").toLowerCase()==="schuhe" ? "Schuhe" : "Kleidung")),
         payment:pay,
         register:r.register_id||r.registerId||"Kasse 1",
         created:r.created_at,
@@ -241,10 +242,10 @@ function sellerMoneyHtml(v){
 }
 function sellerPrintHtml(data){
   const escHtml=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  const rows=Object.entries(data.sizes||{}).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true}));
+  const rows=data.rows||[];
   const articles=rows.length
-    ? rows.map(([k,v])=>`<tr><td>${escHtml(k)}</td><td>${v} ${v===1?"Teil":"Teile"}</td></tr>`).join("")
-    : `<tr><td colspan="2">Keine Artikel</td></tr>`;
+    ? rows.map(x=>`<tr><td>${escHtml(x.category||"Kleidung")}</td><td>${escHtml((x.category==="Spielzeug"||x.category==="Schuhe")?"":(x.size||""))}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`).join("")
+    : `<tr><td colspan="3">Keine Artikel</td></tr>`;
   const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${sellerMoneyHtml(data.commission)}</strong></div>` : "";
   return `<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -266,8 +267,8 @@ h2{font-size:12px;letter-spacing:.8px;margin:0 0 5mm;color:#344054}
 .payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout small{display:block;margin-top:3mm;color:#087443;font-size:12px}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1px solid #cfd5df}
-td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}
-.footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
+td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}th:last-child{text-align:right}
+.article-total{margin-top:4mm;font-size:11px;font-weight:700;color:#4f5b6c}.footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
 .printbar{position:sticky;top:0;background:#fff;padding:12px;text-align:center;border-bottom:1px solid #ddd}
 .printbar{display:flex;justify-content:center;gap:10px}.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}.printbar .closebtn{background:#edf0f5;color:#172033}
 @media print{.printbar{display:none}.page{margin:0}}
@@ -300,7 +301,8 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
   <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
   <div class="card">
     <h2>VERKAUFTE ARTIKEL</h2>
-    <table><thead><tr><th>Größe / Kategorie</th><th>Anzahl</th></tr></thead><tbody>${articles}</tbody></table>
+    <table><thead><tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr></thead><tbody>${articles}</tbody></table>
+    <div class="article-total">Verkaufte Artikel: ${data.rows.length}</div>
   </div>
   <div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>
 </div>
@@ -423,22 +425,32 @@ async function makeSellerPdf(data){
   text(money(data.payout),x+w-42,975,25,green,true,"right");
 
   // Artikel
-  const ah=Math.max(210,Math.min(370,128+rows.length*35));
+  const articleCount=(data.rows||[]).length;
+  const ah=Math.max(210,Math.min(500,155+articleCount*35));
   const ay=1070;
   round(x,ay,w,ah,24,"#fff",border);
   text("VERKAUFTE ARTIKEL",x+42,1086,16,"#344054",true);
-  text("Größe / Kategorie",x+42,1121,13,muted,true);
-  text("Anzahl",x+w-42,1121,13,muted,true,"right");
+  text("Spielzeug / Kleidung / Schuhe",x+42,1121,12,muted,true);
+  text("Größe",x+760,1121,13,muted,true);
+  text("Verkaufspreis",x+w-42,1121,13,muted,true,"right");
   ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,1134);ctx.lineTo(x+w-42,1134);ctx.stroke();
   let y=1169;
-  if(rows.length){
-    for(const [k,v] of rows){
-      text(k,x+42,y,15,dark);
-      text(`${v} ${v===1?"Teil":"Teile"}`,x+w-42,y,15,dark,true,"right");
+  if(articleCount){
+    for(const r of data.rows){
+      text(r.category||"Kleidung",x+42,y,15,dark);
+      const size=(r.category==="Spielzeug"||r.category==="Schuhe") ? "" : (r.size||"—");
+      text(size,x+760,y,15,dark);
+      text(money(r.price),x+w-42,y,15,dark,true,"right");
       y+=35;
-      if(y<ay+ah-20){ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();}
+      if(y<ay+ah-45){
+        ctx.strokeStyle=line;ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
+      }
     }
-  }else text("Keine Artikel",x+42,y,15,dark);
+  }else{
+    text("Keine Artikel",x+42,y,15,dark);
+  }
+  text(`Verkaufte Artikel: ${articleCount}`,x+42,ay+ah-24,14,"#4f5b6c",true);
 
   text("Kleiderbörse · Verkäufer-Abrechnung",CW/2,1560,11,"#7a8494",false,"center");
 
