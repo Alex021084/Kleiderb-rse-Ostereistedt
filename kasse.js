@@ -5,7 +5,7 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
-const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),mobilePriceValue=$("mobilePriceValue"),closeMobileKeypad=$("closeMobileKeypad");
+const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),mobilePriceValue=$("mobilePriceValue"),mobileInputValue=$("mobileInputValue"),closeMobileKeypad=$("closeMobileKeypad");
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 const shoeModal=$("shoeModal"),closeShoe=$("closeShoe"),shoeSizeButtons=[...document.querySelectorAll("[data-shoe-size]")];
@@ -171,11 +171,20 @@ function updateMobileSellerStatus(){
     mobileSellerStatus.className="mobile-seller-status invalid";
   }
 }
+function updateMobileInputValue(){
+  if(!mobileInputValue)return;
+  if(activeInput==="seller"){
+    mobileInputValue.textContent=sellerNumber.value.trim()||"—";
+  }else{
+    mobileInputValue.textContent=price.value.trim()?euro(priceValue()):"0,00 €";
+  }
+}
 function openMobileKeypad(field){
   if(!mobilePortrait() || !mobileKeypadModal)return;
   setActive(field);
   if(mobileKeypadTitle)mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";
-  if(mobilePriceValue){ mobilePriceValue.classList.toggle("show",field==="price"); mobilePriceValue.textContent=euro(priceValue()); }
+  if(mobilePriceValue){ mobilePriceValue.classList.remove("show"); }
+  updateMobileInputValue();
   updateMobileSellerStatus();
   mobileKeypadModal.classList.add("is-open");
 }
@@ -217,6 +226,7 @@ mobileKeypadButtons.forEach(b=>b.addEventListener("click",()=>{
    v+=k;
  }
  field.value=v;
+ updateMobileInputValue();
  if(activeInput==="seller"){checkSeller();updateMobileSellerStatus();}else update();
 }));
 keypadButtons.forEach(b=>b.addEventListener("click",()=>{

@@ -32,6 +32,28 @@
   .right-panel .keypad-card{display:none !important;}
   .right-panel .receipt-live{display:flex !important;min-height:300px !important;margin-top:10px !important;}
 }
+
+/* Handy: Zahlen/aktuellen Wert im Popup sichtbar + offene Artikel kompakt */
+#mobileInputValue{margin-top:8px;min-height:48px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;letter-spacing:.3px;color:#172033;background:#f4f6f9;border:1px solid #dfe4eb;border-radius:12px;padding:6px 10px}
+#mobilePriceValue{margin-top:6px}
+@media (max-width:700px) and (orientation:portrait){
+  #mobileInputValue{font-size:30px;min-height:50px}
+  #mobilePriceValue{display:none!important}
+  #unassignedListModal{padding:8px!important;align-items:center!important}
+  #unassignedListModal .unassigned-list-box{width:100%!important;max-width:none!important;max-height:calc(100dvh - 16px)!important;border-radius:18px!important;padding:16px!important}
+  #unassignedListModal .modal-head{align-items:flex-start!important}
+  #unassignedListModal .modal-head h2{font-size:24px!important}
+  #unassignedListModal .unassigned-list-hint{font-size:12px!important;margin:7px 0 9px!important}
+  #unassignedListModal .unassigned-card{padding:10px!important;border-radius:12px!important;margin-bottom:8px!important}
+  #unassignedListModal .unassigned-card-main{gap:10px!important}
+  #unassignedListModal .unassigned-card-photo{width:70px!important;height:70px!important;flex-basis:70px!important;border-radius:10px!important}
+  #unassignedListModal .unassigned-card-top b{font-size:16px!important}
+  #unassignedListModal .unassigned-card-top strong{font-size:17px!important}
+  #unassignedListModal .unassigned-card-note{font-size:12px!important;line-height:1.25!important}
+  #unassignedListModal .unassigned-card-meta{font-size:11px!important;margin-top:4px!important}
+  #unassignedListModal .assign-row{grid-template-columns:minmax(0,1fr) 112px!important;gap:7px!important;margin-top:8px!important}
+  #unassignedListModal .assign-input,#unassignedListModal .assign-button{height:42px!important;font-size:15px!important}
+}
 </style>
 </head>
 <body>
@@ -66,12 +88,12 @@
 <div id="shoeModal" class="modal"><div class="shoe-box"><div class="modal-head"><div><h2>Schuhgröße auswählen</h2><div class="final-count">Bitte die passende Schuhgröße auswählen.</div></div><button id="closeShoe" class="close" type="button">×</button></div><div id="shoeSizes" class="shoe-size-grid">
 <button type="button" data-shoe-size="16">16</button><button type="button" data-shoe-size="17">17</button><button type="button" data-shoe-size="18">18</button><button type="button" data-shoe-size="19">19</button><button type="button" data-shoe-size="20">20</button><button type="button" data-shoe-size="21">21</button><button type="button" data-shoe-size="22">22</button><button type="button" data-shoe-size="23">23</button><button type="button" data-shoe-size="24">24</button><button type="button" data-shoe-size="25">25</button><button type="button" data-shoe-size="26">26</button><button type="button" data-shoe-size="27">27</button><button type="button" data-shoe-size="28">28</button><button type="button" data-shoe-size="29">29</button><button type="button" data-shoe-size="30">30</button><button type="button" data-shoe-size="31">31</button><button type="button" data-shoe-size="32">32</button><button type="button" data-shoe-size="33">33</button><button type="button" data-shoe-size="34">34</button><button type="button" data-shoe-size="35">35</button><button type="button" data-shoe-size="36">36</button><button type="button" data-shoe-size="37">37</button><button type="button" data-shoe-size="38">38</button><button type="button" data-shoe-size="39">39</button><button type="button" data-shoe-size="40">40</button><button type="button" data-shoe-size="41">41</button><button type="button" data-shoe-size="42">42</button>
 </div></div></div>
-<div id="mobileKeypadModal" class="modal"><div class="mobile-keypad-box"><div class="modal-head"><div><h2>Zahlenfeld</h2><div id="mobileKeypadTitle" class="final-count">Verkäufernummer</div><div id="mobilePriceValue" class="mobile-price-value">0,00 €</div><div id="mobileSellerStatus" class="mobile-seller-status">Bitte Verkäufernummer eingeben.</div></div><button id="closeMobileKeypad" class="close" type="button">×</button></div><div class="keypad">
+<div id="mobileKeypadModal" class="modal"><div class="mobile-keypad-box"><div class="modal-head"><div><h2>Zahlenfeld</h2><div id="mobileKeypadTitle" class="final-count">Verkäufernummer</div><div id="mobileInputValue" class="mobile-input-value">—</div><div id="mobilePriceValue" class="mobile-price-value">0,00 €</div><div id="mobileSellerStatus" class="mobile-seller-status">Bitte Verkäufernummer eingeben.</div></div><button id="closeMobileKeypad" class="close" type="button">×</button></div><div class="keypad">
 <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" data-key="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-key="back">⌫</button><button type="button" data-key="comma" class="comma">,</button><button type="button" data-key="confirm" class="confirm-key">➜</button>
 </div></div></div>
 <div id="paymentModal" class="modal"><div class="payment-box"><div class="modal-head"><div><h2>Kassenbon</h2><div id="finalCount" class="final-count"></div></div><button id="closePayment" class="close" type="button">×</button></div><div id="finalReceipt" class="final-receipt"></div><div class="payment-total"><span>Gesamt</span><strong id="finalTotal">0,00 €</strong></div><div class="payment-buttons"><button class="payment cash" data-payment="Bar" type="button">Bar</button><button class="payment card" data-payment="EC" type="button">EC</button><button class="payment paypal" data-payment="PayPal" type="button">PayPal</button></div></div></div>
 <div id="unassignedModal" class="modal"><div class="unassigned-box"><div class="modal-head"><div><h2>Ohne Verkäufernummer</h2><div class="final-count">Artikel ohne Zuordnung erfassen</div></div><button id="closeUnassigned" class="close" type="button">×</button></div><label for="unassignedNote">Kleine Notiz</label><textarea id="unassignedNote" class="unassigned-note" maxlength="120" placeholder="z. B. Jacke rot, Zettel fehlt"></textarea><div class="photo-row"><label class="photo-button" for="unassignedPhoto">📷 Foto aufnehmen</label><input id="unassignedPhoto" type="file" accept="image/*" capture="environment" hidden><span id="photoStatus" class="photo-status">Kein Foto</span></div><img id="unassignedPhotoPreview" class="unassigned-photo-preview hidden" alt="Foto des nicht zugeordneten Artikels"><div class="unassigned-hint">Die Notiz wird gespeichert, damit der Artikel später im Tagesabschluss gefunden und einem Verkäufer zugeordnet werden kann.</div><div class="unassigned-actions"><button id="cancelUnassigned" class="cancel-edit" type="button">Abbrechen</button><button id="saveUnassigned" class="continue" type="button">Übernehmen</button></div></div></div>
 <div id="unassignedListModal" class="modal"><div class="unassigned-list-box"><div class="modal-head"><div><h2>Offene Artikel</h2><div id="unassignedListCount" class="final-count"></div></div><button id="closeUnassignedList" class="close" type="button">×</button></div><div class="unassigned-list-hint">Nur Artikel ohne Verkäufernummer aus dieser Kasse.</div><div id="unassignedList" class="unassigned-list"></div></div></div>
 <div id="successModal" class="modal"><div class="success-box"><div class="success-icon">✓</div><h2>Verkauf gespeichert</h2><p id="successText"></p><button id="newSaleButton" class="continue" type="button">Neuer Verkauf</button></div></div>
-<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=62"></script>
+<script src="cloud-config.js"></script><script src="cloud.js"></script><script src="kasse.js?v=63"></script>
 </body></html>
