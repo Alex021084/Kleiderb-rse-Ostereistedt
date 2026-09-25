@@ -80,3 +80,18 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
   .seller-row .seller-pdf-cell{grid-column:1/-1!important;grid-row:4!important;text-align:left!important;}
   .seller-row .seller-pdf-button{width:100%!important;min-height:44px!important;}
 }
+
+/* v17: Auszahlungsart mittig direkt unter Provision */
+@media(max-width:600px){
+  .seller-row .seller-payout-method{
+    grid-column:2!important;
+    grid-row:3!important;
+    justify-content:flex-start!important;
+    align-self:start!important;
+    margin-top:0!important;
+    padding-left:70px!important;
+  }
+  .seller-row .seller-payout-method .payout-method{
+    transform:none!important;
+  }
+}
