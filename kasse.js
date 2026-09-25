@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id);
 const sellerNumber=$("sellerNumber"),sellerStatus=$("sellerStatus"),price=$("price"),toyButton=$("toyButton"),shoeButton=$("shoeButton");
-const sizeButtons=[...document.querySelectorAll(".size-button")],keypadButtons=[...document.querySelectorAll(".keypad button")];
+const sizeButtons=[...document.querySelectorAll(".size-button")],keypadButtons=[...document.querySelectorAll(".right-panel .keypad button")];
 const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$("cancelEditButton"),articleTitle=$("articleTitle"),activeField=$("activeField");
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
@@ -149,9 +149,17 @@ unassignedPhotoInput.addEventListener("change",async()=>{const file=unassignedPh
 function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
 unassignedButton.addEventListener("click",openUnassigned);openUnassignedList.addEventListener("click",openUnassignedItems);closeUnassignedList.addEventListener("click",closeUnassignedItems);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
 function mobilePortrait(){return window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;}
-function openMobileKeypad(field){if(!mobilePortrait())return;setActive(field);mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";mobileKeypadModal.classList.add("is-open");}
-function closeMobileKeypadModal(){mobileKeypadModal.classList.remove("is-open");}
-sellerNumber.addEventListener("click",()=>openMobileKeypad("seller"));price.addEventListener("click",()=>openMobileKeypad("price"));closeMobileKeypad.addEventListener("click",closeMobileKeypadModal);
+function openMobileKeypad(field){
+  if(!mobilePortrait() || !mobileKeypadModal)return;
+  setActive(field);
+  if(mobileKeypadTitle)mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";
+  mobileKeypadModal.classList.add("is-open");
+}
+function closeMobileKeypadModal(){if(mobileKeypadModal)mobileKeypadModal.classList.remove("is-open");}
+sellerNumber.addEventListener("click",()=>openMobileKeypad("seller"));
+price.addEventListener("click",()=>openMobileKeypad("price"));
+if(closeMobileKeypad)closeMobileKeypad.addEventListener("click",closeMobileKeypadModal);
+if(mobileKeypadModal)mobileKeypadModal.addEventListener("click",e=>{if(e.target===mobileKeypadModal)closeMobileKeypadModal()});
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);shoeButton.addEventListener("click",openShoe);closeShoe.addEventListener("click",()=>shoeModal.classList.remove("is-open"));shoeSizeButtons.forEach(b=>b.addEventListener("click",()=>selectShoe(b.dataset.shoeSize)));
 
 const mobileKeypadButtons=[...document.querySelectorAll("#mobileKeypadModal .keypad button")];
@@ -159,17 +167,27 @@ mobileKeypadButtons.forEach(b=>b.addEventListener("click",()=>{
  const k=b.dataset.key;
  if(k==="confirm"){
    if(activeInput==="seller"&&!unassignedMode){
-     if(checkSeller()){setActive("price");mobileKeypadTitle.textContent="Preis";}
-   }else if(valid()){saveItem();closeMobileKeypadModal();}
+     if(checkSeller()){
+       setActive("price");
+       if(mobileKeypadTitle)mobileKeypadTitle.textContent="Preis";
+     }
+   }else if(valid()){
+     saveItem();
+     closeMobileKeypadModal();
+   }
    return;
  }
  const field=activeInput==="seller"&&!unassignedMode?sellerNumber:price;
  let v=field.value;
  if(k==="clear")v="";
  else if(k==="back")v=v.slice(0,-1);
- else if(k==="comma"){if(activeInput==="price"&&!/[,.]/.test(v))v=v?v+"," : "0,";}
- else{
-   if(activeInput==="price"){const normalized=v.replace(".",",");if(/[,.]/.test(normalized)&&normalized.split(",")[1].length>=2)return;}
+ else if(k==="comma"){
+   if(activeInput==="price"&&!/[,.]/.test(v))v=v?v+"," : "0,";
+ }else{
+   if(activeInput==="price"){
+     const normalized=v.replace(".",",");
+     if(/[,.]/.test(normalized)&&normalized.split(",")[1].length>=2)return;
+   }
    v+=k;
  }
  field.value=v;
