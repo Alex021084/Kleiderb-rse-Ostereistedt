@@ -57,16 +57,16 @@ async function showReport(id){
   $("reportTitle").textContent=`Abrechnung – ${s.name}`;$("reportSeller").textContent=`Verkäufernummer: ${s.number}`;
   $("reportPieces").textContent=st.pieces;$("reportTurnover").textContent=euro(st.turnover);$("reportPayout").textContent=euro(st.payout);
   const note=document.querySelector(".reportnote");if(note)note.textContent="Die Abrechnung berücksichtigt die beim jeweiligen Verkauf gespeicherte Provision.";
-  $("report").classList.remove("hidden");
+  document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");$("report").classList.remove("hidden");
 }
-function closeReport(){$("report").classList.add("hidden")}
+function closeReport(){$("report").classList.add("hidden");document.documentElement.classList.remove("modal-open");document.body.classList.remove("modal-open")}
 function openForm(){
   editId=null;$("number").value="";$("name").value="";$("phone").value="";
   if(addressInput)addressInput.value="";if(emailInput)emailInput.value="";if(payoutMethodInput)payoutMethodInput.value="Bar";
   if(commissionInput)commissionInput.checked=true;if(commissionRateInput)commissionRateInput.value="15";updateCommissionVisibility();
-  $("error").textContent="";$("modalTitle").textContent="Verkäufer hinzufügen";$("modal").classList.remove("hidden");$("number").focus();
+  $("error").textContent="";document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");$("modalTitle").textContent="Verkäufer hinzufügen";$("modal").classList.remove("hidden");$("number").focus();
 }
-function closeForm(){$("modal").classList.add("hidden")}
+function closeForm(){$("modal").classList.add("hidden");document.documentElement.classList.remove("modal-open");document.body.classList.remove("modal-open")}
 async function saveSeller(){
   let number=$("number").value.trim(),name=$("name").value.trim(),phone=$("phone").value.trim();
   let address=addressInput?.value.trim()||"",email=emailInput?.value.trim()||"",payoutMethod=payoutMethodInput?.value||"Bar";
@@ -93,7 +93,7 @@ function editSeller(id){
   $("number").value=s.number;$("name").value=s.name;$("phone").value=s.phone||"";
   if(addressInput)addressInput.value=s.address||"";if(emailInput)emailInput.value=s.email||"";if(payoutMethodInput)payoutMethodInput.value=s.payoutMethod||"Bar";
   if(commissionInput)commissionInput.checked=s.commissionEnabled===true;if(commissionRateInput)commissionRateInput.value=String(s.commissionRate??15).replace(".",",");
-  updateCommissionVisibility();$("error").textContent="";$("modalTitle").textContent="Verkäufer bearbeiten";$("modal").classList.remove("hidden");
+  updateCommissionVisibility();$("error").textContent="";document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");$("modalTitle").textContent="Verkäufer bearbeiten";$("modal").classList.remove("hidden");
 }
 async function del(id){
   let s=sellers.find(x=>x.id===id);if(!s||!confirm(`„${s.name}“ löschen?`))return;

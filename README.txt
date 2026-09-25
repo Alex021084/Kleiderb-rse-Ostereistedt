@@ -19,3 +19,7 @@ Zum Einspielen:
 
 Erst danach kann die Cloud-Erweiterung (Supabase-Spalten + gemeinsame Speicherung)
 separat umgesetzt werden.
+
+
+v2 Änderung:
+Auf iPhone/iPad ist das Verkäufer-Popup jetzt selbst scrollbar. Der Hintergrund wird beim geöffneten Popup gesperrt. Die übrige Oberfläche bleibt unverändert.

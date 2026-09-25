@@ -6,6 +6,13 @@
 .payout-box{margin-top:14px;padding:12px 14px;border:1px solid #e1e5eb;border-radius:12px;background:#f8fafc}
 .payout-box label{margin-top:0}
 .payout-box select{width:100%;box-sizing:border-box;height:48px;border:1px solid #cfd5dd;border-radius:10px;background:#fff;padding:0 12px;font-size:17px}
+
+/* v2: Modal-Inhalt auf iPhone/iPad selbst scrollen */
+html.modal-open, body.modal-open{overflow:hidden!important;height:100%!important;}
+body.modal-open{overscroll-behavior:none!important;}
+.modal{touch-action:pan-y!important;overscroll-behavior:contain!important;}
+.modal > .box{max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important;}
+@supports not (height: 100dvh){.modal > .box{max-height:calc(100vh - 24px)!important;}}
 </style>
 </head>
 <body>
