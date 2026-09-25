@@ -66,3 +66,17 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 }
 
 .unassigned-summary{border:2px solid #f0c47a!important}.unassigned-summary .seller-summary-head h2{color:#9a5a08}.unassigned-meta{color:#b56a12;font-weight:800}
+/* Korrekte Verkäufer-Anordnung: Auszahlung links, Auszahlungsart mittig unter Provision */
+.seller-row{grid-template-columns:1.2fr .8fr .9fr .9fr .9fr;}
+.seller-row .seller-payout-method{display:flex!important;align-items:center!important;justify-content:center!important;margin-top:0!important;line-height:1!important;position:static!important;z-index:auto!important;}
+.seller-row .seller-payout-method .payout-method{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:38px!important;width:max-content!important;box-sizing:border-box!important;padding:8px 16px!important;border-radius:10px!important;font-size:14px!important;font-weight:800!important;white-space:nowrap!important;line-height:1!important;}
+@media(max-width:600px){
+  .seller-row{grid-template-columns:1fr 1fr!important;gap:7px!important;align-items:start!important;}
+  .seller-row .seller-name{grid-column:1/-1!important;}
+  .seller-row .seller-gross{grid-column:1!important;grid-row:2!important;}
+  .seller-row .seller-commission{grid-column:2!important;grid-row:2!important;}
+  .seller-row .seller-payout{grid-column:1!important;grid-row:3!important;padding-top:0!important;}
+  .seller-row .seller-payout-method{grid-column:2!important;grid-row:3!important;justify-content:center!important;margin-top:0!important;align-self:start!important;}
+  .seller-row .seller-pdf-cell{grid-column:1/-1!important;grid-row:4!important;text-align:left!important;}
+  .seller-row .seller-pdf-button{width:100%!important;min-height:44px!important;}
+}
