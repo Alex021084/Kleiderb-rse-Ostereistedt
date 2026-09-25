@@ -5,6 +5,7 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
+const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),closeMobileKeypad=$("closeMobileKeypad");
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 const shoeModal=$("shoeModal"),closeShoe=$("closeShoe"),shoeSizeButtons=[...document.querySelectorAll("[data-shoe-size]")];
@@ -21,8 +22,10 @@ function checkSeller(){
  if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
  if(!n){sellerStatus.textContent="Bitte Verkäufernummer eingeben.";update();return false}
- const seller=getSellers().find(s=>String(s.number)===n);const ok=!!seller;sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
- sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden · ${seller.name||""}`:"✕ Verkäufernummer nicht gefunden";update();return ok
+ const seller=getSellers().find(s=>String(s.number)===n);
+ const ok=!!seller;
+ sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
+ sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden${String(seller.name||"").trim()?` · ${String(seller.name).trim()}`:""}`:"✕ Verkäufernummer nicht gefunden";update();return ok
 }
 function currentSize(){const s=document.querySelector(".size-button.selected");return isShoe?(shoeSize?`Schuhe ${shoeSize}`:""):isToy?"Spielzeug":(s?s.dataset.size:"")}
 function valid(){return (unassignedMode || getSellers().some(s=>String(s.number)===sellerNumber.value.trim()))&&!!currentSize()&&priceValue()>0}
@@ -145,8 +148,33 @@ function resizePhoto(file){return new Promise((resolve,reject)=>{const reader=ne
 unassignedPhotoInput.addEventListener("change",async()=>{const file=unassignedPhotoInput.files&&unassignedPhotoInput.files[0];if(!file)return;try{setPhotoPreview(await resizePhoto(file));}catch(e){console.error(e);alert("Das Foto konnte nicht verarbeitet werden.");}});
 function applyUnassigned(){unassignedMode=true;unassignedNote=String(unassignedNoteInput.value||"").trim();sellerNumber.value="";sellerNumber.disabled=true;sellerNumber.placeholder="Nicht zugeordnet";sellerNumber.classList.remove("valid","invalid");unassignedButton.classList.add("active");unassignedButton.textContent="✓ Ohne Verkäufernummer";sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";setActive("price");closeUnassignedModal();update()}
 unassignedButton.addEventListener("click",openUnassigned);openUnassignedList.addEventListener("click",openUnassignedItems);closeUnassignedList.addEventListener("click",closeUnassignedItems);closeUnassigned.addEventListener("click",closeUnassignedModal);cancelUnassigned.addEventListener("click",closeUnassignedModal);saveUnassigned.addEventListener("click",applyUnassigned);
-sellerNumber.addEventListener("click",()=>setActive("seller"));price.addEventListener("click",()=>setActive("price"));
+function mobilePortrait(){return window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;}
+function openMobileKeypad(field){if(!mobilePortrait())return;setActive(field);mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";mobileKeypadModal.classList.add("is-open");}
+function closeMobileKeypadModal(){mobileKeypadModal.classList.remove("is-open");}
+sellerNumber.addEventListener("click",()=>openMobileKeypad("seller"));price.addEventListener("click",()=>openMobileKeypad("price"));closeMobileKeypad.addEventListener("click",closeMobileKeypadModal);
 sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);shoeButton.addEventListener("click",openShoe);closeShoe.addEventListener("click",()=>shoeModal.classList.remove("is-open"));shoeSizeButtons.forEach(b=>b.addEventListener("click",()=>selectShoe(b.dataset.shoeSize)));
+
+const mobileKeypadButtons=[...document.querySelectorAll("#mobileKeypadModal .keypad button")];
+mobileKeypadButtons.forEach(b=>b.addEventListener("click",()=>{
+ const k=b.dataset.key;
+ if(k==="confirm"){
+   if(activeInput==="seller"&&!unassignedMode){
+     if(checkSeller()){setActive("price");mobileKeypadTitle.textContent="Preis";}
+   }else if(valid()){saveItem();closeMobileKeypadModal();}
+   return;
+ }
+ const field=activeInput==="seller"&&!unassignedMode?sellerNumber:price;
+ let v=field.value;
+ if(k==="clear")v="";
+ else if(k==="back")v=v.slice(0,-1);
+ else if(k==="comma"){if(activeInput==="price"&&!/[,.]/.test(v))v=v?v+"," : "0,";}
+ else{
+   if(activeInput==="price"){const normalized=v.replace(".",",");if(/[,.]/.test(normalized)&&normalized.split(",")[1].length>=2)return;}
+   v+=k;
+ }
+ field.value=v;
+ if(activeInput==="seller")checkSeller();else update();
+}));
 keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  const k=b.dataset.key;
  if(k==="confirm"){
@@ -156,7 +184,7 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
        price.focus({preventScroll:true});
      }
    }else{
-     if(valid()) saveItem();
+     if(valid()){saveItem();closeMobileKeypadModal();}
    }
    return;
  }

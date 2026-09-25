@@ -1,0 +1,16 @@
+<!-- Direkt vor <div id="paymentModal" ...> in kasse.html einfügen: -->
+<div id="mobileKeypadModal" class="modal mobile-keypad-modal">
+  <div class="mobile-keypad-box">
+    <div class="modal-head">
+      <div><h2 id="mobileKeypadTitle">Verkäufernummer</h2></div>
+      <button id="closeMobileKeypad" class="close" type="button">×</button>
+    </div>
+    <div class="keypad mobile-keypad">
+      <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+      <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+      <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+      <button type="button" data-key="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-key="back">⌫</button>
+      <button type="button" data-key="comma" class="comma">,</button><button type="button" data-key="confirm" class="confirm-key">➜</button>
+    </div>
+  </div>
+</div>
