@@ -152,8 +152,9 @@ function sellerPdfData(sellerNumber, receipts, sellers){
       const n=i.seller_number??i.sellerNumber??"";
       if(String(n)!==String(sellerNumber)) return;
       const rawSize=String(i.size||"").trim();
-      const isShoes=/^schuhe(?:\s|$)/i.test(rawSize);
-      const isToy=/^spielzeug(?:\s|$)/i.test(rawSize);
+      const rawCategory=String(i.category||i.type||i.artikelart||"").trim().toLowerCase();
+      const isShoes=/^schuhe(?:\s|$)/i.test(rawSize) || rawCategory==="schuhe";
+      const isToy=/^spielzeug(?:\s|$)/i.test(rawSize) || rawCategory==="spielzeug";
       const cleanSize=isShoes ? rawSize.replace(/^schuhe\s*/i,"").trim() : (isToy ? "" : rawSize);
       rows.push({
         price:priceOf(i),
@@ -248,7 +249,11 @@ function sellerPrintHtml(data){
   const escHtml=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const rows=data.rows||[];
   const articles=rows.length
-    ? rows.map(x=>`<tr><td>${escHtml(x.category||"Kleidung")}</td><td>${escHtml((x.category==="Spielzeug"||x.category==="Schuhe")?"":(x.size||""))}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`).join("")
+    ? rows.map(x=>{
+        const cat=x.category==="Schuhe" ? "Schuhe" : (x.category==="Spielzeug" ? "Spielzeug" : "Kleidung");
+        const size=(cat==="Spielzeug"||cat==="Schuhe") ? (cat==="Schuhe" ? escHtml(String(x.size||"")) : "") : escHtml(x.size||"");
+        return `<tr><td>${cat}</td><td>${size}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`;
+      }).join("")
     : `<tr><td colspan="3">Keine Artikel</td></tr>`;
   const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${sellerMoneyHtml(data.commission)}</strong></div>` : "";
   return `<!doctype html>
@@ -264,18 +269,32 @@ body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSy
 .brand{font-size:24px;font-weight:800;letter-spacing:.1px}
 .info{display:flex;justify-content:space-between;gap:10mm;margin-bottom:9mm}
 .label{font-size:10px;color:#687386}.name{font-size:20px;font-weight:800;margin-top:1mm}.meta{font-size:11px;color:#4f5b6c;margin-top:2mm}
+.contact{font-size:10.5px;line-height:1.45;color:#687386;margin:2mm 0}
 .card{border:1px solid #dfe4ec;border-radius:4mm;padding:6mm 8mm;margin-bottom:6mm}
 h2{font-size:12px;letter-spacing:.8px;margin:0 0 5mm;color:#344054}
 .row{display:flex;justify-content:space-between;align-items:center;padding:3mm 0;border-bottom:1px solid #edf0f4;font-size:12px}
 .row:last-child{border-bottom:0}.row strong{font-size:13px}
 .payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout small{display:block;margin-top:3mm;color:#087443;font-size:12px}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
+.article-card{padding-bottom:5mm}
 table{width:100%;border-collapse:collapse;font-size:12px}
+thead{display:table-header-group}
+.article-title th{border:0;text-align:left;padding:0 0 5mm;font-size:12px;letter-spacing:.8px;color:#344054}
 th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1px solid #cfd5df}
-td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}th:last-child{text-align:right}
-.article-total{margin-top:4mm;font-size:11px;font-weight:700;color:#4f5b6c}.footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
+th:last-child{text-align:right}
+td{padding:4mm 0;border-bottom:1px solid #edf0f4}
+td:last-child{text-align:right;font-weight:700}
+.article-total{margin-top:4mm;font-size:11px;font-weight:700;color:#4f5b6c}
+.footer{margin-top:16mm;font-size:9px;color:#7a8494;text-align:center}
 .printbar{position:sticky;top:0;background:#fff;padding:12px;text-align:center;border-bottom:1px solid #ddd}
 .printbar{display:flex;justify-content:center;gap:10px}.printbar button{font-size:18px;padding:12px 22px;border:0;border-radius:12px;background:#3159d8;color:#fff;font-weight:700}.printbar .closebtn{background:#edf0f5;color:#172033}
-@media print{.printbar{display:none}.page{margin:0}}
+@media print{
+  .printbar{display:none}
+  .page{margin:0}
+  .article-card{break-inside:auto;page-break-inside:auto}
+  table{break-inside:auto;page-break-inside:auto}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  thead{display:table-header-group}
+}
 </style></head>
 <body>
 <div class="printbar"><button onclick="window.print()">PDF / Drucken</button><button class="closebtn" onclick="try{window.close()}catch(e){};setTimeout(()=>{try{history.back()}catch(e){}},120)">✕ Schließen</button></div>
@@ -303,15 +322,21 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
     ${provision}
   </div>
   <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
-  <div class="card">
-    <h2>VERKAUFTE ARTIKEL</h2>
-    <table><thead><tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr></thead><tbody>${articles}</tbody></table>
+  <div class="card article-card">
+    <table>
+      <thead>
+        <tr class="article-title"><th colspan="3">VERKAUFTE ARTIKEL</th></tr>
+        <tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr>
+      </thead>
+      <tbody>${articles}</tbody>
+    </table>
     <div class="article-total">Verkaufte Artikel: ${data.rows.length}</div>
   </div>
   <div class="footer">Kleiderbörse · Verkäufer-Abrechnung</div>
 </div>
 </body></html>`;
 }
+
 async function saveSellerPdfByNumber(number, receipts, sellers){
   try{
     const data=sellerPdfData(number,receipts,sellers);
