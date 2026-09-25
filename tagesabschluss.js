@@ -399,16 +399,17 @@ function pdfLogoJpegBytes(){
   return out;
 }
 async function makeSellerPdf(data){
-  const CW=1240, CH=1754;
+  // Hochauflösende A4-PDF: 3x Auflösung, damit Text und Linien auf iPad/iPhone scharf bleiben.
+  const PW=1240, PH=1754, SCALE=3;
+  const CW=PW*SCALE, CH=PH*SCALE;
   const blue="#3159d8", dark="#172033", muted="#687386", line="#edf0f4", border="#dfe4ec", green="#087443", greenBg="#eaf7ef";
   const x=91, w=1058;
   const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
   const allRows=data.rows||[];
-  const firstCapacity=6;
-  const nextCapacity=18;
-  const pages=[];
+  const firstCapacity=6, nextCapacity=18;
   const chunks=[allRows.slice(0,firstCapacity)];
   for(let i=firstCapacity;i<allRows.length;i+=nextCapacity) chunks.push(allRows.slice(i,i+nextCapacity));
+  const pages=[];
 
   const round=(ctx,x,y,w,h,r,fill,stroke)=>{
     ctx.beginPath();
@@ -424,15 +425,13 @@ async function makeSellerPdf(data){
     ctx.font=`${bold?"800":"400"} ${size}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
     ctx.textAlign=align;ctx.textBaseline="alphabetic";ctx.fillText(String(txt??""),px,py);
   };
-
-  const drawArticleTable=(ctx, rows, top, bottom)=>{
-    const titleY=top+16, headY=top+51, lineY=top+64, rowY=top+99;
-    text(ctx,"VERKAUFTE ARTIKEL",x+42,titleY,16,"#344054",true);
-    text(ctx,"Spielzeug / Kleidung / Schuhe",x+42,headY,12,muted,true);
-    text(ctx,"Größe",x+760,headY,13,muted,true);
-    text(ctx,"Verkaufspreis",x+w-42,headY,13,muted,true,"right");
-    ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,lineY);ctx.lineTo(x+w-42,lineY);ctx.stroke();
-    let y=rowY;
+  const drawArticleTable=(ctx,rows,top,bottom)=>{
+    text(ctx,"VERKAUFTE ARTIKEL",x+42,top+16,16,"#344054",true);
+    text(ctx,"Spielzeug / Kleidung / Schuhe",x+42,top+51,12,muted,true);
+    text(ctx,"Größe",x+760,top+51,13,muted,true);
+    text(ctx,"Verkaufspreis",x+w-42,top+51,13,muted,true,"right");
+    ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+42,top+64);ctx.lineTo(x+w-42,top+64);ctx.stroke();
+    let y=top+99;
     for(const r of rows){
       const cat=r.category==="Schuhe"?"Schuhe":(r.category==="Spielzeug"?"Spielzeug":"Kleidung");
       const size=cat==="Spielzeug"?"":(r.size||"");
@@ -441,10 +440,10 @@ async function makeSellerPdf(data){
       text(ctx,money(r.price),x+w-42,y,15,dark,true,"right");
       y+=35;
       if(y<bottom-18){
-        ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
+        ctx.strokeStyle=line;ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x+42,y-14);ctx.lineTo(x+w-42,y-14);ctx.stroke();
       }
     }
-    return y;
   };
 
   for(let pageIndex=0;pageIndex<chunks.length;pageIndex++){
@@ -453,14 +452,16 @@ async function makeSellerPdf(data){
     const canvas=document.createElement("canvas");
     canvas.width=CW;canvas.height=CH;
     const ctx=canvas.getContext("2d");
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,CW,CH);
+    ctx.setTransform(SCALE,0,0,SCALE,0,0);
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,PW,PH);
 
     if(first){
       try{
         const logo=new Image();
         await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src="data:image/jpeg;base64,"+KB_LOGO_JPEG_B64;});
-        ctx.drawImage(logo,(CW-500)/2,30,500,272);
+        ctx.drawImage(logo,(PW-500)/2,30,500,272);
       }catch(e){}
+
       round(ctx,x,360,w,132,34,blue,null);
       text(ctx,"Verkäufer-Abrechnung",x+50,442,40,"#fff",true);
 
@@ -500,40 +501,34 @@ async function makeSellerPdf(data){
       const ah=Math.max(260,Math.min(500,155+rows.length*35));
       const ay=1070;
       round(ctx,x,ay,w,ah,24,"#fff",border);
-      drawArticleTable(ctx,rows,ay,ay+ah-35);
-      if(pageIndex===chunks.length-1) text(ctx,`Verkaufte Artikel: ${allRows.length}`,x+42,ay+ah-24,14,"#4f5b6c",true);
-      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",CW/2,1660,11,"#7a8494",false,"center");
+      drawArticleTable(ctx,rows,ay,ay+ah-20);
+      // Keine zusätzliche "Verkaufte Artikel"-Zeile am Ende.
+      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1660,11,"#7a8494",false,"center");
     }else{
-      // Clean A4 continuation page: the article section starts at the top.
-      const ay=90, ah=Math.min(1530,Math.max(300,120+rows.length*35+80));
+      // Jede Folgeseite beginnt sauber mit dem Artikelbereich.
+      const ay=90, ah=Math.min(1530,Math.max(300,155+rows.length*35));
       round(ctx,x,ay,w,ah,24,"#fff",border);
-      drawArticleTable(ctx,rows,ay,ay+ah-35);
-      if(pageIndex===chunks.length-1) text(ctx,`Verkaufte Artikel: ${allRows.length}`,x+42,ay+ah-24,14,"#4f5b6c",true);
-      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",CW/2,1690,11,"#7a8494",false,"center");
+      drawArticleTable(ctx,rows,ay,ay+ah-20);
+      text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1690,11,"#7a8494",false,"center");
     }
     pages.push(canvas);
   }
 
-  // Build a real multi-page A4 PDF from the rendered pages.
+  // PDF mit mehreren echten A4-Seiten.
   const objects=[];
-  const pageObjNums=[], imageObjNums=[], contentObjNums=[];
+  const pageObjNums=[],imageObjNums=[],contentObjNums=[];
   let nextObj=3;
   for(let i=0;i<pages.length;i++){
-    pageObjNums.push(nextObj++);
-    imageObjNums.push(nextObj++);
-    contentObjNums.push(nextObj++);
+    pageObjNums.push(nextObj++);imageObjNums.push(nextObj++);contentObjNums.push(nextObj++);
   }
-  const pagesObj=2, catalogObj=1;
-  const kids=pageObjNums.map(n=>`${n} 0 R`).join(" ");
-  objects[catalogObj-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
-  objects[pagesObj-1]=`<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
+  objects[0]="<< /Type /Catalog /Pages 2 0 R >>";
+  objects[1]=`<< /Type /Pages /Kids [${pageObjNums.map(n=>n+" 0 R").join(" ")}] /Count ${pages.length} >>`;
 
-  const pageChunks=[];
   for(let i=0;i<pages.length;i++){
-    const dataUrl=pages[i].toDataURL("image/jpeg",0.94);
+    const dataUrl=pages[i].toDataURL("image/jpeg",0.985);
     const b64=dataUrl.split(",")[1],bin=atob(b64);
     const jpg=new Uint8Array(bin.length);
-    for(let j=0;j<bin.length;j++) jpg[j]=bin.charCodeAt(j);
+    for(let j=0;j<bin.length;j++)jpg[j]=bin.charCodeAt(j);
     let jpgBinary="";for(let j=0;j<jpg.length;j++)jpgBinary+=String.fromCharCode(jpg[j]);
     const content="q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
     objects[pageObjNums[i]-1]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 ${imageObjNums[i]} 0 R >> >> /Contents ${contentObjNums[i]} 0 R >>`;
@@ -541,12 +536,11 @@ async function makeSellerPdf(data){
     objects[contentObjNums[i]-1]=`<< /Length ${content.length} >>\nstream\n${content}endstream`;
   }
 
-  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
-  const offsets=[0];
+  let pdf="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";const offsets=[0];
   for(let i=0;i<objects.length;i++){offsets.push(pdf.length);pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;}
   const xref=pdf.length;
   pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
-  for(let i=1;i<offsets.length;i++) pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
+  for(let i=1;i<offsets.length;i++)pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
   pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return new Blob([bytesFromBinaryString(pdf)],{type:"application/pdf"});
 }
