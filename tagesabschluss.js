@@ -114,8 +114,29 @@ function dateStamp(){
   const d=new Date();
   return `${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}`;
 }
+function payoutSentence(method){
+  const m=String(method||"Bar");
+  if(m==="PayPal") return "Der Verkäufer hat seinen Erlös per PayPal erhalten.";
+  if(m==="EC") return "Der Verkäufer hat seinen Erlös per EC erhalten.";
+  if(m==="Überweisung") return "Der Verkäufer hat seinen Erlös per Überweisung erhalten.";
+  return "Der Verkäufer hat seinen Erlös in Bar erhalten.";
+}
+
 function sellerPdfData(sellerNumber, receipts, sellers){
   const seller= sellers.find(s=>String(s.number)===String(sellerNumber)) || {number:String(sellerNumber),name:"Verkäufer "+sellerNumber};
+  try{
+    const extras=JSON.parse(localStorage.getItem("kb_seller_extras")||"{}");
+    const extra=extras[String(seller.number)]||{};
+    seller.address=extra.address||seller.address||"";
+    seller.phone=extra.phone||seller.phone||"";
+    seller.email=extra.email||seller.email||"";
+    seller.payoutMethod=extra.payoutMethod||seller.payoutMethod||"Bar";
+  }catch(e){
+    seller.address=seller.address||"";
+    seller.phone=seller.phone||"";
+    seller.email=seller.email||"";
+    seller.payoutMethod=seller.payoutMethod||"Bar";
+  }
   const rows=[];
   receipts.forEach(r=>{
     const pay=r.payment||"";
@@ -234,7 +255,7 @@ body{margin:0;background:#fff;color:#172033;font-family:-apple-system,BlinkMacSy
 h2{font-size:12px;letter-spacing:.8px;margin:0 0 5mm;color:#344054}
 .row{display:flex;justify-content:space-between;align-items:center;padding:3mm 0;border-bottom:1px solid #edf0f4;font-size:12px}
 .row:last-child{border-bottom:0}.row strong{font-size:13px}
-.payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
+.payout{background:#eaf7ef;border:0;padding:4.5mm 8mm}.payout small{display:block;margin-top:3mm;color:#087443;font-size:12px}.payout span,.payout strong{color:#087443}.payout strong{font-size:19px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;font-size:10px;color:#687386;padding:0 0 3mm;border-bottom:1px solid #cfd5df}
 td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;font-weight:700}
@@ -258,7 +279,7 @@ td{padding:4mm 0;border-bottom:1px solid #edf0f4}td:last-child{text-align:right;
     <div class="row"><span>Gesamtumsatz</span><strong>${sellerMoneyHtml(data.gross)}</strong></div>
     ${provision}
   </div>
-  <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div></div>
+  <div class="card payout"><div class="row"><span><strong>AUSZAHLUNG</strong></span><strong>${sellerMoneyHtml(data.payout)}</strong></div><small>${payoutSentence(data.seller.payoutMethod)}</small></div>
   <div class="card">
     <h2>VERKAUFTE ARTIKEL</h2>
     <table><thead><tr><th>Größe / Kategorie</th><th>Anzahl</th></tr></thead><tbody>${articles}</tbody></table>
@@ -349,6 +370,13 @@ async function makeSellerPdf(data){
   // Verkäufer / Datum
   text("Verkäufer",x,536,13,muted,false);
   text(data.seller.name||"Verkäufer",x,576,28,dark,true);
+  let contactY=390;
+  const contactLines=[];
+  if(data.seller.address) contactLines.push(data.seller.address);
+  if(data.seller.phone) contactLines.push("Tel.: "+data.seller.phone);
+  if(data.seller.email) contactLines.push("E-Mail: "+data.seller.email);
+  contactLines.forEach((line,idx)=>text(line,x+42,contactY+idx*24,16,muted,false));
+
   text(`Verkäufernummer: ${data.seller.number}`,x,608,15,"#4f5b6c");
   text("Datum",x+w,536,13,muted,false,"right");
   text(dateStamp(),x+w,576,15,dark,false,"right");
@@ -369,14 +397,15 @@ async function makeSellerPdf(data){
   }
 
   // Auszahlung
-  const py=885, ph=82;
+  const py=885, ph=112;
   round(x,py,w,ph,24,greenBg,null);
-  text("AUSZAHLUNG",x+42,902,21,green,true);
-  text(money(data.payout),x+w-42,902,25,green,true,"right");
+  text("AUSZAHLUNG",x+42,908,21,green,true);
+  text(payoutSentence(data.seller.payoutMethod),x+42,942,14,green,false);
+  text(money(data.payout),x+w-42,924,25,green,true,"right");
 
   // Artikel
   const ah=Math.max(210,Math.min(370,128+rows.length*35));
-  const ay=989;
+  const ay=1019;
   round(x,ay,w,ah,24,"#fff",border);
   text("VERKAUFTE ARTIKEL",x+42,1035,16,"#344054",true);
   text("Größe / Kategorie",x+42,1070,13,muted,true);
