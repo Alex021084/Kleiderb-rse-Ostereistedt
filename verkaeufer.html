@@ -1,5 +1,13 @@
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=29"></head>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=29">
+<style>
+.seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
+.seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
+.payout-box{margin-top:14px;padding:12px 14px;border:1px solid #e1e5eb;border-radius:12px;background:#f8fafc}
+.payout-box label{margin-top:0}
+.payout-box select{width:100%;box-sizing:border-box;height:48px;border:1px solid #cfd5dd;border-radius:10px;background:#fff;padding:0 12px;font-size:17px}
+</style>
+</head>
 <body>
 <header class="top"><a class="home-link" href="index.html">⌂ Startseite</a><strong>Verkäufer</strong></header>
 <main>
@@ -14,6 +22,23 @@
   <label>Verkäufernummer *</label><input id="number" type="tel" inputmode="numeric" placeholder="z. B. 1234">
   <label>Name *</label><input id="name" type="text" placeholder="Vorname Nachname">
   <label>Telefonnummer <span>(optional)</span></label><input id="phone" type="tel" inputmode="tel" placeholder="z. B. 0170 1234567">
+
+  <div class="seller-extra-fields">
+    <label>Adresse <span>(optional)</span></label>
+    <input id="address" type="text" autocomplete="street-address" placeholder="Straße, Hausnummer, PLZ Ort">
+    <label>E-Mail-Adresse <span>(optional)</span></label>
+    <input id="email" type="email" autocomplete="email" placeholder="z. B. name@beispiel.de">
+    <div class="payout-box">
+      <label for="payoutMethod">Auszahlungsart</label>
+      <span class="field-note">Wie soll der Verkäufer sein Geld erhalten?</span>
+      <select id="payoutMethod">
+        <option value="Bar">Bar</option>
+        <option value="Überweisung">Überweisung</option>
+        <option value="PayPal">PayPal</option>
+      </select>
+    </div>
+  </div>
+
   <div class="commission-settings">
     <label class="commission-check"><input id="commissionEnabled" type="checkbox" checked><span>Provision berechnen</span></label>
     <div id="commissionRateWrap" class="commission-rate-wrap">
