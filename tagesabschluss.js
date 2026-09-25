@@ -151,10 +151,14 @@ function sellerPdfData(sellerNumber, receipts, sellers){
     (r.receipt_items||[]).forEach(i=>{
       const n=i.seller_number??i.sellerNumber??"";
       if(String(n)!==String(sellerNumber)) return;
+      const rawSize=String(i.size||"").trim();
+      const isShoes=/^schuhe(?:\s|$)/i.test(rawSize);
+      const isToy=/^spielzeug(?:\s|$)/i.test(rawSize);
+      const cleanSize=isShoes ? rawSize.replace(/^schuhe\s*/i,"").trim() : (isToy ? "" : rawSize);
       rows.push({
         price:priceOf(i),
-        size:String(i.size||""),
-        category:(String(i.size||"").toLowerCase()==="spielzeug" ? "Spielzeug" : (String(i.size||"").toLowerCase()==="schuhe" ? "Schuhe" : "Kleidung")),
+        size:cleanSize,
+        category:isShoes ? "Schuhe" : (isToy ? "Spielzeug" : "Kleidung"),
         payment:pay,
         register:r.register_id||r.registerId||"Kasse 1",
         created:r.created_at,
