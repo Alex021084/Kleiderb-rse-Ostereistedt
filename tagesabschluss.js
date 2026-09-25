@@ -427,12 +427,13 @@ async function makeSellerPdf(data){
   };
   const drawArticleTable=(ctx,rows,top,bottom)=>{
     // Feste Zellhöhen und gemeinsame Grundlinie: Text steht optisch mittig in jeder Zelle.
-    const headerTop=top+30, headerBottom=top+64;
-    const headerBaseline=top+53;
-    const rowHeight=38;
-    const firstRowBaseline=headerBottom+25;
+    const headerTop=top+42, headerBottom=top+80;
+    const headerBaseline=top+68;
+    const rowHeight=40;
+    const firstRowBaseline=headerBottom+27;
 
-    text(ctx,"VERKAUFTE ARTIKEL",x+42,top+16,16,"#344054",true);
+    // Mehr Abstand zur Oberkante der Karte.
+    text(ctx,"VERKAUFTE ARTIKEL",x+42,top+34,16,"#344054",true);
     text(ctx,"Kategorie",x+42,headerBaseline,13,muted,true);
     text(ctx,"Größe",x+700,headerBaseline,13,muted,true);
     text(ctx,"Verkaufspreis",x+w-42,headerBaseline,13,muted,true,"right");
@@ -505,11 +506,11 @@ async function makeSellerPdf(data){
 
       const py=936,ph=112;
       round(ctx,x,py,w,ph,24,greenBg,null);
-      text(ctx,"AUSZAHLUNG",x+42,py+23,21,green,true);
-      text(ctx,payoutSentence(data.seller.payoutMethod),x+42,py+57,14,green);
-      text(ctx,money(data.payout),x+w-42,py+39,25,green,true,"right");
+      text(ctx,"AUSZAHLUNG",x+42,py+40,21,green,true);
+      text(ctx,payoutSentence(data.seller.payoutMethod),x+42,py+73,14,green);
+      text(ctx,money(data.payout),x+w-42,py+52,25,green,true,"right");
 
-      const ah=Math.max(260,Math.min(505,155+rows.length*35));
+      const ah=Math.max(290,Math.min(525,180+rows.length*40));
       const ay=1070;
       round(ctx,x,ay,w,ah,24,"#fff",border);
       drawArticleTable(ctx,rows,ay,ay+ah-20);
