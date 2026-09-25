@@ -406,7 +406,7 @@ async function makeSellerPdf(data){
   const x=91, w=1058;
   const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
   const allRows=data.rows||[];
-  const firstCapacity=6, nextCapacity=18;
+  const firstCapacity=10, nextCapacity=18;
   const chunks=[allRows.slice(0,firstCapacity)];
   for(let i=firstCapacity;i<allRows.length;i+=nextCapacity) chunks.push(allRows.slice(i,i+nextCapacity));
   const pages=[];
@@ -498,7 +498,7 @@ async function makeSellerPdf(data){
       text(ctx,payoutSentence(data.seller.payoutMethod),x+42,py+57,14,green);
       text(ctx,money(data.payout),x+w-42,py+39,25,green,true,"right");
 
-      const ah=Math.max(260,Math.min(500,155+rows.length*35));
+      const ah=Math.max(260,Math.min(505,155+rows.length*35));
       const ay=1070;
       round(ctx,x,ay,w,ah,24,"#fff",border);
       drawArticleTable(ctx,rows,ay,ay+ah-20);
