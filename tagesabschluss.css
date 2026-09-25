@@ -29,7 +29,7 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 .seller-row .seller-name{font-weight:800}
 .seller-row .muted{color:#747e8c;font-size:12px;margin-top:2px}
 .seller-row strong{font-size:15px}
-.seller-payout-value{display:flex;align-items:center;gap:9px;flex-wrap:nowrap}.seller-payout-value .payout-method{display:inline-flex!important;align-items:center;justify-content:center;min-height:30px;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap;line-height:1}.seller-payout-value .payout-cash{background:#e8f5eb!important;color:#247a42!important}.seller-payout-value .payout-transfer{background:#e9edff!important;color:#4357dc!important}.seller-payout-value .payout-paypal{background:#edf0f5!important;color:#172033!important}
+.seller-payout-value{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%}.seller-payout-value .payout-method{display:inline-flex!important;align-items:center;justify-content:center;min-height:34px;padding:7px 14px;border-radius:9px;font-size:13px;font-weight:800;white-space:nowrap;line-height:1;margin-left:auto}.seller-payout-value .payout-cash{background:#e8f5eb!important;color:#247a42!important}.seller-payout-value .payout-transfer{background:#e9edff!important;color:#4357dc!important}.seller-payout-value .payout-paypal{background:#edf0f5!important;color:#172033!important}
 .seller-empty{padding:18px 0;text-align:center;color:#8b94a1}
 @media(max-width:600px){
   .seller-row{grid-template-columns:1fr 1fr;gap:7px}
