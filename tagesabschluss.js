@@ -504,18 +504,18 @@ async function makeSellerPdf(data){
       text(ctx,"Datum",x+w,536,13,muted,false,"right");
       text(ctx,dateStamp(),x+w,576,15,dark,false,"right");
 
-      const oy=700,oh=214;
+      const oy=700,oh=250;
       round(ctx,x,oy,w,oh,24,"#fff",border);
       text(ctx,"ÜBERSICHT",x+42,oy+58,16,"#344054",true);
-      text(ctx,"Verkaufte Teile",x+42,oy+109,16,dark);
-      text(ctx,data.rows.length,x+w-42,oy+109,18,dark,true,"right");
-      ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,oy+124);ctx.lineTo(x+w-42,oy+124);ctx.stroke();
-      text(ctx,"Gesamtumsatz",x+42,oy+161,16,dark);
-      text(ctx,money(data.gross),x+w-42,oy+161,18,dark,true,"right");
+      text(ctx,"Verkaufte Teile",x+42,oy+100,16,dark);
+      text(ctx,data.rows.length,x+w-42,oy+100,18,dark,true,"right");
+      ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+42,oy+119);ctx.lineTo(x+w-42,oy+119);ctx.stroke();
+      text(ctx,"Gesamtumsatz",x+42,oy+153,16,dark);
+      text(ctx,money(data.gross),x+w-42,oy+153,18,dark,true,"right");
       if(data.commission>0){
-        ctx.beginPath();ctx.moveTo(x+42,oy+176);ctx.lineTo(x+w-42,oy+176);ctx.stroke();
-        text(ctx,"Provision",x+42,oy+213,16,dark);
-        text(ctx,"- "+money(data.commission),x+w-42,oy+213,18,dark,true,"right");
+        ctx.beginPath();ctx.moveTo(x+42,oy+172);ctx.lineTo(x+w-42,oy+172);ctx.stroke();
+        text(ctx,"Provision",x+42,oy+207,16,dark);
+        text(ctx,"- "+money(data.commission),x+w-42,oy+207,18,dark,true,"right");
       }
 
       const py=936,ph=112;
