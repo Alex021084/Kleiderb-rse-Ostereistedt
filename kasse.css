@@ -65,3 +65,102 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 @media (orientation: landscape){
   .size-grid{grid-template-columns:repeat(8,1fr)}
 }
+/* Handy Hochformat */
+@media (max-width: 600px) and (orientation: portrait){
+
+  .cash-main{
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+    padding:10px !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+  }
+
+  .entry-panel{
+    padding:14px !important;
+    overflow:visible !important;
+  }
+
+  .entry-panel h1#pageTitle{
+    font-size:26px !important;
+    margin-bottom:6px !important;
+  }
+
+  .entry-panel h2{
+    font-size:18px !important;
+    margin-bottom:9px !important;
+  }
+
+  .seller-action-row{
+    gap:7px !important;
+    margin-bottom:8px !important;
+  }
+
+  .seller-action-row .unassigned-button{
+    height:42px !important;
+    font-size:12px !important;
+    padding:6px 7px !important;
+  }
+
+  .touch-input{
+    height:46px !important;
+    font-size:18px !important;
+  }
+
+  .seller-status{
+    min-height:20px !important;
+    height:auto !important;
+    font-size:13px !important;
+  }
+
+  .size-grid{
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:6px !important;
+  }
+
+  .size-button{
+    height:42px !important;
+    font-size:15px !important;
+  }
+
+  .special-item-row{
+    gap:7px !important;
+  }
+
+  .toy-button{
+    height:43px !important;
+    font-size:14px !important;
+  }
+
+  .entry-buttons{
+    margin-top:10px !important;
+    padding-top:5px !important;
+    padding-bottom:5px !important;
+    gap:8px !important;
+  }
+
+  .entry-buttons .continue,
+  .entry-buttons .finish{
+    height:58px !important;
+    font-size:16px !important;
+  }
+
+  .right-panel{
+    grid-template-rows:auto minmax(300px,auto) !important;
+    overflow:visible !important;
+  }
+
+  .keypad-card{
+    padding:12px !important;
+  }
+
+  .keypad button{
+    height:56px !important;
+    font-size:23px !important;
+  }
+
+  .receipt-live{
+    min-height:300px !important;
+    overflow:hidden !important;
+  }
+}
