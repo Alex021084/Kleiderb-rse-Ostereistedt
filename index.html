@@ -61,6 +61,11 @@
   function closePassword(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
   function submit(){const result=KBAuth.login(input.value);if(result!==selectedRole){error.textContent='Falsches Passwort.';input.select();return}closePassword();if(result==='accounting'){window.location.href='dashboard.html';return}registerModal.classList.add('open');registerModal.setAttribute('aria-hidden','false')}
   document.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>openPassword(b.dataset.role)));
+  // If a cashier returns via the top 'Kassen' button, show the six-register selection directly.
+  if(KBAuth.role && KBAuth.role()==='cashier'){
+    registerModal.classList.add('open');
+    registerModal.setAttribute('aria-hidden','false');
+  }
   document.getElementById('passwordCancel').onclick=closePassword;
   document.getElementById('passwordSubmit').onclick=submit;
   input.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')closePassword()});
