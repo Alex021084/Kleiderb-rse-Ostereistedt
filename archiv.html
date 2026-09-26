@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Archiv · Kleiderbörse</title><link rel="stylesheet" href="archiv.css?v=62"></head>
-<body><header class="top"><a href="index.html">⌂ Startseite</a><strong>Archiv</strong><span></span></header>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Archiv · Kleiderbörse</title><link rel="stylesheet" href="archiv.css?v=62"><script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
+<body>
+<header class="top"><a href="index.html">⌂ Startseite</a><strong>Archiv</strong><span></span></header>
 <main><section class="panel hero"><h1>Börsen-Archiv</h1><p>Hier kannst du eine komplette Börse mit Verkäufern und Verkaufsdaten speichern und später wieder ansehen.</p><div class="save-row"><input id="archiveName" type="text" placeholder="z. B. Kleiderbörse Frühling 2026"><button id="saveArchive">💾 Börse archivieren</button></div><div class="hint">Die aktuelle Börse wird dabei nicht gelöscht.</div></section>
 <section class="panel"><h2>Gespeicherte Börsen</h2><div id="archiveList"></div></section>
 <section class="panel" id="detailPanel" hidden><div class="detail-head"><div><h2 id="detailTitle"></h2><p id="detailMeta" class="muted"></p></div><button id="closeDetail">✕</button></div><div id="detailBody"></div></section></main><script src="cloud-config.js"></script><script src="cloud.js"></script><script src="archiv.js?v=62"></script></body></html>

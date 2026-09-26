@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#172033">
+<title>Kleiderbörse – Buchhaltung</title>
+<link rel="stylesheet" href="home.css?v=62">
+</head>
+<body>
+<main class="home">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button id="kbLogout" type="button" style="border:0;border-radius:12px;background:#edf0f5;color:#172033;padding:10px 14px;font:700 14px inherit;cursor:pointer">Abmelden</button></div>
+  <header>
+    <img class="home-logo" src="kleiderboerse-logo.jpg?v=59" alt="Kleiderbörse Ostereistedt">
+  </header>
+
+  <div class="menu">
+    <a class="menu-button blue" id="openRegisterModal" href="#registerModal" aria-haspopup="dialog">
+      <span class="icon">🧾</span>
+      <span class="menu-copy"><strong>Kasse</strong><small>Verkäufe erfassen</small></span>
+      <span class="arrow">›</span>
+    </a>
+
+    <a class="menu-button orange" href="tagesabschluss.html">
+      <span class="icon">📊</span>
+      <span class="menu-copy"><strong>Tagesabschluss</strong><small>Umsatz & Zahlungsarten</small></span>
+      <span class="arrow">›</span>
+    </a>
+
+    <a class="menu-button green" href="verkaeufer.html">
+      <span class="icon">👤</span>
+      <span class="menu-copy"><strong>Verkäufer</strong><small>Verkäufer verwalten</small></span>
+      <span class="arrow">›</span>
+    </a>
+
+    <a class="menu-button purple" href="archiv.html">
+      <span class="icon">🗂️</span>
+      <span class="menu-copy"><strong>Archiv</strong><small>Vergangene Börsen</small></span>
+      <span class="arrow">›</span>
+    </a>
+  </div>
+</main>
+
+<div id="registerModal" class="register-modal" aria-hidden="true">
+  <div class="register-modal-box" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
+    <h2 id="registerModalTitle">Welche Kasse?</h2>
+    <p>Bitte die Kasse auswählen.</p>
+    <div class="register-choice-grid">
+      <a href="kasse.html?kasse=1">Kasse 1</a><a href="kasse.html?kasse=2">Kasse 2</a>
+      <a href="kasse.html?kasse=3">Kasse 3</a><a href="kasse.html?kasse=4">Kasse 4</a>
+      <a href="kasse.html?kasse=5">Kasse 5</a><a href="kasse.html?kasse=6">Kasse 6</a>
+    </div>
+    <button type="button" class="register-cancel" id="closeRegisterModal">Abbrechen</button>
+  </div>
+</div>
+<script src="auth.js"></script>
+<script>
+(function(){
+  if(!KBAuth.requireRole(["accounting"])) return;
+  document.getElementById("kbLogout").onclick=function(){KBAuth.logout()};
+  var modal=document.getElementById("registerModal"), close=document.getElementById("closeRegisterModal");
+  close.onclick=function(){window.location.hash=""};
+})();
+</script>
+</body>
+</html>

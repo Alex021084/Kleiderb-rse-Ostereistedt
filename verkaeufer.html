@@ -23,8 +23,9 @@ body.modal-open{overscroll-behavior:none!important;}
 .modal > .box{max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important;}
 @supports not (height: 100dvh){.modal > .box{max-height:calc(100vh - 24px)!important;}}
 </style>
-</head>
+<script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
 <body>
+
 <header class="top"><a class="home-link" href="index.html">⌂ Startseite</a><strong>Verkäufer</strong></header>
 <main>
 <h1>Verkäufer</h1>

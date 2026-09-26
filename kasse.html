@@ -55,8 +55,9 @@
   #unassignedListModal .assign-input,#unassignedListModal .assign-button{height:42px!important;font-size:15px!important}
 }
 </style>
-</head>
+<script src="auth.js"></script><script>if(!KBAuth.requireRole(["cashier","accounting"])){};</script></head>
 <body>
+
 <div class="cash-register">
   <header class="top"><a href="index.html">⌂ Startseite</a><strong id="registerTitle">Kasse 1</strong><span></span></header>
   <div class="cash-main">

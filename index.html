@@ -4,69 +4,68 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#172033">
-<title>Kleiderbörse</title>
-<link rel="stylesheet" href="home.css?v=62">
+<title>Kleiderbörse – Zugang</title>
+<link rel="stylesheet" href="home.css?v=63">
+<script src="auth.js"></script>
+<style>
+.role-screen{max-width:760px;margin:auto;min-height:100vh;padding:28px 18px 40px;display:flex;flex-direction:column;justify-content:center}.role-logo{display:block;width:min(360px,78vw);max-height:210px;object-fit:contain;margin:0 auto 28px}.role-title{text-align:center;font-size:28px;margin:0 0 24px}.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.role-card{border:0;border-radius:24px;min-height:170px;color:#fff;font-family:inherit;text-align:left;padding:25px;cursor:pointer;box-shadow:0 10px 26px #1720331c}.role-card:active{transform:scale(.985)}.role-card strong{display:block;font-size:29px}.role-card small{display:block;margin-top:10px;font-size:16px;opacity:.94}.role-card .role-icon{font-size:38px;margin-bottom:14px}.cash{background:#4357dc}.book{background:#16804c}.password-modal{position:fixed;inset:0;background:rgba(10,16,30,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}.password-modal.open{display:flex}.password-box{width:min(460px,100%);background:#fff;border-radius:25px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3)}.password-box h2{margin:0 0 8px;font-size:27px}.password-box p{margin:0 0 20px;color:#687382}.password-box input{width:100%;height:56px;border:1px solid #d7dce5;border-radius:14px;padding:0 15px;font-size:20px;outline:none}.password-box input:focus{border-color:#4357dc;box-shadow:0 0 0 3px #4357dc20}.password-error{min-height:24px;color:#c92a2a;font-weight:700;margin:9px 0 2px}.password-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.password-actions button{min-height:54px;border:0;border-radius:14px;font:700 17px inherit;cursor:pointer}.submit-password{background:#4357dc;color:#fff}.cancel-password{background:#edf0f5;color:#172033}.register-box{width:min(560px,100%)}.register-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.register-grid button{min-height:68px;border:0;border-radius:15px;background:#4357dc;color:#fff;font:800 21px inherit;cursor:pointer}.register-grid button:active{transform:scale(.98)}.back-button{margin-top:12px;width:100%;min-height:52px;border:0;border-radius:14px;background:#edf0f5;color:#172033;font:700 17px inherit;cursor:pointer}
+@media(max-width:620px){.role-screen{padding:22px 14px}.role-grid{grid-template-columns:1fr}.role-card{min-height:132px}.role-card .role-icon{display:inline-block;margin:0 10px 0 0}.role-card strong{display:inline;font-size:27px}.role-card small{margin-left:52px;margin-top:5px}.password-actions{grid-template-columns:1fr}.register-grid{grid-template-columns:1fr 1fr}}
+</style>
 </head>
 <body>
-<main class="home">
-  <header>
-    <img class="home-logo" src="kleiderboerse-logo.jpg?v=59" alt="Kleiderbörse Ostereistedt">
-  </header>
-
-  <div class="menu">
-    <a class="menu-button blue" id="openRegisterModal" href="#registerModal" aria-haspopup="dialog">
-      <span class="icon">🧾</span>
-      <span class="menu-copy"><strong>Kasse</strong><small>Verkäufe erfassen</small></span>
-      <span class="arrow">›</span>
-    </a>
-
-    <a class="menu-button orange" href="tagesabschluss.html">
-      <span class="icon">📊</span>
-      <span class="menu-copy"><strong>Tagesabschluss</strong><small>Umsatz & Zahlungsarten</small></span>
-      <span class="arrow">›</span>
-    </a>
-
-    <a class="menu-button green" href="verkaeufer.html">
-      <span class="icon">👤</span>
-      <span class="menu-copy"><strong>Verkäufer</strong><small>Verkäufer verwalten</small></span>
-      <span class="arrow">›</span>
-    </a>
-
-    <a class="menu-button purple" href="archiv.html">
-      <span class="icon">🗂️</span>
-      <span class="menu-copy"><strong>Archiv</strong><small>Vergangene Börsen</small></span>
-      <span class="arrow">›</span>
-    </a>
+<main class="role-screen">
+  <img class="role-logo" src="kleiderboerse-logo.jpg?v=59" alt="Kleiderbörse Ostereistedt">
+  <h1 class="role-title">Bitte Bereich auswählen</h1>
+  <div class="role-grid">
+    <button class="role-card cash" type="button" data-role="cashier"><span class="role-icon">🧾</span><strong>Kassen</strong><small>Verkäufe an den 6 Kassen</small></button>
+    <button class="role-card book" type="button" data-role="accounting"><span class="role-icon">📊</span><strong>Buchhaltung</strong><small>Vollzugriff auf alle Bereiche</small></button>
   </div>
 </main>
 
-<div id="registerModal" class="register-modal" aria-hidden="true">
-  <div class="register-modal-box" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
-    <h2 id="registerModalTitle">Welche Kasse?</h2>
-    <p>Bitte die Kasse auswählen.</p>
-    <div class="register-choice-grid">
-      <a href="kasse.html?kasse=1" data-register="Kasse 1">Kasse 1</a>
-      <a href="kasse.html?kasse=2" data-register="Kasse 2">Kasse 2</a>
-      <a href="kasse.html?kasse=3" data-register="Kasse 3">Kasse 3</a>
-      <a href="kasse.html?kasse=4" data-register="Kasse 4">Kasse 4</a>
-      <a href="kasse.html?kasse=5" data-register="Kasse 5">Kasse 5</a>
-      <a href="kasse.html?kasse=6" data-register="Kasse 6">Kasse 6</a>
+<div class="password-modal" id="passwordModal" aria-hidden="true">
+  <div class="password-box" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+    <h2 id="passwordTitle">Passwort</h2>
+    <p id="passwordHint">Bitte Passwort eingeben.</p>
+    <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Passwort">
+    <div class="password-error" id="passwordError"></div>
+    <div class="password-actions">
+      <button class="cancel-password" id="passwordCancel" type="button">Zurück</button>
+      <button class="submit-password" id="passwordSubmit" type="button">Anmelden</button>
     </div>
-    <button type="button" class="register-cancel" id="closeRegisterModal">Abbrechen</button>
+  </div>
+</div>
+
+<div class="password-modal" id="registerModal" aria-hidden="true">
+  <div class="password-box register-box" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+    <h2 id="registerTitle">Welche Kasse?</h2>
+    <p>Bitte die Kasse auswählen.</p>
+    <div class="register-grid">
+      <button type="button" data-register="1">Kasse 1</button><button type="button" data-register="2">Kasse 2</button>
+      <button type="button" data-register="3">Kasse 3</button><button type="button" data-register="4">Kasse 4</button>
+      <button type="button" data-register="5">Kasse 5</button><button type="button" data-register="6">Kasse 6</button>
+    </div>
+    <button class="back-button" id="registerCancel" type="button">Zurück</button>
   </div>
 </div>
 
 <script>
 (function(){
-  var modal=document.getElementById("registerModal");
-  var close=document.getElementById("closeRegisterModal");
-  if(close) close.onclick=function(){ window.location.hash=""; };
-  var choices=document.querySelectorAll("[data-register]");
-  for(var i=0;i<choices.length;i++){
-    choices[i].onclick=function(){
-      try{ localStorage.setItem("kb_register",this.getAttribute("data-register")); }catch(e){}
-    };
-  }
+  const modal=document.getElementById('passwordModal');
+  const registerModal=document.getElementById('registerModal');
+  const input=document.getElementById('passwordInput');
+  const error=document.getElementById('passwordError');
+  const title=document.getElementById('passwordTitle');
+  const hint=document.getElementById('passwordHint');
+  let selectedRole='';
+  function openPassword(role){selectedRole=role;title.textContent=role==='cashier'?'Kassen-Zugang':'Buchhaltungs-Zugang';hint.textContent=role==='cashier'?'Passwort für die Kassen eingeben.':'Passwort für die Buchhaltung eingeben.';error.textContent='';input.value='';modal.classList.add('open');modal.setAttribute('aria-hidden','false');setTimeout(()=>input.focus(),50)}
+  function closePassword(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+  function submit(){const result=KBAuth.login(input.value);if(result!==selectedRole){error.textContent='Falsches Passwort.';input.select();return}closePassword();if(result==='accounting'){window.location.href='dashboard.html';return}registerModal.classList.add('open');registerModal.setAttribute('aria-hidden','false')}
+  document.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>openPassword(b.dataset.role)));
+  document.getElementById('passwordCancel').onclick=closePassword;
+  document.getElementById('passwordSubmit').onclick=submit;
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')closePassword()});
+  document.getElementById('registerCancel').onclick=function(){registerModal.classList.remove('open');registerModal.setAttribute('aria-hidden','true');KBAuth.logout()};
+  document.querySelectorAll('[data-register]').forEach(b=>b.addEventListener('click',()=>{KBAuth.setRegister(b.dataset.register);window.location.href='kasse.html?kasse='+encodeURIComponent(b.dataset.register)}));
 })();
 </script>
 </body>
