@@ -10,8 +10,18 @@ function loadLocalArchives(){try{return JSON.parse(localStorage.getItem(KEY)||"[
 function saveLocalArchives(a){localStorage.setItem(KEY,JSON.stringify(a))}
 function normalizeArchive(a){
   if(!a)return null;
-  const x=a.snapshot&&a.id==null?a.snapshot:a;
-  return {...x,id:String(x.id||a.id||crypto.randomUUID?.()||Date.now()),name:String(x.name||a.name||"Börse"),savedAt:x.savedAt||a.saved_at||a.savedAt||new Date().toISOString(),mode:x.mode||"cloud",version:x.version||"65"};
+  // Supabase liefert bei der Archivliste eine Zeile mit Metadaten plus
+  // dem eigentlichen Snapshot im Feld "snapshot". Für die Anzeige
+  // müssen die Snapshot-Daten mit den Metadaten zusammengeführt werden.
+  const snap=(a.snapshot&&typeof a.snapshot==="object")?a.snapshot:{};
+  const x=Object.assign({},snap,a);
+  // Die DB-Metadaten dürfen die eigentlichen Snapshot-Daten nicht mit
+  // einem leeren/fehlenden Wert überschreiben.
+  if(!snap.sellers && a.sellers) x.sellers=a.sellers;
+  if(!snap.receipts && a.receipts) x.receipts=a.receipts;
+  if(!snap.sales && a.sales) x.sales=a.sales;
+  if(!snap.sellerExtras && a.sellerExtras) x.sellerExtras=a.sellerExtras;
+  return {...x,id:String(snap.id||a.id||crypto.randomUUID?.()||Date.now()),name:String(snap.name||a.name||"Börse"),savedAt:snap.savedAt||a.saved_at||a.savedAt||new Date().toISOString(),mode:snap.mode||"cloud",version:snap.version||"65"};
 }
 async function currentSnapshot(){
   let sellers=[],sales=[],receipts=null,mode="lokal";
