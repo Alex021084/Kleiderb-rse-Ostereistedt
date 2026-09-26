@@ -860,7 +860,10 @@ function registerPicker(){
 
 /* ÖFFENTLICH */
 
-window.KBAuth={
+/* Cloud-Funktionen ergänzen die Rollen-Funktionen aus auth.js,
+   statt window.KBAuth zu überschreiben. */
+const _KBRoleAuth = window.KBAuth || {};
+window.KBAuth = Object.assign(_KBRoleAuth, {
 
   get session(){
     return getAuthSession();
@@ -871,7 +874,7 @@ window.KBAuth={
 
   refresh:
     authRefresh
-};
+});
 
 
 window.KBCloud={
