@@ -453,7 +453,7 @@ async function makeSellerPdf(data){
   const x=91, w=1058;
   const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
   const allRows=data.rows||[];
-  const firstCapacity=20, nextCapacity=18;
+  const firstCapacity=10, nextCapacity=18;
   const chunks=[allRows.slice(0,firstCapacity)];
   for(let i=firstCapacity;i<allRows.length;i+=nextCapacity) chunks.push(allRows.slice(i,i+nextCapacity));
   const pages=[];
@@ -472,36 +472,34 @@ async function makeSellerPdf(data){
     ctx.font=`${bold?"800":"400"} ${size}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
     ctx.textAlign=align;ctx.textBaseline="alphabetic";ctx.fillText(String(txt??""),px,py);
   };
-  const drawArticleTable=(ctx,rows,top,bottom,tableX=x,tableW=w)=>{
+  const drawArticleTable=(ctx,rows,top,bottom)=>{
     // Feste Zellhöhen und gemeinsame Grundlinie: Text steht optisch mittig in jeder Zelle.
-    const pad=28;
-    const headerBottom=top+80;
+    const headerTop=top+42, headerBottom=top+80;
     const headerBaseline=top+68;
     const rowHeight=40;
     const firstRowBaseline=headerBottom+27;
-    const sizeX=tableX+tableW*0.64;
-    const priceX=tableX+tableW-pad;
 
-    text(ctx,"VERKAUFTE ARTIKEL",tableX+pad,top+34,15,"#344054",true);
-    text(ctx,"Kategorie",tableX+pad,headerBaseline,12,muted,true);
-    text(ctx,"Größe",sizeX,headerBaseline,12,muted,true);
-    text(ctx,"Verkaufspreis",priceX,headerBaseline,12,muted,true,"right");
+    // Mehr Abstand zur Oberkante der Karte.
+    text(ctx,"VERKAUFTE ARTIKEL",x+42,top+34,16,"#344054",true);
+    text(ctx,"Kategorie",x+42,headerBaseline,13,muted,true);
+    text(ctx,"Größe",x+700,headerBaseline,13,muted,true);
+    text(ctx,"Verkaufspreis",x+w-42,headerBaseline,13,muted,true,"right");
 
     ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(tableX+pad,headerBottom);ctx.lineTo(priceX,headerBottom);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x+42,headerBottom);ctx.lineTo(x+w-42,headerBottom);ctx.stroke();
 
     let y=firstRowBaseline;
     for(const r of rows){
       const cat=r.category==="Schuhe"?"Schuhe":(r.category==="Spielzeug"?"Spielzeug":"Kleidung");
       const size=cat==="Spielzeug"?"":(r.size||"");
-      text(ctx,cat,tableX+pad,y,14,dark);
-      text(ctx,size,sizeX,y,14,dark);
-      text(ctx,money(r.price),priceX,y,14,dark,true,"right");
+      text(ctx,cat,x+42,y,15,dark);
+      text(ctx,size,x+700,y,15,dark);
+      text(ctx,money(r.price),x+w-42,y,15,dark,true,"right");
 
       const rowLine=y+13;
       if(rowLine<bottom-10){
         ctx.strokeStyle=line;ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(tableX+pad,rowLine);ctx.lineTo(priceX,rowLine);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+42,rowLine);ctx.lineTo(x+w-42,rowLine);ctx.stroke();
       }
       y+=rowHeight;
     }
@@ -559,30 +557,10 @@ async function makeSellerPdf(data){
       text(ctx,payoutSentence(data.seller.payoutMethod, data.seller.salutation),x+42,py+73,14,green);
       text(ctx,money(data.payout),x+w-42,py+52,25,green,true,"right");
 
-      // Unten ist auf der ersten Seite genug Breite für zwei Artikel-Tabellen.
-      // Die 20 Artikel werden in zwei Spalten mit jeweils maximal 10 Zeilen verteilt.
-      const articleRowsPerColumn=10;
-      const articleGap=24;
-      const articleColW=(w-articleGap)/2;
-      const ah=525;
+      const ah=Math.max(290,Math.min(525,180+rows.length*40));
       const ay=1104;
       round(ctx,x,ay,w,ah,24,"#fff",border);
-
-      const leftRows=rows.slice(0,articleRowsPerColumn);
-      const rightRows=rows.slice(articleRowsPerColumn,articleRowsPerColumn*2);
-      const tableTop=ay+10;
-      const tableBottom=ay+ah-20;
-
-      drawArticleTable(ctx,leftRows,tableTop,tableBottom,x,articleColW);
-      drawArticleTable(ctx,rightRows,tableTop,tableBottom,x+articleColW+articleGap,articleColW);
-
-      // Dezente Trennlinie zwischen den beiden Tabellen.
-      ctx.strokeStyle="#e5e9f0";ctx.lineWidth=1;
-      ctx.beginPath();
-      ctx.moveTo(x+articleColW+articleGap/2,ay+30);
-      ctx.lineTo(x+articleColW+articleGap/2,ay+ah-30);
-      ctx.stroke();
-
+      drawArticleTable(ctx,rows,ay,ay+ah-20);
       // Keine zusätzliche "Verkaufte Artikel"-Zeile am Ende.
       text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1660,11,"#7a8494",false,"center");
     }else{

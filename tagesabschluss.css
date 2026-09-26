@@ -113,3 +113,37 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
   .receipt-group-meta{display:block;margin:3px 0 0;font-size:12px}
   .receipt-group-arrow{font-size:24px}
 }
+
+/* Mobile: Verkäufer-Abrechnungen untereinander statt horizontal zu quetschen */
+@media (max-width:600px){
+  .seller-row{
+    grid-template-columns:1fr;
+    gap:9px;
+    align-items:stretch;
+    padding:14px 0;
+  }
+  .seller-row > div{
+    min-width:0;
+  }
+  .seller-row .seller-name{
+    padding-bottom:3px;
+  }
+  .seller-row .seller-gross,
+  .seller-row .seller-commission,
+  .seller-row .seller-payout,
+  .seller-row .seller-payout-method,
+  .seller-row .seller-pdf-cell{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    width:100%;
+    margin-top:0!important;
+    position:static!important;
+  }
+  .seller-row .seller-payout-method .payout-method{
+    margin-left:auto;
+  }
+  .seller-row .seller-pdf-cell .seller-pdf-button{
+    width:100%;
+  }
+}
