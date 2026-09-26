@@ -67,3 +67,27 @@ create index if not exists receipt_items_seller_idx on public.receipt_items(sell
 alter table public.receipt_items alter column seller_number drop not null;
 alter table public.receipt_items add column if not exists unassigned_note text not null default '';
 alter table public.receipt_items add column if not exists unassigned_photo text not null default '';
+
+
+-- V65: Cloud-Archiv für komplette Börsen-Sicherungen.
+-- Eine archivierte Börse wird als vollständiger JSON-Snapshot gespeichert.
+create table if not exists public.archives (
+  id uuid primary key,
+  name text not null,
+  saved_at timestamptz not null default now(),
+  snapshot jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.archives enable row level security;
+
+drop policy if exists "kb archives select" on public.archives;
+drop policy if exists "kb archives insert" on public.archives;
+drop policy if exists "kb archives update" on public.archives;
+drop policy if exists "kb archives delete" on public.archives;
+create policy "kb archives select" on public.archives for select using (true);
+create policy "kb archives insert" on public.archives for insert with check (true);
+create policy "kb archives update" on public.archives for update using (true) with check (true);
+create policy "kb archives delete" on public.archives for delete using (true);
+
+create index if not exists archives_saved_at_idx on public.archives(saved_at desc);

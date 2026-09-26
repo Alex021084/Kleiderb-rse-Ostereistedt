@@ -841,6 +841,46 @@ async function cloudRestoreSnapshot(snapshot){
 
   return true;
 }
+
+/* ARCHIV – CLOUD SPEICHERN / LADEN */
+async function cloudListArchives(){
+  await cloudClient();
+  const data=await apiRequest('archives?select=*&order=saved_at.desc');
+  return data||[];
+}
+
+async function cloudSaveArchive(snapshot){
+  await cloudClient();
+  const body={
+    id:String(snapshot.id),
+    name:String(snapshot.name||'Börse'),
+    saved_at:snapshot.savedAt || new Date().toISOString(),
+    snapshot:snapshot
+  };
+  const data=await apiRequest('archives?on_conflict=id',{
+    method:'POST',
+    headers:{'Prefer':'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify(body)
+  });
+  return Array.isArray(data)?data[0]:data;
+}
+
+async function cloudDeleteArchive(id){
+  await cloudClient();
+  await apiRequest('archives?id=eq.'+encodeURIComponent(id),{
+    method:'DELETE',
+    headers:{'Prefer':'return=minimal'}
+  });
+  return true;
+}
+
+async function cloudGetArchive(id){
+  await cloudClient();
+  const data=await apiRequest('archives?id=eq.'+encodeURIComponent(id)+'&select=*');
+  const row=Array.isArray(data)?data[0]:data;
+  return row?.snapshot || null;
+}
+
 /* CLOUD-STATUS */
 
 function cloudBanner(){
@@ -989,6 +1029,11 @@ window.KBCloud={
   cloudResetReceiptsForRegister,
 
   cloudRestoreSnapshot,
+
+  cloudListArchives,
+  cloudSaveArchive,
+  cloudDeleteArchive,
+  cloudGetArchive,
 
   cloudBanner,
 

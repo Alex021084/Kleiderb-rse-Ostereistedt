@@ -45,3 +45,8 @@ Der Tagesabschluss liest die Daten zentral und zeigt:
 
 ### Wichtig
 V21 fällt zurück auf LocalStorage, solange `cloud-config.js` noch leer ist. So kann die Oberfläche weiter getestet werden. Für den echten gemeinsamen Betrieb müssen URL und anon/public key eingetragen sein.
+
+
+## Cloud-Archiv (V65)
+
+Damit Börsen-Archive geräteübergreifend in Supabase gespeichert werden, muss der Abschnitt **V65: Cloud-Archiv** aus `cloud-schema.sql` einmal im Supabase SQL Editor ausgeführt werden. Danach speichert die Archiv-Seite neue Archive in `public.archives`. Jedes Archiv kann zusätzlich über **⬇️ Export** als JSON-Datei extern gesichert und über **⬆️ Sicherung importieren** wieder in die Cloud eingespielt werden.
