@@ -11,14 +11,45 @@ async function currentSnapshot(){
   }else{
     sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]"); sales=JSON.parse(localStorage.getItem("kb_sales")||"[]");
   }
-  return {mode,sellers,sales,receipts,register:localStorage.getItem("kb_register")||"Kasse 1",savedAt:new Date().toISOString(),version:"62"};
+  return {mode,sellers,sales,receipts,register:localStorage.getItem("kb_register")||"Kasse 1",savedAt:new Date().toISOString(),version:"63"};
 }
 function salesFromSnapshot(a){
   if(a.mode!=="cloud")return a.sales||[];
   const out=[]; (a.receipts||[]).forEach(r=>(r.receipt_items||[]).forEach(i=>out.push({receiptId:r.id,payment:r.payment,timestamp:r.created_at,registerId:r.register_id,sellerNumber:i.seller_number||"",unassignedNote:i.unassigned_note||"",unassignedPhoto:i.unassigned_photo||"",size:i.size,price:Number(i.price||0),commissionEnabled:i.commission_enabled===true,commissionRate:Number(i.commission_rate||0)}))); return out;
 }
 function totals(a){const s=salesFromSnapshot(a);const total=s.reduce((n,x)=>n+Number(x.price||0),0);const items=s.length;return {total,items,sellers:(a.sellers||[]).length}}
-function render(){const list=$("archiveList"),arr=loadArchives(); if(!arr.length){list.innerHTML='<div class="archive-empty">Noch keine Börse archiviert.</div>';return;} list.innerHTML=arr.slice().reverse().map(a=>{const t=totals(a);const d=new Date(a.savedAt);return `<div class="archive-card"><div><strong>${esc(a.name)}</strong><div class="muted">${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${t.sellers} Verkäufer · ${t.items} Artikel · ${euro(t.total)}</div></div><div class="archive-actions"><button data-open="${esc(a.id)}">Öffnen</button>${a.mode!=="cloud"?`<button data-restore="${esc(a.id)}">Wiederherstellen</button>`:""}<button class="danger" data-del="${esc(a.id)}">Löschen</button></div></div>`}).join(""); list.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openArchive(b.dataset.open)); list.querySelectorAll("[data-restore]").forEach(b=>b.onclick=()=>restoreArchive(b.dataset.restore)); list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("Dieses Archiv wirklich löschen?")){saveArchives(arr.filter(a=>a.id!==b.dataset.del));render();}})}
-function restoreArchive(id){const a=loadArchives().find(x=>x.id===id);if(!a||a.mode==="cloud")return;if(!confirm(`„${a.name}“ wiederherstellen? Die aktuell gespeicherten Verkäufer und Verkäufe auf diesem Gerät werden ersetzt.`))return;localStorage.setItem("kb_sellers",JSON.stringify(a.sellers||[]));localStorage.setItem("kb_sales",JSON.stringify(a.sales||[]));if(a.register)localStorage.setItem("kb_register",a.register);alert(`„${a.name}“ wurde wiederhergestellt.`);window.location.href="index.html"}
+function render(){const list=$("archiveList"),arr=loadArchives(); if(!arr.length){list.innerHTML='<div class="archive-empty">Noch keine Börse archiviert.</div>';return;} list.innerHTML=arr.slice().reverse().map(a=>{const t=totals(a);const d=new Date(a.savedAt);return `<div class="archive-card"><div><strong>${esc(a.name)}</strong><div class="muted">${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${t.sellers} Verkäufer · ${t.items} Artikel · ${euro(t.total)}</div></div><div class="archive-actions"><button data-open="${esc(a.id)}">Öffnen</button><button data-restore="${esc(a.id)}">Wiederherstellen</button><button class="danger" data-del="${esc(a.id)}">Löschen</button></div></div>`}).join(""); list.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openArchive(b.dataset.open)); list.querySelectorAll("[data-restore]").forEach(b=>b.onclick=()=>restoreArchive(b.dataset.restore)); list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("Dieses Archiv wirklich löschen?")){saveArchives(arr.filter(a=>a.id!==b.dataset.del));render();}})}
+async function restoreArchive(id){
+  const a=loadArchives().find(x=>x.id===id);
+  if(!a)return;
+
+  const isCloud=a.mode==="cloud";
+  const text=isCloud
+    ? `„${a.name}“ wiederherstellen? Die aktuell gespeicherte Börse in der Cloud wird vollständig durch diese archivierte Börse ersetzt.`
+    : `„${a.name}“ wiederherstellen? Die aktuell gespeicherten Verkäufer und Verkäufe auf diesem Gerät werden vollständig durch diese archivierte Börse ersetzt.`;
+
+  if(!confirm(text))return;
+
+  const buttons=document.querySelectorAll(`[data-restore="${CSS.escape(id)}"]`);
+  buttons.forEach(b=>{b.disabled=true;b.textContent="Wird wiederhergestellt …"});
+
+  try{
+    if(isCloud){
+      if(!window.KBCloud||!KBCloud.cloudReady())throw new Error("Die Cloud ist nicht eingerichtet.");
+      await KBCloud.cloudRestoreSnapshot(a);
+    }else{
+      localStorage.setItem("kb_sellers",JSON.stringify(a.sellers||[]));
+      localStorage.setItem("kb_sales",JSON.stringify(a.sales||[]));
+      if(a.register)localStorage.setItem("kb_register",a.register);
+    }
+
+    alert(`„${a.name}“ wurde vollständig wiederhergestellt.`);
+    window.location.href="index.html";
+  }catch(e){
+    console.error(e);
+    alert("Die Börse konnte nicht vollständig wiederhergestellt werden.\n\n"+(e?.message||"Unbekannter Fehler"));
+    buttons.forEach(b=>{b.disabled=false;b.textContent="Wiederherstellen"});
+  }
+}
 function openArchive(id){const a=loadArchives().find(x=>x.id===id);if(!a)return;const s=salesFromSnapshot(a),t=totals(a);$("detailPanel").hidden=false;$("detailTitle").textContent=a.name;const d=new Date(a.savedAt);$("detailMeta").textContent=`Archiviert am ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${a.mode==="cloud"?"Cloud-Sicherung":"Lokale Sicherung"}`;const by={};s.forEach(x=>{const n=String(x.sellerNumber||"").trim();if(!n)return;(by[n] ||= {count:0,total:0});by[n].count++;by[n].total+=Number(x.price||0)});$("detailBody").innerHTML=`<div class="stats"><div class="stat"><span>Verkäufer</span><strong>${t.sellers}</strong></div><div class="stat"><span>Artikel</span><strong>${t.items}</strong></div><div class="stat"><span>Umsatz</span><strong>${euro(t.total)}</strong></div><div class="stat"><span>Nicht zugeordnet</span><strong>${s.filter(x=>!String(x.sellerNumber||"").trim()).length}</strong></div></div><h3>Verkäufer</h3>${Object.entries(by).map(([n,x])=>{const seller=(a.sellers||[]).find(z=>String(z.number)===n);return `<div class="seller-card"><div><strong>${esc(seller?.name||("Verkäufer "+n))}</strong><div class="muted">Nr. ${esc(n)} · ${x.count} Artikel</div></div><strong>${euro(x.total)}</strong></div>`}).join("")||'<div class="archive-empty">Keine Verkäufe vorhanden.</div>'}`;window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
 $("saveArchive").onclick=async()=>{const name=$("archiveName").value.trim();if(!name){alert("Bitte einen Namen für die Börse eingeben.");return;}try{const snap=await currentSnapshot();snap.id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));snap.name=name;const arr=loadArchives();arr.push(snap);saveArchives(arr);$("archiveName").value="";render();alert(`„${name}“ wurde im Archiv gespeichert.`)}catch(e){console.error(e);alert("Die Börse konnte nicht archiviert werden.")}};$("closeDetail").onclick=()=>$("detailPanel").hidden=true;render();

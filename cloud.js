@@ -750,6 +750,97 @@ async function cloudResetReceiptsForRegister(
 
   return true;
 }
+
+/* ARCHIV – KOMPLETTE BÖRSE WIEDERHERSTELLEN */
+async function cloudRestoreSnapshot(snapshot){
+
+  await cloudClient();
+
+  const sellers=Array.isArray(snapshot?.sellers) ? snapshot.sellers : [];
+  const receipts=Array.isArray(snapshot?.receipts) ? snapshot.receipts : [];
+
+  // Aktuelle Verkäufe vollständig entfernen. receipt_items werden per
+  // ON DELETE CASCADE zusammen mit den Kassenbons gelöscht.
+  await apiRequest(
+    "receipts?id=gt.0",
+    {method:"DELETE",headers:{"Prefer":"return=minimal"}}
+  );
+
+  // Aktuelle Verkäufer entfernen. Einzelne Löschungen vermeiden Probleme
+  // mit UUID-Filtern bei unterschiedlichen Supabase-Konfigurationen.
+  const currentSellers=await apiRequest("sellers?select=id");
+  for(const seller of (currentSellers||[])){
+    if(seller?.id){
+      await apiRequest(
+        "sellers?id=eq."+encodeURIComponent(seller.id),
+        {method:"DELETE",headers:{"Prefer":"return=minimal"}}
+      );
+    }
+  }
+
+  // Verkäufer aus dem Archiv wieder anlegen.
+  if(sellers.length){
+    const rows=sellers.map(s=>({
+      id:s.id,
+      number:String(s.number ?? ""),
+      name:String(s.name ?? ""),
+      phone:String(s.phone ?? ""),
+      commission_enabled:s.commission_enabled===true || s.commissionEnabled===true,
+      commission_rate:Number(s.commission_rate ?? s.commissionRate ?? 15)
+    }));
+
+    await apiRequest(
+      "sellers",
+      {method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(rows)}
+    );
+  }
+
+  // Kassenbons und die dazugehörigen Artikel wiederherstellen.
+  // Die neuen Bon-IDs werden automatisch erzeugt und für die Artikel verwendet.
+  for(const oldReceipt of receipts){
+    const items=Array.isArray(oldReceipt.receipt_items) ? oldReceipt.receipt_items : [];
+    const calculatedTotal=items.reduce((sum,item)=>sum+Number(item.price||0),0);
+
+    const created=await apiRequest(
+      "receipts",
+      {
+        method:"POST",
+        headers:{"Prefer":"return=representation"},
+        body:JSON.stringify({
+          register_id:String(oldReceipt.register_id || "Kasse 1"),
+          payment:String(oldReceipt.payment || "Bar"),
+          total:oldReceipt.total!=null ? Number(oldReceipt.total) : calculatedTotal,
+          created_at:oldReceipt.created_at || new Date().toISOString()
+        })
+      }
+    );
+
+    const receipt=Array.isArray(created) ? created[0] : created;
+    if(!receipt?.id){
+      throw new Error("Ein archivierter Kassenbon konnte nicht wiederhergestellt werden.");
+    }
+
+    if(items.length){
+      const itemRows=items.map(item=>({
+        receipt_id:receipt.id,
+        seller_number:item.seller_number ? String(item.seller_number) : null,
+        unassigned_note:String(item.unassigned_note || ""),
+        unassigned_photo:String(item.unassigned_photo || ""),
+        size:String(item.size ?? ""),
+        price:Number(item.price || 0),
+        commission_enabled:item.commission_enabled===true,
+        commission_rate:Number(item.commission_rate || 0)
+      }));
+
+      await apiRequest(
+        "receipt_items",
+        {method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(itemRows)}
+      );
+    }
+  }
+
+  return true;
+}
 /* CLOUD-STATUS */
 
 function cloudBanner(){
@@ -896,6 +987,8 @@ window.KBCloud={
   cloudResetReceipts,
 
   cloudResetReceiptsForRegister,
+
+  cloudRestoreSnapshot,
 
   cloudBanner,
 
