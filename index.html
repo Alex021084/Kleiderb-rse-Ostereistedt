@@ -70,7 +70,7 @@
   document.getElementById('passwordSubmit').onclick=submit;
   input.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')closePassword()});
   document.getElementById('registerCancel').onclick=function(){registerModal.classList.remove('open');registerModal.setAttribute('aria-hidden','true');KBAuth.logout()};
-  document.querySelectorAll('[data-register]').forEach(b=>b.addEventListener('click',()=>{KBAuth.setRegister(b.dataset.register);window.location.href='kasse.html?kasse='+encodeURIComponent(b.dataset.register)}));
+  document.querySelectorAll('[data-register]').forEach(b=>b.addEventListener('click',()=>{KBAuth.setRegister(b.dataset.register);window.location.href='kasse.html?kasse='+encodeURIComponent(b.dataset.register)+'&from=cashier'}));
 })();
 </script>
 </body>

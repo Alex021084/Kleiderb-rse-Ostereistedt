@@ -59,7 +59,9 @@
 document.addEventListener("DOMContentLoaded", function(){
   var link = document.getElementById("backRoleLink");
   if (!link) return;
-  if (KBAuth.role() === "accounting") {
+  var from = new URLSearchParams(window.location.search).get("from");
+  var isAccounting = from === "accounting" || (from !== "cashier" && KBAuth.role() === "accounting");
+  if (isAccounting) {
     link.textContent = "⌂ Buchhaltung";
     link.href = "dashboard.html";
   } else {
