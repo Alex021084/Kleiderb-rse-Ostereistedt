@@ -86,11 +86,36 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
  });
  $("registerRows").innerHTML=Object.entries(regs).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true})).map(([k,x])=>`<div class="seller-row"><div class="seller-name"><strong>${esc(k)}</strong><div class="muted">${x.receipts} Bons · ${x.items} Artikel</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.total)}</strong></div><div><div class="muted">Bar / EC</div><strong>${euro(x.cash)} / ${euro(x.card)}</strong></div><div><div class="muted">PayPal</div><strong>${euro(x.paypal)}</strong></div></div>`).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
 
- $("receiptRows").innerHTML=receipts.map(r=>{
-   const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
-   const d=new Date(r.created_at);
-   return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${esc(r.register_id||r.registerId||"Kasse 1")} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
- }).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+ const receiptGroups={};
+ receipts.forEach(r=>{
+   const k=r.register_id||r.registerId||"Kasse 1";
+   if(!receiptGroups[k])receiptGroups[k]=[];
+   receiptGroups[k].push(r);
+ });
+ Object.values(receiptGroups).forEach(list=>list.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)));
+ const receiptRegisterOrder=Object.keys(receiptGroups).sort((a,b)=>a.localeCompare(b,"de-DE",{numeric:true}));
+ const receiptRows=$("receiptRows");
+ if(receiptRows){
+   receiptRows.innerHTML=receiptRegisterOrder.map(k=>{
+     const list=receiptGroups[k];
+     const articleTotal=list.reduce((sum,r)=>sum+itemsOf(r).length,0);
+     return `<details class="receipt-register-group" data-register="${esc(k)}"><summary><span><strong>${esc(k)}</strong><span class="receipt-group-meta">${list.length} ${list.length===1?"Bon":"Bons"} · ${articleTotal} ${articleTotal===1?"Artikel":"Artikel"}</span></span><span class="receipt-group-arrow">›</span></summary><div class="receipt-group-list"></div></details>`;
+   }).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
+   receiptRows.querySelectorAll(".receipt-register-group").forEach(group=>{
+     group.addEventListener("toggle",()=>{
+       if(!group.open || group.dataset.loaded==="1")return;
+       const list=receiptGroups[group.dataset.register]||[];
+       const target=group.querySelector(".receipt-group-list");
+       if(!target)return;
+       target.innerHTML=list.map(r=>{
+         const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
+         const d=new Date(r.created_at);
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
+       }).join("");
+       group.dataset.loaded="1";
+     });
+   });
+ }
  const d=new Date();$("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
 }
 

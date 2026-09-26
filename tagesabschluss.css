@@ -95,3 +95,21 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
     transform:translateX(-82px)!important;
   }
 }
+
+
+/* Kassenbons nach Kasse gruppiert: zunächst nur die Kassenübersicht laden. */
+.receipt-register-group{margin:8px 0;background:#fff;border:1px solid #dfe4eb;border-radius:12px;overflow:hidden}
+.receipt-register-group>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;padding:14px 16px;font-size:16px;font-weight:800;touch-action:manipulation}
+.receipt-register-group>summary::-webkit-details-marker{display:none}
+.receipt-register-group>summary:hover{background:#f8f9fb}
+.receipt-group-meta{display:inline-block;margin-left:10px;color:#747e8c;font-size:13px;font-weight:600}
+.receipt-group-arrow{font-size:26px;line-height:1;transition:transform .15s ease;color:#687382}
+.receipt-register-group[open]>summary{border-bottom:1px solid #edf0f4;background:#f8f9fb}
+.receipt-register-group[open] .receipt-group-arrow{transform:rotate(90deg)}
+.receipt-group-list{padding:2px 10px 10px}
+.receipt-group-list .receipt-details{margin:8px 0}
+@media(max-width:600px){
+  .receipt-register-group>summary{padding:14px 13px}
+  .receipt-group-meta{display:block;margin:3px 0 0;font-size:12px}
+  .receipt-group-arrow{font-size:24px}
+}
