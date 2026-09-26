@@ -223,7 +223,7 @@ function sellerPdfData(sellerNumber, receipts, sellers){
   rows.forEach(x=>{const key=x.size||"Ohne Größe";sizes[key]=(sizes[key]||0)+1});
   const registers={};
   rows.forEach(x=>{registers[x.register]=(registers[x.register]||0)+x.price});
-  return {seller,rows,gross,commission,payout,payments,sizes,registers};
+  return {seller,rows,gross,commission,payout,payments,sizes,registers,commissionRate:currentSellerRate(seller)};
 }
 async function saveBlob(blob,filename){
   const isPdf=blob.type==="application/pdf" || /\.pdf$/i.test(filename);
@@ -547,7 +547,7 @@ async function makeSellerPdf(data){
       text(ctx,money(data.gross),x+w-42,oy+153,18,dark,true,"right");
       if(data.commission>0){
         ctx.beginPath();ctx.moveTo(x+42,oy+172);ctx.lineTo(x+w-42,oy+172);ctx.stroke();
-        text(ctx,"Provision",x+42,oy+207,16,dark);
+        text(ctx,`Provision ${Math.round((data.commissionRate||0)*100)} %`,x+42,oy+207,16,dark);
         text(ctx,"- "+money(data.commission),x+w-42,oy+207,18,dark,true,"right");
       }
 
