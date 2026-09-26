@@ -56,17 +56,17 @@
 }
 </style>
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["cashier","accounting"])){};</script><script>
-(function(){
-  var link=document.getElementById("backRoleLink");
-  if(!link) return;
-  if(KBAuth.role()==="accounting"){
-    link.textContent="⌂ Buchhaltung";
-    link.href="dashboard.html";
-  }else{
-    link.textContent="⌂ Kassen";
-    link.href="index.html";
+document.addEventListener("DOMContentLoaded", function(){
+  var link = document.getElementById("backRoleLink");
+  if (!link) return;
+  if (KBAuth.role() === "accounting") {
+    link.textContent = "⌂ Buchhaltung";
+    link.href = "dashboard.html";
+  } else {
+    link.textContent = "⌂ Kassen";
+    link.href = "index.html";
   }
-})();
+});
 </script></head>
 <body>
 
