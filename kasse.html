@@ -55,11 +55,23 @@
   #unassignedListModal .assign-input,#unassignedListModal .assign-button{height:42px!important;font-size:15px!important}
 }
 </style>
-<script src="auth.js"></script><script>if(!KBAuth.requireRole(["cashier","accounting"])){};</script></head>
+<script src="auth.js"></script><script>if(!KBAuth.requireRole(["cashier","accounting"])){};</script><script>
+(function(){
+  var link=document.getElementById("backRoleLink");
+  if(!link) return;
+  if(KBAuth.role()==="accounting"){
+    link.textContent="⌂ Buchhaltung";
+    link.href="dashboard.html";
+  }else{
+    link.textContent="⌂ Kassen";
+    link.href="index.html";
+  }
+})();
+</script></head>
 <body>
 
 <div class="cash-register">
-  <header class="top"><a href="index.html">⌂ Kassen</a><strong id="registerTitle">Kasse 1</strong><span></span></header>
+  <header class="top"><a id="backRoleLink" href="index.html">⌂ Kassen</a><strong id="registerTitle">Kasse 1</strong><span></span></header>
   <div class="cash-main">
     <section class="entry-panel">
       <h1 id="pageTitle">Kasse 1</h1><h2 id="articleTitle">Artikel eingeben</h2>
