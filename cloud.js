@@ -867,10 +867,13 @@ async function cloudSaveArchive(snapshot){
 
 async function cloudDeleteArchive(id){
   await cloudClient();
-  await apiRequest('archives?id=eq.'+encodeURIComponent(id),{
+  const data=await apiRequest('archives?id=eq.'+encodeURIComponent(id),{
     method:'DELETE',
-    headers:{'Prefer':'return=minimal'}
+    headers:{'Prefer':'return=representation'}
   });
+  if(Array.isArray(data) && data.length===0){
+    throw new Error('Das Archiv wurde in der Cloud nicht gefunden oder konnte nicht gelöscht werden.');
+  }
   return true;
 }
 

@@ -55,17 +55,10 @@ async function refreshArchives(){
     if(window.KBCloud&&KBCloud.cloudReady()){
       const rows=await KBCloud.cloudListArchives();
       archives=(rows||[]).map(normalizeArchive).filter(Boolean);
-      // Alte lokale Archive einmalig in die Cloud übernehmen, sofern sie dort noch nicht existieren.
-      const local=loadLocalArchives();
-      const ids=new Set(archives.map(a=>a.id));
-      for(const old of local){
-        const a=normalizeArchive(old);
-        // Nur bereits cloudfähige Archive automatisch übernehmen.
-        // Alte rein lokale Snapshots enthalten ggf. keine Cloud-Kassenbons.
-        if(a&&a.mode==="cloud"&&!ids.has(a.id)){
-          try{await KBCloud.cloudSaveArchive(a);archives.push(a);ids.add(a.id)}catch(e){console.warn("Lokales Cloud-Archiv konnte nicht übernommen werden",e)}
-        }
-      }
+      // Die Cloud ist die führende Quelle. Lokale Kopien dürfen hier NICHT
+      // automatisch wieder hochgeladen werden, weil ein auf einem Gerät
+      // gelöschtes Archiv sonst von einem alten Browser-Cache erneut in die
+      // Cloud geschrieben werden könnte.
       archives.sort((a,b)=>new Date(b.savedAt)-new Date(a.savedAt));
       render();
       return;
@@ -89,10 +82,15 @@ async function deleteArchive(id){
     if(archiveSource==="cloud"&&window.KBCloud&&KBCloud.cloudReady()){
       await KBCloud.cloudDeleteArchive(id);
       archives=archives.filter(a=>a.id!==id);
+      // Auch eventuell vorhandene lokale Kopien entfernen.
+      // Sonst könnte ein alter Browser-Cache das gelöschte Archiv später
+      // wieder anzeigen bzw. erneut in die Cloud schreiben.
+      const local=loadLocalArchives().filter(a=>String(a?.id||"")!==String(id));
+      saveLocalArchives(local);
     }else{
       archives=archives.filter(a=>a.id!==id);saveLocalArchives(archives);
     }
-    render();
+    await refreshArchives();
   }catch(e){console.error(e);alert("Das Archiv konnte nicht gelöscht werden.\n\n"+(e?.message||"Unbekannter Fehler"))}
 }
 async function restoreArchive(id){
