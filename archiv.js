@@ -187,7 +187,7 @@ function pdfEscapeArchive(v){return pdfWinAnsiArchive(v).replace(/\\/g,"\\\\").r
 function bytesFromBinaryStringArchive(str){const out=new Uint8Array(str.length);for(let i=0;i<str.length;i++)out[i]=str.charCodeAt(i)&255;return out}
 function archiveMoney(v){return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
 function archiveDate(v){const d=new Date(v);return isNaN(d.getTime())?"":d.toLocaleString("de-DE")}
-function archivePdfText(cmds,x,y,size,text,bold=false){cmds.push(`BT /${bold?"F2":"F1"} ${size} Tf ${x.toFixed(2)} ${(842-y).toFixed(2)} Td (${pdfEscapeArchive(text)}) Tj ET`)}
+function archivePdfText(cmds,x,y,size,text,bold=false){cmds.push(`0 0 0 rg BT /${bold?"F2":"F1"} ${size} Tf ${x.toFixed(2)} ${(842-y).toFixed(2)} Td (${pdfEscapeArchive(text)}) Tj ET`)}
 function archivePdfLine(cmds,x1,y1,x2,y2){cmds.push(`0.8 w 0.78 0.80 0.85 RG ${x1} ${(842-y1).toFixed(2)} m ${x2} ${(842-y2).toFixed(2)} l S`)}
 function archivePdfRect(cmds,x,y,w,h,fill="0.97 0.98 0.99") {cmds.push(`${fill} rg ${x} ${(842-y-h).toFixed(2)} ${w} ${h} re f`)}
 function archivePdfPageHeader(cmds,title,subtitle){archivePdfText(cmds,42,48,23,"Kleiderbörse Ostereistedt",true);archivePdfText(cmds,42,76,19,title,true);archivePdfText(cmds,42,98,10,subtitle,false);archivePdfLine(cmds,42,110,553,110)}
