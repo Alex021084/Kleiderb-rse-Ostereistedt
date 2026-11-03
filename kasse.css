@@ -175,3 +175,64 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 .toy-custom-row input{min-width:0;flex:1;height:48px;border:1px solid #cfd5df;border-radius:10px;padding:0 12px;font:inherit}
 .toy-custom-row button{border:0;border-radius:10px;background:#4357dc;color:#fff;font-weight:800;padding:0 15px}
 @media(max-width:420px){.toy-custom-row{flex-direction:column}.toy-custom-row button{height:46px}}
+
+
+/* Spielzeug-Auswahl: gleiche hochwertige Kacheloptik wie die Schuhgrößen */
+#toyModal .toy-box .toy-type-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:10px !important;
+  margin-top:18px !important;
+}
+#toyModal .toy-box .toy-type-grid > button{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:54px !important;
+  padding:8px 6px !important;
+  border:2px solid #cfd5df !important;
+  border-radius:12px !important;
+  background:#f8f9fb !important;
+  color:#172033 !important;
+  font-family:inherit !important;
+  font-size:16px !important;
+  font-weight:850 !important;
+  line-height:1.2 !important;
+  text-align:center !important;
+  white-space:normal !important;
+  box-shadow:none !important;
+  text-decoration:none !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+#toyModal .toy-box .toy-type-grid > button:active,
+#toyModal .toy-box .toy-type-grid > button.selected{
+  border-color:#4357dc !important;
+  background:#e9edff !important;
+  color:#4357dc !important;
+}
+#toyModal .toy-box .toy-custom-row input{
+  box-sizing:border-box !important;
+  width:100% !important;
+  min-height:50px !important;
+  border:2px solid #cfd5df !important;
+  border-radius:11px !important;
+  background:#fff !important;
+  color:#172033 !important;
+}
+#toyModal .toy-box .toy-custom-row button{
+  min-height:50px !important;
+  border:0 !important;
+  border-radius:11px !important;
+  background:#4357dc !important;
+  color:#fff !important;
+  font-weight:850 !important;
+  padding:0 16px !important;
+}
+@media(max-width:420px){
+  #toyModal .toy-box{padding:20px !important}
+  #toyModal .toy-box .toy-type-grid{gap:8px !important}
+  #toyModal .toy-box .toy-type-grid > button{min-height:50px !important;font-size:15px !important}
+}
