@@ -190,7 +190,16 @@ function openMobileKeypad(field){
   updateMobileSellerStatus();
   mobileKeypadModal.classList.add("is-open");
 }
-function closeMobileKeypadModal(){if(mobileKeypadModal)mobileKeypadModal.classList.remove("is-open");}
+function formatPriceInput(){
+  const raw=String(price.value||"").trim();
+  if(!raw)return;
+  const value=priceValue();
+  if(Number.isFinite(value))price.value=value.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function closeMobileKeypadModal(){
+  if(activeInput==="price")formatPriceInput();
+  if(mobileKeypadModal)mobileKeypadModal.classList.remove("is-open");
+}
 sellerNumber.addEventListener("click",()=>openMobileKeypad("seller"));
 sellerNumber.addEventListener("pointerup",()=>openMobileKeypad("seller"));
 price.addEventListener("click",()=>openMobileKeypad("price"));
