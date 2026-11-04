@@ -5,9 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Tagesabschluss</title>
-<link rel="stylesheet" href="tagesabschluss.css?v=16">
+<link rel="stylesheet" href="tagesabschluss.css?v=17">
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
-<body data-kb-build="V44">
+<body data-kb-build="V45">
 <header class="top">
   <a href="dashboard.html">⌂ Buchhaltung</a>
   <strong>Tagesabschluss</strong>
@@ -75,6 +75,21 @@
       </div>
     </section>
 
+    <section class="payout-method-summary" aria-label="Auszahlungen nach Zahlungsart">
+      <div class="payout-method-card payout-method-cash">
+        <span>Auszahlung Bar</span>
+        <strong id="sellerPayoutCash">0,00 €</strong>
+      </div>
+      <div class="payout-method-card payout-method-transfer">
+        <span>Auszahlung Überweisung</span>
+        <strong id="sellerPayoutTransfer">0,00 €</strong>
+      </div>
+      <div class="payout-method-card payout-method-paypal">
+        <span>Auszahlung PayPal</span>
+        <strong id="sellerPayoutPaypal">0,00 €</strong>
+      </div>
+    </section>
+
     <section class="seller-summary unassigned-summary" style="margin-top:20px"><div class="seller-summary-head"><h2>Nicht zugeordnete Artikel</h2><span id="unassignedCount" class="muted"></span></div><div id="unassignedRows" class="seller-rows"></div></section>
 <section class="seller-summary" style="margin-top:20px"><div class="seller-summary-head"><h2>Umsatz je Kasse</h2></div><div id="registerRows" class="seller-rows"></div></section>
 <section class="seller-summary" style="margin-top:20px"><div class="seller-summary-head"><h2>Kassenbons</h2></div><div id="receiptRows" class="seller-rows"></div></section>
@@ -93,6 +108,6 @@
 
 <script src="cloud-config.js"></script>
 <script src="cloud.js"></script>
-<script src="tagesabschluss.js?v=70"></script>
+<script src="tagesabschluss.js?v=71"></script>
 </body>
 </html>

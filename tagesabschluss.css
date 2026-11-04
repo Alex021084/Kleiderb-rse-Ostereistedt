@@ -569,3 +569,47 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
   .unassigned-card-note strong{font-size:15px}
   .unassigned-card-details{margin:10px 0 0 69px;grid-template-columns:1fr 1fr;gap:9px 12px;padding:11px 12px}
 }
+
+
+/* V45 – Gesamt-Auszahlungen nach gewählter Verkäufer-Zahlungsart */
+.payout-method-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0 20px;
+}
+.payout-method-card{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:9px;
+  padding:16px 18px;
+  border:1px solid #e2e6ed;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(23,32,51,.045);
+}
+.payout-method-card span{
+  color:#566174;
+  font-size:14px;
+  font-weight:700;
+}
+.payout-method-card strong{
+  color:#172033;
+  font-size:clamp(19px,2.2vw,25px);
+  line-height:1.15;
+  font-weight:800;
+  white-space:nowrap;
+}
+.payout-method-cash{background:#eef8f0;border-color:#d5ead9}
+.payout-method-cash strong{color:#247444}
+.payout-method-transfer{background:#eef2ff;border-color:#d9e0ff}
+.payout-method-transfer strong{color:#344fc2}
+.payout-method-paypal{background:#f2f4f7;border-color:#e0e4ea}
+.payout-method-paypal strong{color:#172033}
+@media(max-width:650px){
+  .payout-method-summary{grid-template-columns:1fr;gap:9px;margin:14px 0 18px}
+  .payout-method-card{padding:13px 15px;gap:5px}
+  .payout-method-card strong{font-size:21px}
+}

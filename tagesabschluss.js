@@ -61,6 +61,16 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
 
  const bySeller={};
  items.forEach(x=>{const n=String(x.seller_number??x.sellerNumber??"").trim();if(!n)return;if(!bySeller[n])bySeller[n]={count:0,gross:0,commission:0,payout:0};const p=priceOf(x),c=p*currentRateForItem(x);bySeller[n].count++;bySeller[n].gross+=p;bySeller[n].commission+=c;bySeller[n].payout+=p-c});
+ const payoutByMethod={Bar:0,Überweisung:0,PayPal:0};
+ Object.entries(bySeller).forEach(([n,x])=>{
+   const method=payoutMethodForSeller(n);
+   if(method==="PayPal") payoutByMethod.PayPal+=x.payout;
+   else if(method==="Überweisung") payoutByMethod.Überweisung+=x.payout;
+   else payoutByMethod.Bar+=x.payout;
+ });
+ $("sellerPayoutCash").textContent=euro(payoutByMethod.Bar);
+ $("sellerPayoutTransfer").textContent=euro(payoutByMethod.Überweisung);
+ $("sellerPayoutPaypal").textContent=euro(payoutByMethod.PayPal);
  $("sellerRows").innerHTML=Object.entries(bySeller).sort((a,b)=>a[0].localeCompare(b[0],"de-DE")).map(([n,x])=>{const name=sellerMap[n]?.name||"Verkäufer "+n;const method=payoutMethodForSeller(n);return `<details class="seller-row seller-collapsible"><summary class="seller-toggle"><span class="seller-toggle-main"><strong>${esc(name)}</strong><span class="muted">Nr. ${esc(n)} · ${x.count} ${x.count===1?"Teil":"Teile"}</span></span><span class="seller-toggle-meta"><strong>${euro(x.payout)}</strong><span class="payout-method ${payoutClassForMethod(method)}">${esc(method)}</span><span class="seller-toggle-arrow">›</span></span></summary><div class="seller-details"><div class="seller-detail-grid"><div class="seller-gross"><div class="muted">Umsatz</div><strong>${euro(x.gross)}</strong></div><div class="seller-commission"><div class="muted">Provision</div><strong>${euro(x.commission)}</strong></div></div><div class="seller-payout-row"><div class="seller-payout"><div class="muted">Auszahlung</div><strong>${euro(x.payout)}</strong></div><div class="seller-payout-method"><span class="payout-method ${payoutClassForMethod(method)}">${esc(method)}</span></div></div><div class="seller-pdf-cell"><button type="button" class="seller-pdf-button" data-seller-number="${esc(n)}">PDF</button></div></div></details>`}).join("")||'<div class="seller-empty">Noch keine Verkäufe.</div>';
  const unassigned=[];
  allReceipts.forEach(r=>{(r.receipt_items||[]).forEach((x,i)=>{if(isUnassigned(x))unassigned.push({r,x,index:i})})});
