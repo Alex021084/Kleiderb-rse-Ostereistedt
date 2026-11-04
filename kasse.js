@@ -18,7 +18,13 @@ function priceValue(){
  const raw=String(price.value||"").trim().replace(/\./g,",").replace(",", ".");
  return Number(raw)||0;
 }
-function setActive(n){activeInput=n;activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";sellerNumber.classList.toggle("active",n==="seller"&&!unassignedMode);price.classList.toggle("active",n==="price")}
+function setActive(n){
+ if(activeInput==="price" && n!=="price") formatPriceInput();
+ activeInput=n;
+ activeField.textContent=n==="seller"?"Verkäufernummer":"Preis";
+ sellerNumber.classList.toggle("active",n==="seller"&&!unassignedMode);
+ price.classList.toggle("active",n==="price");
+}
 function checkSeller(){
  if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
@@ -189,8 +195,9 @@ function updateMobileInputValue(){
   }
 }
 function openMobileKeypad(field){
-  if(!mobilePortrait() || !mobileKeypadModal)return;
+  // Auch im Querformat muss das rechte Zahlenfeld auf das angeklickte Feld umschalten.
   setActive(field);
+  if(!mobilePortrait() || !mobileKeypadModal)return;
   if(mobileKeypadTitle)mobileKeypadTitle.textContent=field==="seller"?"Verkäufernummer":"Preis";
   if(mobilePriceValue){ mobilePriceValue.classList.remove("show"); }
   updateMobileInputValue();
