@@ -236,3 +236,9 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
   #toyModal .toy-box .toy-type-grid{gap:8px !important}
   #toyModal .toy-box .toy-type-grid > button{min-height:50px !important;font-size:15px !important}
 }
+
+/* Spielzeug-Kacheln: konsistenter vollständiger Auswahlzustand, keine Teilmarkierung */
+#toyModal .toy-type-grid > button:focus{outline:none}
+#toyModal .toy-type-grid > button:focus-visible{outline:3px solid rgba(67,87,220,.22);outline-offset:2px}
+#toyModal .toy-custom-row input:focus{outline:none;border-color:#4357dc !important;box-shadow:0 0 0 3px rgba(67,87,220,.14)}
+#toyModal .toy-custom-row input:-webkit-autofill{-webkit-text-fill-color:#172033;transition:background-color 9999s ease-out}
