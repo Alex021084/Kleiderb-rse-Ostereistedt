@@ -331,9 +331,13 @@ function sellerPdfData(sellerNumber, receipts, sellers){
       const isShoes=/^schuhe(?:\s|$)/i.test(rawSize) || rawCategory==="schuhe";
       const isToy=/^spielzeug(?:\s|$)/i.test(rawSize) || rawCategory==="spielzeug";
       const cleanSize=isShoes ? rawSize.replace(/^schuhe\s*/i,"").trim() : (isToy ? "" : rawSize);
+      const toyType=isToy
+        ? (rawSize.replace(/^spielzeug\s*/i,"").trim() || String(i.toy_type||i.toyType||i.name||i.description||"").trim())
+        : "";
       rows.push({
         price:priceOf(i),
         size:cleanSize,
+        toyType,
         category:isShoes ? "Schuhe" : (isToy ? "Spielzeug" : "Kleidung"),
         payment:pay,
         register:r.register_id||r.registerId||"Kasse 1",
@@ -426,15 +430,16 @@ function sellerPrintHtml(data){
   const rowHtml=x=>{
     const cat=x.category==="Schuhe" ? "Schuhe" : (x.category==="Spielzeug" ? "Spielzeug" : "Kleidung");
     const size=(cat==="Spielzeug") ? "" : escHtml(x.size||"");
-    return `<tr><td>${cat}</td><td>${size}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`;
+    const toy=(cat==="Spielzeug") ? escHtml(x.toyType||"") : "";
+    return `<tr><td>${cat}</td><td>${size}</td><td>${toy}</td><td style="text-align:right">${sellerMoneyHtml(x.price)}</td></tr>`;
   };
   const provision=data.commission>0 ? `<div class="row"><span>Provision</span><strong>− ${sellerMoneyHtml(data.commission)}</strong></div>` : "";
   const articleCard=(list, showTotal=false)=>`
     <div class="card article-card">
       <h2>VERKAUFTE ARTIKEL</h2>
       <table>
-        <thead><tr><th>Spielzeug / Kleidung / Schuhe</th><th>Größe</th><th style="text-align:right">Verkaufspreis</th></tr></thead>
-        <tbody>${list.length?list.map(rowHtml).join(""):`<tr><td colspan="3">Keine Artikel</td></tr>`}</tbody>
+        <thead><tr><th>Kategorie</th><th>Größe</th><th>Spielzeugart</th><th style="text-align:right">Verkaufspreis</th></tr></thead>
+        <tbody>${list.length?list.map(rowHtml).join(""):`<tr><td colspan="4">Keine Artikel</td></tr>`}</tbody>
       </table>
       ${showTotal?`<div class="article-total">Verkaufte Artikel: ${rows.length}</div>`:""}
     </div>`;
@@ -581,7 +586,7 @@ async function makeSellerPdf(data){
   const x=91, w=1058;
   const money=v=>Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
   const allRows=data.rows||[];
-  const firstCapacity=20, nextCapacity=18;
+  const firstCapacity=20, nextCapacity=35;
   const chunks=[allRows.slice(0,firstCapacity)];
   for(let i=firstCapacity;i<allRows.length;i+=nextCapacity) chunks.push(allRows.slice(i,i+nextCapacity));
   const pages=[];
@@ -601,20 +606,21 @@ async function makeSellerPdf(data){
     ctx.textAlign=align;ctx.textBaseline="alphabetic";ctx.fillText(String(txt??""),px,py);
   };
   const drawArticleTable=(ctx,rows,top,bottom,tableX=x,tableW=w)=>{
-    // Artikelbereich. Auf der ersten Seite kann er in zwei gleich breite
-    // Tabellen nebeneinander geteilt werden; Folgeseiten nutzen eine Tabelle.
     const headerBottom=top+80;
     const headerBaseline=top+68;
     const rowHeight=40;
     const firstRowBaseline=headerBottom+27;
     const left=tableX+22;
     const right=tableX+tableW-22;
-    const sizeX=tableX+tableW*0.63;
+    const sizeX=tableX+tableW*0.37;
+    const toyX=tableX+tableW*0.57;
+    const priceX=right;
 
     text(ctx,"VERKAUFTE ARTIKEL",left,top+34,15,"#344054",true);
-    text(ctx,"Kategorie",left,headerBaseline,12,muted,true);
-    text(ctx,"Größe",sizeX,headerBaseline,12,muted,true);
-    text(ctx,"Verkaufspreis",right,headerBaseline,12,muted,true,"right");
+    text(ctx,"Kategorie",left,headerBaseline,11,muted,true);
+    text(ctx,"Größe",sizeX,headerBaseline,11,muted,true);
+    text(ctx,"Spielzeugart",toyX,headerBaseline,11,muted,true);
+    text(ctx,"Verkaufspreis",priceX,headerBaseline,11,muted,true,"right");
 
     ctx.strokeStyle="#cfd5df";ctx.lineWidth=1.5;
     ctx.beginPath();ctx.moveTo(left,headerBottom);ctx.lineTo(right,headerBottom);ctx.stroke();
@@ -623,9 +629,11 @@ async function makeSellerPdf(data){
     for(const r of rows){
       const cat=r.category==="Schuhe"?"Schuhe":(r.category==="Spielzeug"?"Spielzeug":"Kleidung");
       const size=cat==="Spielzeug"?"":(r.size||"");
-      text(ctx,cat,left,y,13,dark);
-      text(ctx,size,sizeX,y,13,dark);
-      text(ctx,money(r.price),right,y,13,dark,true,"right");
+      const toy=cat==="Spielzeug"?(r.toyType||""):"";
+      text(ctx,cat,left,y,12,dark);
+      text(ctx,size,sizeX,y,12,dark);
+      text(ctx,toy,toyX,y,12,dark);
+      text(ctx,money(r.price),priceX,y,12,dark,true,"right");
 
       const rowLine=y+13;
       if(rowLine<bottom-10){
@@ -713,7 +721,7 @@ async function makeSellerPdf(data){
       text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1660,11,"#7a8494",false,"center");
     }else{
       // Jede Folgeseite beginnt sauber mit dem Artikelbereich.
-      const ay=90, ah=Math.min(1530,Math.max(300,155+rows.length*35));
+      const ay=90, ah=Math.min(1530,Math.max(300,130+rows.length*40));
       drawArticleArea(ctx,rows,ay,ah,false);
       text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1690,11,"#7a8494",false,"center");
     }
