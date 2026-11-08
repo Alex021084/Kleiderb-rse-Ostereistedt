@@ -106,8 +106,33 @@
   </section>
 </main>
 
+
+<div id="receiptEditModal" class="receipt-edit-overlay" aria-hidden="true">
+  <div class="receipt-edit-panel">
+    <div class="receipt-edit-head"><div><h2 id="receiptEditTitle">Kassenbon bearbeiten</h2><p id="receiptEditMeta"></p></div><button type="button" id="receiptEditClose" aria-label="Schließen">×</button></div>
+    <p class="receipt-edit-warning">Korrekturen werden mit ursprünglichem und neuem Stand protokolliert und auf allen Geräten synchronisiert.</p>
+    <label class="receipt-edit-label">Zahlungsart
+      <select id="receiptEditPayment"><option>Bar</option><option>EC</option><option>PayPal</option></select>
+    </label>
+    <div class="receipt-edit-items-head"><strong>Artikel</strong><button type="button" id="receiptAddItem">＋ Artikel hinzufügen</button></div>
+    <div id="receiptEditItems"></div>
+    <label class="receipt-edit-label">Grund der Änderung
+      <textarea id="receiptEditReason" rows="2" placeholder="z. B. Artikel doppelt berechnet / Preis korrigiert" required></textarea>
+    </label>
+    <div class="receipt-edit-total">Neuer Gesamtbetrag: <strong id="receiptEditTotal">0,00 €</strong></div>
+    <div class="receipt-edit-actions"><button type="button" id="receiptEditCancel">Abbrechen</button><button type="button" id="receiptEditSave">Änderung speichern</button></div>
+    <div id="receiptEditStatus" role="status"></div>
+  </div>
+</div>
+<div id="receiptHistoryModal" class="receipt-edit-overlay" aria-hidden="true">
+  <div class="receipt-edit-panel">
+    <div class="receipt-edit-head"><h2>Änderungshistorie</h2><button type="button" id="receiptHistoryClose" aria-label="Schließen">×</button></div>
+    <div id="receiptHistoryContent"></div>
+  </div>
+</div>
+
 <script src="cloud-config.js"></script>
-<script src="cloud.js?v=72"></script>
-<script src="tagesabschluss.js?v=73"></script>
+<script src="cloud.js?v=75"></script>
+<script src="tagesabschluss.js?v=76"></script>
 </body>
 </html>

@@ -55,3 +55,8 @@ Damit Börsen-Archive geräteübergreifend in Supabase gespeichert werden, muss 
 ## Update V66 – vollständige Verkäuferdaten
 
 Bei einer bestehenden Supabase-Cloud bitte `CLOUD-MIGRATION-V66.sql` einmal vollständig im Supabase SQL Editor ausführen. Dadurch werden Anrede, Anschrift, E-Mail und Auszahlungsart als Cloud-Felder ergänzt.
+
+
+## Update V67 – Kassenbons nachträglich bearbeiten
+
+Vor der Nutzung der Bon-Korrektur bitte `CLOUD-MIGRATION-V67.sql` einmal vollständig im Supabase SQL Editor ausführen. Die Migration legt eine Änderungshistorie an. Jede Korrektur speichert den vorherigen und den neuen Bonstand samt Begründung.

@@ -120,14 +120,102 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
        target.innerHTML=list.map(r=>{
          const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
          const d=new Date(r.created_at);
-         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}</div></details>`;
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
        }).join("");
+       target.querySelectorAll(".receipt-details").forEach((detail,index)=>{
+         const receipt=list[index];
+         detail.querySelector('[data-action="edit"]')?.addEventListener("click",()=>openReceiptEditor(receipt));
+         detail.querySelector('[data-action="history"]')?.addEventListener("click",()=>openReceiptHistory(receipt));
+       });
        group.dataset.loaded="1";
      });
    });
  }
  const d=new Date();$("dateText").textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
 }
+
+
+let editingReceipt=null;
+function receiptModal(id,open){
+ const el=$(id); if(!el)return;
+ el.classList.toggle("is-open",!!open);
+ el.setAttribute("aria-hidden",open?"false":"true");
+}
+function editorItems(){
+ return [...$("receiptEditItems").querySelectorAll(".receipt-edit-row")].map(row=>({
+   id:row.dataset.id||null,
+   seller_number:row.querySelector(".receipt-edit-seller").value.trim(),
+   size:row.querySelector(".receipt-edit-size").value.trim(),
+   price:(()=>{let v=String(row.querySelector(".receipt-edit-price").value).trim().replace(/\s|€/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");else if(/^\d{1,3}(\.\d{3})+$/.test(v))v=v.replace(/\./g,"");return Number(v)})()
+ }));
+}
+function updateEditorTotal(){
+ const total=editorItems().reduce((sum,x)=>sum+(Number.isFinite(x.price)?x.price:0),0);
+ $("receiptEditTotal").textContent=euro(total);
+}
+function addEditorItem(item={}){
+ const row=document.createElement("div");
+ row.className="receipt-edit-row"; row.dataset.id=item.id||"";
+ row.innerHTML=`<input class="receipt-edit-seller" aria-label="Verkäufernummer" placeholder="Verkäufernummer (leer = nicht zugeordnet)" value="${esc(item.seller_number??item.sellerNumber??"")}"><input class="receipt-edit-size" aria-label="Artikel" placeholder="Artikel / Größe" value="${esc(item.size||"")}"><input class="receipt-edit-price" aria-label="Preis" inputmode="decimal" placeholder="Preis" value="${esc(String(item.price??"").replace(".",","))}"><button class="receipt-edit-remove" type="button" aria-label="Artikel entfernen">×</button>`;
+ row.querySelectorAll("input").forEach(input=>input.addEventListener("input",updateEditorTotal));
+ row.querySelector(".receipt-edit-remove").addEventListener("click",()=>{row.remove();updateEditorTotal()});
+ $("receiptEditItems").appendChild(row); updateEditorTotal();
+}
+function openReceiptEditor(receipt){
+ if(!KBCloud.cloudReady()){alert("Nachträgliches Bearbeiten ist nur mit Cloud-Verbindung möglich.");return;}
+ editingReceipt=receipt;
+ $("receiptEditTitle").textContent="Bon "+(receipt.receipt_no??receipt.id)+" bearbeiten";
+ $("receiptEditMeta").textContent=(receipt.register_id||"Kasse")+" · "+new Date(receipt.created_at).toLocaleString("de-DE");
+ $("receiptEditPayment").value=receipt.payment||"Bar";
+ $("receiptEditReason").value="";
+ $("receiptEditStatus").textContent="";
+ $("receiptEditItems").innerHTML="";
+ (receipt.receipt_items||[]).forEach(addEditorItem);
+ receiptModal("receiptEditModal",true);
+}
+async function openReceiptHistory(receipt){
+ $("receiptHistoryContent").textContent="Lade Änderungshistorie …";
+ receiptModal("receiptHistoryModal",true);
+ try{
+   const entries=await KBCloud.cloudGetReceiptHistory(receipt.id);
+   $("receiptHistoryContent").innerHTML=entries.length?entries.map(entry=>{
+     const d=new Date(entry.edited_at);
+     const old=entry.old_snapshot||{}, next=entry.new_snapshot||{};
+     return `<div class="receipt-history-entry"><strong>${isNaN(d.getTime())?"":d.toLocaleString("de-DE")}</strong><p>${esc(entry.reason||"Keine Begründung")}</p><small>Vorher: ${euro(old.total)} · ${esc(old.payment||"")} · ${(old.receipt_items||[]).length} Artikel<br>Nachher: ${euro(next.total)} · ${esc(next.payment||"")} · ${(next.receipt_items||[]).length} Artikel</small></div>`;
+   }).join(""):'<p>Noch keine nachträglichen Änderungen dokumentiert.</p>';
+ }catch(e){console.error(e);$("receiptHistoryContent").textContent="Die Änderungshistorie konnte nicht geladen werden. Bitte V67-Datenbankmigration prüfen.";}
+}
+async function saveReceiptEditor(){
+ if(!editingReceipt)return;
+ const reason=$("receiptEditReason").value.trim();
+ const items=editorItems();
+ if(!reason){alert("Bitte einen Grund für die Änderung eintragen.");return;}
+ if(!items.length){alert("Der Bon muss mindestens einen Artikel enthalten.");return;}
+ if(items.some(x=>!x.size||!Number.isFinite(x.price)||x.price<0)){alert("Bitte Artikelbezeichnung und gültigen Preis für alle Positionen eingeben.");return;}
+ const sellers=await KBCloud.cloudGetSellers();
+ if(items.some(x=>x.seller_number&&!sellers.some(s=>String(s.number)===x.seller_number))){alert("Mindestens eine Verkäufernummer wurde nicht gefunden. Bitte korrigieren oder leer lassen.");return;}
+ const originalById={}; (editingReceipt.receipt_items||[]).forEach(x=>originalById[String(x.id)]=x);
+ const payload=items.map(x=>{
+   const old=x.id?originalById[String(x.id)]:null;
+   const seller=x.seller_number?sellers.find(s=>String(s.number)===x.seller_number):null;
+   const enabled=old?old.commission_enabled!==false:(seller?(seller.commission_enabled!==false):false);
+   const rate=old?Number(old.commission_rate??0.15):(seller&&enabled?Number(seller.commission_rate??15)/100:0);
+   return {...x,commission_enabled:enabled,commission_rate:rate};
+ });
+ const button=$("receiptEditSave");button.disabled=true;button.textContent="Speichere …";
+ try{
+   await KBCloud.cloudEditReceipt(editingReceipt.id,$("receiptEditPayment").value,payload,reason);
+   receiptModal("receiptEditModal",false);
+   alert("Kassenbon wurde korrigiert. Die Änderung ist protokolliert und in der Cloud gespeichert.");
+   await render();
+ }catch(e){console.error(e);$("receiptEditStatus").textContent="Speichern fehlgeschlagen: "+(e.message||e);alert("Korrektur fehlgeschlagen: "+(e.message||e));}
+ finally{button.disabled=false;button.textContent="Änderung speichern";}
+}
+$("receiptEditClose")?.addEventListener("click",()=>receiptModal("receiptEditModal",false));
+$("receiptEditCancel")?.addEventListener("click",()=>receiptModal("receiptEditModal",false));
+$("receiptHistoryClose")?.addEventListener("click",()=>receiptModal("receiptHistoryModal",false));
+$("receiptAddItem")?.addEventListener("click",()=>addEditorItem());
+$("receiptEditSave")?.addEventListener("click",saveReceiptEditor);
 
 async function resetSales(){
  const question=selectedRegister==="Alle Kassen"

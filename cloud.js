@@ -720,6 +720,72 @@ async function cloudUpdateReceiptItem(
 }
 
 
+/* KASSENBON-KORREKTUR MIT ÄNDERUNGSHISTORIE */
+async function cloudEditReceipt(receiptId, payment, items, reason){
+  await cloudClient();
+  const all=await cloudGetReceipts();
+  const current=all.find(r=>String(r.id)===String(receiptId));
+  if(!current) throw new Error("Kassenbon wurde nicht gefunden. Bitte neu laden.");
+
+  const oldSnapshot={
+    id:current.id, receipt_no:current.receipt_no, register_id:current.register_id,
+    payment:current.payment, total:Number(current.total||0), created_at:current.created_at,
+    receipt_items:(current.receipt_items||[]).map(x=>({...x}))
+  };
+  const normalized=items.map(x=>({
+    id:x.id||null, seller_number:x.seller_number?String(x.seller_number):null,
+    unassigned_note:String(x.unassigned_note||""), size:String(x.size||""),
+    price:Number(x.price||0), commission_enabled:x.commission_enabled!==false,
+    commission_rate:Number(x.commission_rate??0.15)
+  }));
+  if(!normalized.length) throw new Error("Ein Kassenbon muss mindestens einen Artikel enthalten.");
+  if(normalized.some(x=>!x.size.trim()||!Number.isFinite(x.price)||x.price<0)) throw new Error("Bitte Artikel und gültige Preise prüfen.");
+  const total=normalized.reduce((sum,x)=>sum+x.price,0);
+  const history=await apiRequest("receipt_edit_history",{
+    method:"POST",headers:{"Prefer":"return=minimal"},
+    body:JSON.stringify({
+      receipt_id:current.id, reason:String(reason||"Nachträgliche Korrektur"),
+      old_snapshot:oldSnapshot,
+      new_snapshot:{payment,total,receipt_items:normalized.map(x=>({...x}))}
+    })
+  });
+
+  await apiRequest("receipts?id=eq."+encodeURIComponent(receiptId),{
+    method:"PATCH",headers:{"Prefer":"return=minimal"},
+    body:JSON.stringify({payment,total})
+  });
+
+  const oldItems=current.receipt_items||[];
+  const keepIds=normalized.filter(x=>x.id).map(x=>String(x.id));
+  const removeIds=oldItems.filter(x=>!keepIds.includes(String(x.id))).map(x=>String(x.id));
+  if(removeIds.length){
+    await apiRequest("receipt_items?id=in.("+removeIds.map(encodeURIComponent).join(",")+")",{
+      method:"DELETE",headers:{"Prefer":"return=minimal"}
+    });
+  }
+  for(const item of normalized){
+    const row={receipt_id:current.id,seller_number:item.seller_number,
+      unassigned_note:item.unassigned_note,size:item.size,price:item.price,
+      commission_enabled:item.commission_enabled,commission_rate:item.commission_rate};
+    if(item.id){
+      await apiRequest("receipt_items?id=eq."+encodeURIComponent(item.id),{
+        method:"PATCH",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)
+      });
+    }else{
+      await apiRequest("receipt_items",{
+        method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)
+      });
+    }
+  }
+  return {id:current.id,total};
+}
+
+async function cloudGetReceiptHistory(receiptId){
+  await cloudClient();
+  return await apiRequest("receipt_edit_history?select=*&receipt_id=eq."+
+    encodeURIComponent(receiptId)+"&order=edited_at.desc") || [];
+}
+
 /* ABSCHLUSS */
 
 async function cloudResetReceipts(){
@@ -1042,6 +1108,8 @@ window.KBCloud={
   cloudGetReceipts,
 
   cloudUpdateReceiptItem,
+  cloudEditReceipt,
+  cloudGetReceiptHistory,
 
   cloudResetReceipts,
 

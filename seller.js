@@ -49,46 +49,6 @@ function sorted(a){return [...a].sort((x,y)=>{let xn=x.name.trim().split(/\s+/).
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
 
 
-/*
- * Einmalige Übernahme der lokal gespeicherten Verkäufer-Zusatzdaten in Supabase.
- * Diese Funktion bewusst nur per Button starten – und zwar auf dem Gerät,
- * auf dem die vollständigen Auszahlungsarten bereits korrekt angezeigt werden.
- */
-async function syncSellerExtrasToCloud(){
-  if(!KBCloud.cloudReady()){
-    alert("Keine Cloud-Verbindung. Bitte zuerst anmelden.");
-    return;
-  }
-  const extras=getExtras();
-  const candidates=sellers.filter(s=>{
-    const e=extras[String(s.number)]||{};
-    return ["payoutMethod","salutation","address","street","houseNumber","zip","city","email"]
-      .some(k=>Object.prototype.hasOwnProperty.call(e,k) && String(e[k]??"").trim()!=="");
-  });
-  if(!candidates.length){
-    alert("Auf diesem Gerät wurden keine zusätzlichen Verkäuferdaten zum Übertragen gefunden.");
-    return;
-  }
-  if(!confirm(candidates.length+" Verkäuferdatensätze mit den lokalen Zusatzdaten in die Cloud übertragen?\n\nBitte nur auf dem Gerät bestätigen, auf dem die Auszahlungsarten korrekt sind.")) return;
-  let done=0;
-  try{
-    for(const seller of candidates){
-      const e=extras[String(seller.number)]||{};
-      const patch={};
-      ["payoutMethod","salutation","address","street","houseNumber","zip","city","email"]
-        .forEach(k=>{
-          if(Object.prototype.hasOwnProperty.call(e,k) && String(e[k]??"").trim()!=="") patch[k]=e[k];
-        });
-      await KBCloud.cloudSaveSeller({...seller,...patch});
-      done++;
-    }
-    alert("Fertig! "+done+" Verkäuferdatensätze wurden in die Cloud übertragen. Öffne den Tagesabschluss auf den anderen Geräten neu.");
-  }catch(err){
-    console.error(err);
-    alert("Übertragung nach "+done+" von "+candidates.length+" Verkäufern abgebrochen: "+(err?.message||err));
-  }
-}
-
 async function loadSellers(){
   try{
     if(KBCloud.cloudReady()) sellers=(await KBCloud.cloudGetSellers()).map(normalize);
