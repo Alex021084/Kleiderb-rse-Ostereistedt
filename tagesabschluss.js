@@ -153,16 +153,38 @@ function updateEditorTotal(){
  const total=editorItems().reduce((sum,x)=>sum+(Number.isFinite(x.price)?x.price:0),0);
  $("receiptEditTotal").textContent=euro(total);
 }
+function askReceiptItemRemoval(details){
+ return new Promise(resolve=>{
+   const modal=$("receiptDeleteConfirm");
+   if(!modal){resolve(window.confirm("Artikel wirklich entfernen?"));return;}
+   $("receiptDeleteSeller").textContent=details.seller;
+   $("receiptDeleteName").textContent=details.itemName;
+   $("receiptDeletePrice").textContent=details.price+" €";
+   const finish=value=>{
+     modal.classList.remove("is-open");
+     modal.setAttribute("aria-hidden","true");
+     $("receiptDeleteCancel").removeEventListener("click",cancel);
+     $("receiptDeleteAccept").removeEventListener("click",accept);
+     resolve(value);
+   };
+   const cancel=()=>finish(false);
+   const accept=()=>finish(true);
+   $("receiptDeleteCancel").addEventListener("click",cancel,{once:true});
+   $("receiptDeleteAccept").addEventListener("click",accept,{once:true});
+   modal.classList.add("is-open");
+   modal.setAttribute("aria-hidden","false");
+ });
+}
 function addEditorItem(item={}){
  const row=document.createElement("div");
  row.className="receipt-edit-row"; row.dataset.id=item.id||"";
  row.innerHTML=`<label class="receipt-edit-field receipt-edit-seller-wrap"><span>Vk Nr</span><input class="receipt-edit-seller" aria-label="Verkäufernummer" placeholder="Vk Nr" value="${esc(item.seller_number??item.sellerNumber??"")}"></label><label class="receipt-edit-field receipt-edit-size-wrap"><span>Größe / Artikel</span><input class="receipt-edit-size" aria-label="Größe oder Artikel" placeholder="Größe / Artikel" value="${esc(item.size||"")}"></label><label class="receipt-edit-field receipt-edit-price-wrap"><span>Preis (€)</span><input class="receipt-edit-price" aria-label="Preis in Euro" inputmode="decimal" placeholder="Preis" value="${esc(String(item.price??"").replace(".",","))}"></label><button class="receipt-edit-remove" type="button" aria-label="Gesamten Artikel entfernen" title="Gesamten Artikel entfernen">×</button>`;
  row.querySelectorAll("input").forEach(input=>input.addEventListener("input",updateEditorTotal));
- row.querySelector(".receipt-edit-remove").addEventListener("click",()=>{
+ row.querySelector(".receipt-edit-remove").addEventListener("click",async()=>{
    const seller=row.querySelector(".receipt-edit-seller").value.trim()||"ohne Verkäufernummer";
    const itemName=row.querySelector(".receipt-edit-size").value.trim()||"Artikel ohne Bezeichnung";
    const price=row.querySelector(".receipt-edit-price").value.trim()||"0";
-   const ok=confirm(`Diesen Artikel wirklich aus dem Kassenbon entfernen?\\n\\nVk Nr: ${seller}\\nArtikel: ${itemName}\\nPreis: ${price} €\\n\\nDer Artikel wird erst endgültig entfernt, wenn du den geänderten Kassenbon speicherst.`);
+   const ok=await askReceiptItemRemoval({seller,itemName,price});
    if(!ok)return;
    row.remove();
    updateEditorTotal();

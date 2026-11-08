@@ -131,8 +131,25 @@
   </div>
 </div>
 
+<div id="receiptDeleteConfirm" class="receipt-delete-overlay" aria-hidden="true">
+  <div class="receipt-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="receiptDeleteTitle">
+    <div class="receipt-delete-icon" aria-hidden="true">!</div>
+    <h2 id="receiptDeleteTitle">Artikel entfernen?</h2>
+    <p class="receipt-delete-intro">Möchtest du diesen Artikel wirklich aus dem Kassenbon entfernen?</p>
+    <div class="receipt-delete-summary">
+      <div><span>Vk Nr</span><strong id="receiptDeleteSeller"></strong></div>
+      <div><span>Größe / Artikel</span><strong id="receiptDeleteName"></strong></div>
+      <div><span>Preis</span><strong id="receiptDeletePrice"></strong></div>
+    </div>
+    <p class="receipt-delete-note">Der Artikel wird zunächst aus der Bearbeitung entfernt. Dauerhaft gespeichert wird die Änderung erst, wenn du anschließend den Kassenbon speicherst.</p>
+    <div class="receipt-delete-actions">
+      <button type="button" id="receiptDeleteCancel">Nein, behalten</button>
+      <button type="button" id="receiptDeleteAccept">Ja, entfernen</button>
+    </div>
+  </div>
+</div>
 <script src="cloud-config.js"></script>
-<script src="cloud.js?v=78"></script>
-<script src="tagesabschluss.js?v=79"></script>
+<script src="cloud.js?v=80"></script>
+<script src="tagesabschluss.js?v=80"></script>
 </body>
 </html>

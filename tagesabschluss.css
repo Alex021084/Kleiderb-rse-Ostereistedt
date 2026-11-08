@@ -680,3 +680,23 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
  .receipt-edit-row .receipt-edit-remove{width:34px!important;height:38px!important}
  .receipt-edit-field{font-size:10px!important}
 }
+
+/* Freundliche, eigene Sicherheitsabfrage zum Entfernen eines Bon-Artikels */
+.receipt-delete-overlay{display:none;position:fixed;inset:0;z-index:12000;padding:18px;background:rgba(15,23,42,.58);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.receipt-delete-overlay.is-open{display:flex}
+.receipt-delete-dialog{box-sizing:border-box;width:min(430px,100%);padding:25px 22px 20px;background:#fff;color:#172033;border-radius:22px;box-shadow:0 22px 70px rgba(0,0,0,.28);text-align:center;animation:receiptDeleteIn .16s ease-out}
+@keyframes receiptDeleteIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.receipt-delete-icon{display:flex;align-items:center;justify-content:center;width:48px;height:48px;margin:0 auto 12px;border-radius:50%;background:#fff0f1;color:#d92d3a;font-size:27px;font-weight:850}
+.receipt-delete-dialog h2{margin:0 0 8px;font-size:22px;line-height:1.2;color:#172033}
+.receipt-delete-intro{margin:0 auto 16px;max-width:330px;color:#586579;font-size:15px;line-height:1.45}
+.receipt-delete-summary{display:grid;grid-template-columns:1fr 1.4fr .8fr;gap:8px;padding:12px;background:#f5f7fb;border:1px solid #e5eaf2;border-radius:13px;text-align:left}
+.receipt-delete-summary div{min-width:0}
+.receipt-delete-summary span{display:block;margin-bottom:4px;color:#7a8495;font-size:11px;font-weight:700}
+.receipt-delete-summary strong{display:block;overflow-wrap:anywhere;color:#202b40;font-size:14px}
+.receipt-delete-note{margin:13px 2px 18px;color:#7b8493;font-size:12px;line-height:1.45}
+.receipt-delete-actions{display:flex;gap:10px}
+.receipt-delete-actions button{flex:1;min-height:46px;padding:10px 12px;border:0;border-radius:12px;font:inherit;font-size:14px;font-weight:750}
+.receipt-delete-actions #receiptDeleteCancel{background:#edf1f6;color:#344054}
+.receipt-delete-actions #receiptDeleteAccept{background:#d92d3a;color:#fff;box-shadow:0 3px 8px rgba(217,45,58,.2)}
+.receipt-delete-actions button:active{transform:scale(.98)}
+@media(max-width:390px){.receipt-delete-dialog{padding:21px 16px 16px}.receipt-delete-summary{grid-template-columns:1fr 1fr}.receipt-delete-summary div:last-child{grid-column:1/-1}.receipt-delete-actions{flex-direction:column}}
