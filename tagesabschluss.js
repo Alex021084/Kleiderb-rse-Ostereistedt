@@ -722,7 +722,8 @@ async function makeSellerPdf(data){
     }else{
       // Jede Folgeseite beginnt sauber mit dem Artikelbereich.
       const ay=90, ah=Math.min(1530,Math.max(300,130+rows.length*40));
-      drawArticleArea(ctx,rows,ay,ah,false);
+      // Folgeseiten verwenden dasselbe zweispaltige Layout wie die erste Seite.
+      drawArticleArea(ctx,rows,ay,ah,true);
       text(ctx,"Kleiderbörse · Verkäufer-Abrechnung",PW/2,1690,11,"#7a8494",false,"center");
     }
     pages.push(canvas);
