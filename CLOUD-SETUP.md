@@ -61,3 +61,5 @@ Bei einer bestehenden Supabase-Cloud bitte `CLOUD-MIGRATION-V66.sql` einmal voll
 
 Vor der Nutzung der Bon-Korrektur bitte `CLOUD-MIGRATION-V67.sql` einmal vollständig im Supabase SQL Editor ausführen. Die Migration legt eine Änderungshistorie an. Jede Korrektur speichert den vorherigen und den neuen Bonstand samt Begründung.
 \n\nHinweis: Wenn beim Speichern „Could not find table public.receipt_edit_history in the schema cache“ erscheint, wurde V67 noch nicht angelegt oder PostgREST hat sein Schema noch nicht neu geladen. V67 im Supabase SQL Editor ausführen; danach ggf. einige Sekunden warten und App neu laden.\n
+## V67 Schema-Cache-Fehler beheben
+Die Datei `CLOUD-MIGRATION-V67.sql` im Supabase SQL Editor vollständig ausführen. Sie legt `receipt_edit_history` an, setzt REST-Rechte und sendet `NOTIFY pgrst, 'reload schema'`. Nach erfolgreicher Ausführung kurz warten und die App auf den Geräten vollständig neu laden. Wenn Supabase beim SQL-Lauf einen Fehler zeigt, muss dieser zuerst behoben werden; nur die ZIP zu veröffentlichen erstellt keine Datenbanktabelle.

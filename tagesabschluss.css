@@ -644,3 +644,39 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 .receipt-history-entry small{color:#687386}
 .receipt-edit-button,.receipt-history-button{margin:8px 8px 0 0;padding:8px 12px;border:0;border-radius:9px;background:#e9edff;color:#3449c4;font-weight:700}
 @media(max-width:520px){.receipt-edit-panel{padding:15px}.receipt-edit-row{grid-template-columns:1fr 82px 38px}}
+
+
+/* V9: kompakte Kassenbon-Artikelzeilen */
+.receipt-edit-panel{width:min(760px,100%);padding:16px}
+.receipt-edit-row{
+ display:grid!important;
+ grid-template-columns:minmax(95px,1fr) minmax(115px,1.15fr) minmax(82px,.75fr) 38px!important;
+ gap:8px!important;align-items:end!important;padding:8px 0!important;
+}
+.receipt-edit-field{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;font-size:11px!important;line-height:1.2!important;font-weight:750!important;color:#46536a!important}
+.receipt-edit-field span{display:block!important;white-space:nowrap!important}
+.receipt-edit-row input{
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;
+ height:40px!important;padding:7px 8px!important;border:1px solid #cbd2df!important;
+ border-radius:8px!important;font:inherit!important;font-size:15px!important;
+ color:#172033!important;background:#fff!important;
+}
+.receipt-edit-seller-wrap,.receipt-edit-size-wrap,.receipt-edit-price-wrap{grid-column:auto!important;grid-row:auto!important}
+.receipt-edit-row .receipt-edit-remove{
+ grid-column:auto!important;grid-row:auto!important;align-self:end!important;
+ width:38px!important;height:40px!important;padding:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ background:#dc3545!important;color:#fff!important;border:0!important;
+ border-radius:8px!important;font-size:23px!important;font-weight:800!important;
+}
+.receipt-edit-items-head{margin:12px 0 6px!important}
+.receipt-edit-label{margin:10px 0!important}
+.receipt-edit-label select,.receipt-edit-label textarea{padding:9px!important}
+.receipt-edit-warning{padding:9px 11px!important;margin:10px 0!important;font-size:14px!important}
+@media(max-width:520px){
+ .receipt-edit-panel{padding:12px!important}
+ .receipt-edit-row{grid-template-columns:minmax(68px,.85fr) minmax(100px,1.1fr) minmax(65px,.7fr) 34px!important;gap:5px!important}
+ .receipt-edit-row input{height:38px!important;padding:6px!important;font-size:14px!important}
+ .receipt-edit-row .receipt-edit-remove{width:34px!important;height:38px!important}
+ .receipt-edit-field{font-size:10px!important}
+}
