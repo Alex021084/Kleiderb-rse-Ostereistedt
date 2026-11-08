@@ -60,3 +60,4 @@ Bei einer bestehenden Supabase-Cloud bitte `CLOUD-MIGRATION-V66.sql` einmal voll
 ## Update V67 – Kassenbons nachträglich bearbeiten
 
 Vor der Nutzung der Bon-Korrektur bitte `CLOUD-MIGRATION-V67.sql` einmal vollständig im Supabase SQL Editor ausführen. Die Migration legt eine Änderungshistorie an. Jede Korrektur speichert den vorherigen und den neuen Bonstand samt Begründung.
+\n\nHinweis: Wenn beim Speichern „Could not find table public.receipt_edit_history in the schema cache“ erscheint, wurde V67 noch nicht angelegt oder PostgREST hat sein Schema noch nicht neu geladen. V67 im Supabase SQL Editor ausführen; danach ggf. einige Sekunden warten und App neu laden.\n
