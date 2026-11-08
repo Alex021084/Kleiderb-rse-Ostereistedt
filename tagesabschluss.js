@@ -158,7 +158,15 @@ function addEditorItem(item={}){
  row.className="receipt-edit-row"; row.dataset.id=item.id||"";
  row.innerHTML=`<label class="receipt-edit-field receipt-edit-seller-wrap"><span>Vk Nr</span><input class="receipt-edit-seller" aria-label="Verkäufernummer" placeholder="Vk Nr" value="${esc(item.seller_number??item.sellerNumber??"")}"></label><label class="receipt-edit-field receipt-edit-size-wrap"><span>Größe / Artikel</span><input class="receipt-edit-size" aria-label="Größe oder Artikel" placeholder="Größe / Artikel" value="${esc(item.size||"")}"></label><label class="receipt-edit-field receipt-edit-price-wrap"><span>Preis (€)</span><input class="receipt-edit-price" aria-label="Preis in Euro" inputmode="decimal" placeholder="Preis" value="${esc(String(item.price??"").replace(".",","))}"></label><button class="receipt-edit-remove" type="button" aria-label="Gesamten Artikel entfernen" title="Gesamten Artikel entfernen">×</button>`;
  row.querySelectorAll("input").forEach(input=>input.addEventListener("input",updateEditorTotal));
- row.querySelector(".receipt-edit-remove").addEventListener("click",()=>{row.remove();updateEditorTotal()});
+ row.querySelector(".receipt-edit-remove").addEventListener("click",()=>{
+   const seller=row.querySelector(".receipt-edit-seller").value.trim()||"ohne Verkäufernummer";
+   const itemName=row.querySelector(".receipt-edit-size").value.trim()||"Artikel ohne Bezeichnung";
+   const price=row.querySelector(".receipt-edit-price").value.trim()||"0";
+   const ok=confirm(`Diesen Artikel wirklich aus dem Kassenbon entfernen?\\n\\nVk Nr: ${seller}\\nArtikel: ${itemName}\\nPreis: ${price} €\\n\\nDer Artikel wird erst endgültig entfernt, wenn du den geänderten Kassenbon speicherst.`);
+   if(!ok)return;
+   row.remove();
+   updateEditorTotal();
+ });
  $("receiptEditItems").appendChild(row); updateEditorTotal();
 }
 function openReceiptEditor(receipt){
