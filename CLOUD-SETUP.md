@@ -50,3 +50,8 @@ V21 fällt zurück auf LocalStorage, solange `cloud-config.js` noch leer ist. So
 ## Cloud-Archiv (V65)
 
 Damit Börsen-Archive geräteübergreifend in Supabase gespeichert werden, muss der Abschnitt **V65: Cloud-Archiv** aus `cloud-schema.sql` einmal im Supabase SQL Editor ausgeführt werden. Danach speichert die Archiv-Seite neue Archive in `public.archives`. Jedes Archiv kann zusätzlich über **⬇️ Export** als JSON-Datei extern gesichert und über **⬆️ Sicherung importieren** wieder in die Cloud eingespielt werden.
+
+
+## Update V66 – vollständige Verkäuferdaten
+
+Bei einer bestehenden Supabase-Cloud bitte `CLOUD-MIGRATION-V66.sql` einmal vollständig im Supabase SQL Editor ausführen. Dadurch werden Anrede, Anschrift, E-Mail und Auszahlungsart als Cloud-Felder ergänzt.

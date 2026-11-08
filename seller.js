@@ -36,7 +36,7 @@ function normalize(s){
     salutation:s.salutation??e.salutation??"Frau",
     address:s.address??e.address??"",
     street:s.street??e.street??"",
-    houseNumber:s.houseNumber??e.houseNumber??"",
+    houseNumber:s.houseNumber??s.house_number??e.houseNumber??"",
     zip:s.zip??e.zip??"",
     city:s.city??e.city??"",
     email:s.email??e.email??"",
@@ -101,9 +101,7 @@ async function saveSeller(){
   Object.assign(s,{number,name,phone,salutation,address,street,houseNumber,zip,city,email,payoutMethod,commissionEnabled,commissionRate});
   try{
     if(KBCloud.cloudReady()){
-      const cloudSeller={...s};
-      delete cloudSeller.address;delete cloudSeller.email;delete cloudSeller.payoutMethod;delete cloudSeller.salutation;
-      await KBCloud.cloudSaveSeller(cloudSeller);
+      await KBCloud.cloudSaveSeller(s);
     }else{
       let i=sellers.findIndex(x=>x.id===s.id);if(i<0)sellers.push(s);localStorage.setItem("kb_sellers",JSON.stringify(sellers))
     }

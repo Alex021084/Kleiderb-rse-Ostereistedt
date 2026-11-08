@@ -472,6 +472,14 @@ async function cloudSaveSeller(s){
     name:s.name,
 
     phone:s.phone || "",
+    salutation:s.salutation || "Frau",
+    address:s.address || "",
+    street:s.street || "",
+    house_number:s.houseNumber || "",
+    zip:s.zip || "",
+    city:s.city || "",
+    email:s.email || "",
+    payout_method:s.payoutMethod || "Bar",
 
     commission_enabled:
       s.commissionEnabled === true,
@@ -785,6 +793,14 @@ async function cloudRestoreSnapshot(snapshot){
       number:String(s.number ?? ""),
       name:String(s.name ?? ""),
       phone:String(s.phone ?? ""),
+      salutation:String(s.salutation ?? "Frau"),
+      address:String(s.address ?? ""),
+      street:String(s.street ?? ""),
+      house_number:String(s.house_number ?? s.houseNumber ?? ""),
+      zip:String(s.zip ?? ""),
+      city:String(s.city ?? ""),
+      email:String(s.email ?? ""),
+      payout_method:String(s.payout_method ?? s.payoutMethod ?? "Bar"),
       commission_enabled:s.commission_enabled===true || s.commissionEnabled===true,
       commission_rate:Number(s.commission_rate ?? s.commissionRate ?? 15)
     }));
