@@ -32,7 +32,7 @@ async function render(){
  else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
  const sellerMap={};sellerData.forEach(s=>sellerMap[String(s.number)]=s);
  const sellerExtras=JSON.parse(localStorage.getItem("kb_seller_extras")||"{}");
- const payoutMethodForSeller=n=>{const s=sellerMap[String(n)]||{};const e=sellerExtras[String(n)]||{};return e.payoutMethod||s.payoutMethod||"Bar";};
+ const payoutMethodForSeller=n=>{const s=sellerMap[String(n)]||{};const e=sellerExtras[String(n)]||{};return e.payoutMethod||s.payoutMethod||s.payout_method||"Bar";};
  const payoutClassForMethod=m=>m==="Bar"?"payout-cash":(m==="PayPal"?"payout-paypal":"payout-transfer");
  const currentRateForItem=x=>{
    const n=String(x.seller_number??x.sellerNumber??"").trim();
