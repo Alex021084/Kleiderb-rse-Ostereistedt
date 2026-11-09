@@ -722,3 +722,7 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
  color:#c62828;font-size:.72em;line-height:1.25;font-weight:700;
  margin:-2px 0 7px 12px;overflow-wrap:anywhere;
 }
+
+
+/* Sicherheitsregel: ausgeblendete Bereiche dürfen nicht durch Komponenten-CSS sichtbar werden. */
+[hidden], #floatBalanceAccounting[hidden] { display: none !important; }

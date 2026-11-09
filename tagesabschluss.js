@@ -74,11 +74,32 @@ function currentSellerRate(seller){
   if(!Number.isFinite(v)) v=15;
   return Math.min(100,Math.max(0,v))/100;
 }
-function filteredReceipts(receipts){return selectedRegister==="Alle Kassen"?receipts:receipts.filter(r=>(r.register_id||r.registerId||"Kasse 1")===selectedRegister)}
+function filteredReceipts(receipts){
+ if(selectedRegister==="Alle Kassen")return receipts;
+ const wanted=String(selectedRegister).trim().toLowerCase();
+ return receipts.filter(r=>String(r.register_id||r.registerId||"Kasse 1").trim().toLowerCase()===wanted);
+}
 function isUnassigned(i){return !String(i.seller_number??i.sellerNumber??"").trim()}
 
 async function render(){
- const allReceipts=await loadData(),receipts=filteredReceipts(allReceipts),items=receipts.flatMap(itemsOf);
+ const loadError=$("accountingLoadError");
+ if(loadError){loadError.hidden=true;loadError.textContent="";}
+ let allReceipts;
+ try{
+  allReceipts=await loadData();
+ }catch(error){
+  if(loadError){
+   loadError.hidden=false;
+   loadError.textContent="Kassenbons konnten nicht aus der Cloud geladen werden: "+(error?.message||String(error))+" Bitte Cloud-Anmeldung und Datenbankberechtigungen prüfen.";
+  }
+  // Do not present failed cloud loading as a genuine zero balance.
+  $("totalRevenue").textContent="—";
+  $("cashTotal").textContent="—";$("cardTotal").textContent="—";$("paypalTotal").textContent="—";
+  $("commissionGross").textContent="—";$("commission").textContent="—";$("payout").textContent="—";
+  $("articleCount").textContent="Daten konnten nicht geladen werden";
+  return;
+ }
+ const receipts=filteredReceipts(allReceipts),items=receipts.flatMap(itemsOf);
  let sellerData=[];
  if(KBCloud.cloudReady()){try{sellerData=await KBCloud.cloudGetSellers()}catch(e){}}
  else sellerData=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
@@ -954,7 +975,8 @@ floatPad.querySelectorAll("[data-float-key]").forEach(button=>button.addEventLis
 $("refreshButton").addEventListener("click",render);
 $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
-document.querySelectorAll(".register-filter-button").forEach(btn=>btn.addEventListener("click",()=>{
+document.querySelectorAll(".register-filter-button").forEach(btn=>btn.addEventListener("click",(event)=>{
+ event.preventDefault();
  selectedRegister=btn.dataset.register;
  loadAccountingFloat();
  document.querySelectorAll(".register-filter-button").forEach(b=>b.classList.toggle("selected",b===btn));

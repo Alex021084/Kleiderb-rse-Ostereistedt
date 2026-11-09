@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Tagesabschluss</title>
-<link rel="stylesheet" href="tagesabschluss.css?v=94">
+<link rel="stylesheet" href="tagesabschluss.css?v=95">
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
 <body data-kb-build="V45">
 <header class="top">
@@ -37,8 +37,9 @@
       </div>
       <div id="selectedRegisterText" class="selected-register-text">Anzeige: Alle Kassen</div>
     </section>
+    <div id="accountingLoadError" role="alert" hidden style="margin:12px 0;padding:12px 14px;border:1px solid #fecaca;border-radius:12px;background:#fff1f2;color:#991b1b;font-weight:600"></div>
 
-    <section class="seller-summary" id="floatBalanceAccounting" style="margin-top:18px">
+    <section class="seller-summary" id="floatBalanceAccounting" hidden style="margin-top:18px">
       <div class="seller-summary-head"><h2>Wechselgeld-Startbestand</h2></div>
       <p style="margin:0 0 12px;color:#64748b">Nur in der Buchhaltung verwalten. Der Betrag wird je Kasse gespeichert und am nächsten Börsentag automatisch übernommen.</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -192,7 +193,7 @@
 
 <script src="cloud-config.js"></script>
 <script src="cloud.js?v=83"></script>
-<script src="tagesabschluss.js?v=95"></script>
+<script src="tagesabschluss.js?v=97"></script>
 
 
 
