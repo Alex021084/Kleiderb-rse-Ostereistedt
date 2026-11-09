@@ -1185,6 +1185,13 @@ window.KBCloud={
     updateCloudBanner();
   },
   isSignedIn:authSessionValid,
+  verifyConnection:async()=>{
+    if(!cloudReady()) throw new Error("Cloud ist nicht eingerichtet.");
+    if(!authSessionValid()) throw new Error("Bitte zuerst anmelden.");
+    // Tatsächlicher Supabase-Aufruf statt nur Prüfung eines lokal gespeicherten Tokens.
+    await apiRequest("receipts?select=id&limit=1");
+    return true;
+  },
 
   registerPicker,
 
