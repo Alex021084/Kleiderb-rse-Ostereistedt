@@ -173,13 +173,18 @@ async function authRefresh(){
 }
 
 function apiHeaders(extra={}){
-  return Object.assign(
-    {
-      "apikey": KB_CLOUD.key,
-      "Content-Type":"application/json"
-    },
-    extra
-  );
+  const session=getAuthSession();
+  const headers={
+    "apikey": KB_CLOUD.key,
+    "Content-Type":"application/json"
+  };
+  // Supabase REST muss den angemeldeten Benutzer-Token erhalten.
+  // Ohne Authorization-Header laufen Anfragen nur als anon-Rolle und
+  // können durch RLS leer zurückkommen, obwohl die Anmeldung angezeigt wird.
+  if(session?.access_token){
+    headers["Authorization"]="Bearer "+session.access_token;
+  }
+  return Object.assign(headers,extra);
 }
 
 async function apiRequest(path,options={}){
@@ -204,19 +209,20 @@ async function apiRequest(path,options={}){
   );
 
   if(response.status === 401){
-    // Ein noch nicht abgelaufener, aber vom Server abgewiesener Token
-    // wird einmal erneuert und die Anfrage anschließend wiederholt.
+    // Abgelaufene Sitzung einmal erneuern und Anfrage mit neuem Bearer-Token wiederholen.
     const session=getAuthSession();
     if(session?.refresh_token && !options.__authRetried){
       const refreshed=await authRefresh();
       if(refreshed){
-        return apiRequest(path,Object.assign({},options,{__authRetried:true}));
+        const retryOptions=Object.assign({},options,{__authRetried:true});
+        delete retryOptions.headers;
+        return apiRequest(path,retryOptions);
       }
     }
     clearAuthSession();
     showLogin();
     updateCloudBanner();
-    throw new Error("Cloud-Sitzung abgelaufen. Bitte erneut anmelden.");
+    throw new Error("Cloud-Sitzung abgelaufen oder nicht berechtigt. Bitte erneut anmelden.");
   }
 
   let data = null;
