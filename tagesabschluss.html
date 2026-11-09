@@ -176,5 +176,24 @@
 <script src="cloud-config.js"></script>
 <script src="cloud.js?v=81"></script>
 <script src="tagesabschluss.js?v=90"></script>
+
+
+<div id="floatNumberPad" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:18px">
+ <div style="width:min(340px,100%);background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+   <strong style="font-size:18px">Wechselgeld eingeben</strong>
+   <button id="floatPadClose" type="button" aria-label="Schließen" style="border:0;background:#eef2f7;border-radius:9px;padding:8px 12px;font-size:18px">✕</button>
+  </div>
+  <div id="floatPadDisplay" style="background:#f1f5f9;border-radius:12px;padding:14px;text-align:right;font-size:30px;font-weight:800;margin-bottom:12px">0,00 €</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
+   <button type="button" data-float-key="1">1</button><button type="button" data-float-key="2">2</button><button type="button" data-float-key="3">3</button>
+   <button type="button" data-float-key="4">4</button><button type="button" data-float-key="5">5</button><button type="button" data-float-key="6">6</button>
+   <button type="button" data-float-key="7">7</button><button type="button" data-float-key="8">8</button><button type="button" data-float-key="9">9</button>
+   <button type="button" data-float-key="clear">C</button><button type="button" data-float-key="0">0</button><button type="button" data-float-key=",">,</button>
+  </div>
+  <button id="floatPadApply" type="button" style="width:100%;margin-top:12px;background:#15803d;color:white;border:0;border-radius:12px;padding:14px;font-size:18px;font-weight:800">Übernehmen</button>
+ </div>
+</div>
+
 </body>
 </html>

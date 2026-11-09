@@ -890,6 +890,31 @@ function makeZip(entries){
   return new Blob([body,cd,end],{type:"application/zip"});
 }
 
+
+const floatPad=$("floatNumberPad"),floatPadDisplay=$("floatPadDisplay"),floatInput=$("accountingFloatInput");
+let floatPadValue="";
+function showFloatPad(){
+ floatPadValue=String(floatInput.value||"").replace(".",",");
+ if(!floatPadValue)floatPadValue="0";
+ floatPadDisplay.textContent=floatPadValue+" €";
+ floatPad.style.display="flex";
+}
+function hideFloatPad(){floatPad.style.display="none";}
+floatInput.addEventListener("click",showFloatPad);
+floatInput.addEventListener("focus",showFloatPad);
+$("floatPadClose").addEventListener("click",hideFloatPad);
+$("floatPadApply").addEventListener("click",()=>{
+ floatInput.value=floatPadValue.replace(/,$/,"");
+ hideFloatPad();
+});
+floatPad.querySelectorAll("[data-float-key]").forEach(button=>button.addEventListener("click",()=>{
+ const key=button.dataset.floatKey;
+ if(key==="clear")floatPadValue="";
+ else if(key===","&&!floatPadValue.includes(","))floatPadValue+=(floatPadValue?",":"0,");
+ else if(/^\\d$/.test(key))floatPadValue=(floatPadValue==="0"?key:floatPadValue)+key;
+ floatPadDisplay.textContent=(floatPadValue||"0")+" €";
+}));
+
 $("refreshButton").addEventListener("click",render);
 $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
