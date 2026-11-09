@@ -192,7 +192,7 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
      return `<details class="receipt-register-group" data-register="${esc(k)}"><summary><span><strong>${esc(k)}</strong><span class="receipt-group-meta">${list.length} ${list.length===1?"Bon":"Bons"} · ${articleTotal} ${articleTotal===1?"Artikel":"Artikel"}</span></span><span class="receipt-group-arrow">›</span></summary><div class="receipt-group-list"></div></details>`;
    }).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
    receiptRows.querySelectorAll(".receipt-register-group").forEach(group=>{
-     group.addEventListener("toggle",()=>{
+     group.addEventListener("toggle",async ()=>{
        if(!group.open || group.dataset.loaded==="1")return;
        const list=receiptGroups[group.dataset.register]||[];
        const target=group.querySelector(".receipt-group-list");
@@ -227,7 +227,13 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
            if(oldNote!==newNote)changes.push(`Bezeichnung: ${oldNote||"—"} → ${newNote||"—"}`);
            return changes.length?`<div class="receipt-line-change">↳ ${changes.map(esc).join(" · ")}</div>`:"";
          };
-         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>${diffFor(x)}`).join(""):"<div class="receipt-line-meta">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
+         const articleHtml=its.length?its.map(x=>{
+           const sellerHtml=isUnassigned(x)
+             ? '<span class="unassigned-meta">Nicht zugeordnet'+((x.unassigned_note??x.unassignedNote)?' · '+esc(x.unassigned_note??x.unassignedNote):'')+'</span>'
+             : 'Verkäufer '+esc(x.seller_number??x.sellerNumber??"");
+           return '<div class="receipt-line-meta">'+sellerHtml+' · '+esc(x.size??"")+' · '+euro(priceOf(x))+'</div>'+diffFor(x);
+         }).join(""):'<div class="receipt-line-meta">Keine Einzelpositionen gespeichert.</div>';
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${articleHtml}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
        }).join("");
        target.querySelectorAll(".receipt-details").forEach((detail,index)=>{
          const receipt=list[index];
