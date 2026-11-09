@@ -1,0 +1,10 @@
+Kleiderbörse – Version 42
+
+Optische Verbesserung der Verbindungsanzeige:
+- Online: grünes WLAN-Symbol und „Online · Cloud verbunden“
+- Offline: orangefarbenes WLAN-aus-Symbol und Hinweis auf lokale Speicherung
+- Synchronisierung: blaues Synchronisationssymbol mit Anzahl der wartenden Bons
+- Anzeige berücksichtigt den iPhone/iPad-Sicherheitsabstand am unteren Bildschirmrand
+
+Die Offline-Speicherung und Synchronisierung aus Version 41 bleiben erhalten.
+Keine zusätzliche SQL-Migration erforderlich.

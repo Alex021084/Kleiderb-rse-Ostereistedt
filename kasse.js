@@ -17,7 +17,22 @@ let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",toyTy
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
 function offlineQueue(){try{return JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]")}catch(e){return []}}
 function saveOfflineQueue(q){localStorage.setItem("kb_offline_receipts",JSON.stringify(q));if(KBCloud.updateCloudBanner)KBCloud.updateCloudBanner()}
-async function syncOfflineReceipts(){if(!navigator.onLine||!KBCloud.cloudReady()||!KBCloud.cloudCreateReceipt)return;const q=offlineQueue();if(!q.length)return;for(const entry of q){try{const previousRegister=KBCloud.KB_CLOUD.register;KBCloud.KB_CLOUD.register=entry.registerId;await KBCloud.cloudCreateReceipt(entry.items,entry.payment,entry.paymentMeta,entry.clientUuid);KBCloud.KB_CLOUD.register=previousRegister;saveOfflineQueue(offlineQueue().filter(x=>x.clientUuid!==entry.clientUuid));}catch(e){console.warn("Offline-Synchronisierung wartet:",e);break}}}
+async function syncOfflineReceipts(){
+ if(!navigator.onLine||!KBCloud.cloudReady()||!KBCloud.cloudCreateReceipt)return;
+ const q=offlineQueue();if(!q.length)return;
+ window.kbOfflineSyncing=true;if(KBCloud.updateCloudBanner)KBCloud.updateCloudBanner();
+ try{
+  for(const entry of q){
+   let previousRegister=KBCloud.KB_CLOUD.register;
+   try{
+    KBCloud.KB_CLOUD.register=entry.registerId;
+    await KBCloud.cloudCreateReceipt(entry.items,entry.payment,entry.paymentMeta,entry.clientUuid);
+    saveOfflineQueue(offlineQueue().filter(x=>x.clientUuid!==entry.clientUuid));
+   }catch(e){console.warn("Offline-Synchronisierung wartet:",e);break}
+   finally{KBCloud.KB_CLOUD.register=previousRegister}
+  }
+ }finally{window.kbOfflineSyncing=false;if(KBCloud.updateCloudBanner)KBCloud.updateCloudBanner()}
+}
 window.addEventListener("online",()=>{setTimeout(syncOfflineReceipts,1200)});
 // Verkäufernummern robust vergleichen (Zahl/String, Leerzeichen und unsichtbare Zeichen).
 function sellerNumberKey(value){

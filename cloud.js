@@ -1036,44 +1036,73 @@ async function cloudSaveRegisterFloat(registerId,amount){
 window.addEventListener("online",()=>setTimeout(updateCloudBanner,300));
 window.addEventListener("offline",updateCloudBanner);
 function cloudBanner(){
-
   if(!document.getElementById("cloudStatus")){
-
     const e=document.createElement("div");
-
     e.id="cloudStatus";
-
-    e.style.cssText=
-      "position:fixed;bottom:8px;left:50%;"+
-      "transform:translateX(-50%);z-index:9999;"+
-      "padding:8px 14px;border-radius:999px;"+
-      "background:#172033;color:#fff;"+
-      "font:600 13px system-ui;"+
-      "box-shadow:0 4px 14px #0002;";
-
+    e.setAttribute("role","status");
+    e.setAttribute("aria-live","polite");
+    e.style.cssText=[
+      "position:fixed",
+      "left:50%",
+      "bottom:calc(18px + env(safe-area-inset-bottom, 0px))",
+      "transform:translateX(-50%)",
+      "z-index:9999",
+      "display:flex",
+      "align-items:center",
+      "gap:9px",
+      "min-height:44px",
+      "max-width:calc(100vw - 28px)",
+      "box-sizing:border-box",
+      "padding:9px 16px",
+      "border:1px solid rgba(255,255,255,.16)",
+      "border-radius:16px",
+      "background:#172033",
+      "color:#fff",
+      "font:700 14px/1.25 system-ui,-apple-system,sans-serif",
+      "box-shadow:0 8px 24px rgba(15,23,42,.22)",
+      "white-space:normal",
+      "text-align:left"
+    ].join(";");
     document.body.appendChild(e);
   }
-
   updateCloudBanner();
 }
 
-
 function updateCloudBanner(){
-
-  const e=
-    document.getElementById(
-      "cloudStatus"
-    );
-
-  if(!e)
-    return;
-
-  let pending=0;try{pending=JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]").length}catch(ignore){}
-  if(!navigator.onLine){e.textContent="⚠ Offline · lokal gespeichert"+(pending?" · "+pending+" Bons warten":"");}
-  else if(pending){e.textContent="⟳ "+pending+" Bons warten auf Synchronisierung";}
-  else if(!cloudReady()){e.textContent="☁ Cloud noch nicht eingerichtet";}
-  else if(authSessionValid()){e.textContent="☁ Cloud verbunden · "+KB_CLOUD.register;}
-  else{e.textContent="☁ Bitte anmelden";}
+  const e=document.getElementById("cloudStatus");
+  if(!e)return;
+  let pending=0;
+  try{pending=JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]").length}catch(ignore){}
+  let mode="online",label="",icon="";
+  if(!navigator.onLine){
+    mode="offline";label="Offline · lokal gespeichert";icon="wifi-off";
+    if(pending)label+=" · "+pending+" "+(pending===1?"Bon wartet":"Bons warten");
+  }else if(pending && window.kbOfflineSyncing){
+    mode="pending";label="Synchronisiere "+pending+" "+(pending===1?"Bon":"Bons")+" …";icon="refresh";
+  }else if(pending){
+    mode="pending";label=pending+" "+(pending===1?"Bon wartet":"Bons warten")+" auf Synchronisierung";icon="refresh";
+  }else if(!cloudReady()){
+    mode="pending";label="Cloud noch nicht eingerichtet";icon="cloud-off";
+  }else if(authSessionValid()){
+    mode="online";label="Online · Cloud verbunden · "+KB_CLOUD.register;icon="wifi";
+  }else{
+    mode="pending";label="Bitte anmelden";icon="cloud";
+  }
+  const icons={
+    wifi:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.8a15.5 15.5 0 0 1 20 0M5 12a10.8 10.8 0 0 1 14 0m-10.8 3.2a5.7 5.7 0 0 1 7.6 0M12 19h.01" /></svg>',
+    "wifi-off":'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.8a15.5 15.5 0 0 1 14.5-2.2M5 12a10.8 10.8 0 0 1 8-2.2M8.2 15.2a5.7 5.7 0 0 1 3.8-1.4M12 19h.01M2 2l20 20" /></svg>',
+    refresh:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3" /></svg>',
+    "cloud-off":'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M7 17H6a4 4 0 0 1-.4-8A7 7 0 0 1 18 7" /></svg>',
+    cloud:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .4-8A7 7 0 0 0 4 9.5 4.3 4.3 0 0 0 7 18Z" /></svg>'
+  };
+  const color=mode==="online"?"#238248":mode==="offline"?"#b66a12":"#3657c8";
+  const bg=mode==="online"?"#edf8f0":mode==="offline"?"#fff5e8":"#eef2ff";
+  const fg=mode==="online"?"#176b38":mode==="offline"?"#92520b":"#2946b5";
+  e.style.background=bg;
+  e.style.color=fg;
+  e.style.borderColor=mode==="online"?"#ccebd5":mode==="offline"?"#f2d7b2":"#d8e0ff";
+  e.innerHTML='<span style="width:22px;height:22px;display:inline-flex;flex:0 0 22px;color:'+color+'"><style>#cloudStatus svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}</style>'+icons[icon]+'</span><span></span>';
+  e.lastElementChild.textContent=label;
 }
 
 

@@ -23,3 +23,6 @@ separat umgesetzt werden.
 
 v2 Änderung:
 Auf iPhone/iPad ist das Verkäufer-Popup jetzt selbst scrollbar. Der Hintergrund wird beim geöffneten Popup gesperrt. Die übrige Oberfläche bleibt unverändert.
+
+
+Version 42: Die Verbindungsanzeige wurde optisch überarbeitet. Sie zeigt Online (grün mit WLAN-Symbol), Offline (orange mit WLAN-aus-Symbol) und laufende/ausstehende Synchronisierung (blau) an.

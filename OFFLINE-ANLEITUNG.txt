@@ -30,3 +30,6 @@ Empfohlener Test:
 4. Anzeige muss Offline / wartende Bons zeigen.
 5. Flugmodus ausschalten und einige Sekunden warten.
 6. In der Buchhaltung prüfen, ob der Bon genau einmal angekommen ist.
+
+
+Version 42: Die Verbindungsanzeige wurde optisch überarbeitet. Sie zeigt Online (grün mit WLAN-Symbol), Offline (orange mit WLAN-aus-Symbol) und laufende/ausstehende Synchronisierung (blau) an.
