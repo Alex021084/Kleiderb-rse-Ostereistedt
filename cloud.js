@@ -531,7 +531,8 @@ async function cloudDeleteSeller(id){
 
 async function cloudCreateReceipt(
   items,
-  payment
+  payment,
+  paymentMeta={}
 ){
 
   await cloudClient();
@@ -559,7 +560,10 @@ async function cloudCreateReceipt(
 
           payment:payment,
 
-          total:total
+          total:total,
+          payment_note:String(paymentMeta.note||""),
+          cash_received:paymentMeta.cashReceived==null?null:Number(paymentMeta.cashReceived),
+          change_given:paymentMeta.changeGiven==null?null:Number(paymentMeta.changeGiven)
         })
       }
     );

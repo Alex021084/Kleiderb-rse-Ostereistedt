@@ -1,0 +1,14 @@
+Version 16 – Zahlungsablauf (Zwischenschritt)
+
+Neu:
+- Barzahlung öffnet zuerst den Wechselgeldrechner.
+- Der Verkauf wird erst bestätigt, wenn der erhaltene Betrag mindestens dem Rechnungsbetrag entspricht.
+- EC und PayPal öffnen eine Bestätigungsansicht mit optionaler Notiz.
+- Zurück führt zum Zahlungsdialog; die Artikelliste bleibt erhalten.
+- Zahlungsnotiz, erhaltenes Bargeld und Rückgeld werden am Kassenbon gespeichert.
+
+Wichtig:
+Vor dem Einsatz CLOUD-MIGRATION-V68.sql im Supabase SQL Editor ausführen.
+Diese Version enthält noch NICHT die Wechselgeld-Anfangsbestandskachel in der Buchhaltung
+und die fortlaufende Wechselgeldbestandsverwaltung je Kasse. Diese Funktion benötigt
+eine gesonderte, rollenabgesicherte Cloud-Implementierung.

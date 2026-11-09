@@ -5,6 +5,8 @@ const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
+const cashChangeModal=$("cashChangeModal"),cashReceived=$("cashReceived"),cashDue=$("cashDue"),cashChange=$("cashChange"),nonCashConfirmModal=$("nonCashConfirmModal"),paymentNote=$("paymentNote");
+let pendingPayment=null;
 const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),mobilePriceValue=$("mobilePriceValue"),mobileInputValue=$("mobileInputValue"),closeMobileKeypad=$("closeMobileKeypad");
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
@@ -64,7 +66,7 @@ function render(){
  liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()
 }
 function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}${x.unassignedPhoto?" · 📷":""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
-async function saveSale(payment){
+async function saveSale(payment, paymentMeta={}){
  if(savingSale)return;
  if(!currentItems.length)return;
  savingSale=true;
@@ -77,12 +79,12 @@ async function saveSale(payment){
    });
    let receiptNo=null;
    if(KBCloud.cloudReady()){
-     const receipt=await KBCloud.cloudCreateReceipt(prepared,payment);
+     const receipt=await KBCloud.cloudCreateReceipt(prepared,payment,paymentMeta);
      receiptNo=receipt.receipt_no ?? receipt.id;
    }else{
      const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();
      const receiptId=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;
-     prepared.forEach(x=>sales.push({...x,payment,timestamp,receiptId,registerId:KBCloud.KB_CLOUD.register}));
+     prepared.forEach(x=>sales.push({...x,payment,paymentNote:paymentMeta.note||"",cashReceived:paymentMeta.cashReceived??null,changeGiven:paymentMeta.changeGiven??null,timestamp,receiptId,registerId:KBCloud.KB_CLOUD.register}));
      localStorage.setItem("kb_sales",JSON.stringify(sales));
      receiptNo=receiptId.slice(0,8).toUpperCase();
    }
@@ -287,8 +289,47 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  if(activeInput==="seller")checkSeller();else { update(); if(mobilePriceValue){ mobilePriceValue.textContent=euro(priceValue()); mobilePriceValue.classList.add("show"); } }
 }));
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
-closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));const backToRegister=$("backToRegister");if(backToRegister)backToRegister.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
-document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
+closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));
+$("backToRegister").addEventListener("click",()=>paymentModal.classList.remove("is-open"));
+newSaleButton.addEventListener("click",newSale);
+function openCashChange(){
+ const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
+ cashDue.textContent=euro(total);cashReceived.value=total.toFixed(2);updateCashChange();paymentModal.classList.remove("is-open");cashChangeModal.classList.add("is-open");cashReceived.focus();
+}
+function updateCashChange(){
+ const given=Number(String(cashReceived.value||"").replace(",", "."))||0;
+ const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
+ cashChange.textContent=euro(Math.max(0,given-total));
+}
+cashReceived.addEventListener("input",updateCashChange);
+function returnToPayment(modal){modal.classList.remove("is-open");paymentModal.classList.add("is-open");}
+$("cancelCashChange").addEventListener("click",()=>returnToPayment(cashChangeModal));
+$("cashBack").addEventListener("click",()=>returnToPayment(cashChangeModal));
+$("confirmCash").addEventListener("click",async()=>{
+ const given=Number(String(cashReceived.value||"").replace(",", "."))||0;
+ const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
+ if(given+0.00001<total){alert("Der erhaltene Betrag ist kleiner als der zu zahlende Betrag.");return;}
+ cashChangeModal.classList.remove("is-open");
+ await saveSale("Bar",{cashReceived:given,changeGiven:Math.round((given-total)*100)/100});
+});
+function openNonCash(payment){
+ pendingPayment=payment;
+ $("nonCashTitle").textContent=payment+"-Zahlung bestätigen";
+ $("nonCashDue").textContent="Betrag: "+euro(currentItems.reduce((a,x)=>a+Number(x.price||0),0));
+ paymentNote.value="";
+ paymentModal.classList.remove("is-open");nonCashConfirmModal.classList.add("is-open");
+}
+$("cancelNonCash").addEventListener("click",()=>returnToPayment(nonCashConfirmModal));
+$("nonCashBack").addEventListener("click",()=>returnToPayment(nonCashConfirmModal));
+$("confirmNonCash").addEventListener("click",async()=>{
+ if(!pendingPayment)return;
+ const method=pendingPayment,note=paymentNote.value.trim();pendingPayment=null;
+ nonCashConfirmModal.classList.remove("is-open");await saveSale(method,{note});
+});
+document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>{
+ const method=b.dataset.payment;
+ if(method==="Bar")openCashChange();else openNonCash(method);
+}));
 function getSelectedRegister(){
   const q=new URLSearchParams(window.location.search).get("kasse");
   if(q && /^[1-6]$/.test(q)){
