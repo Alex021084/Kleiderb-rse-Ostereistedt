@@ -97,28 +97,29 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
   const t=Number(r.total);
   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
 },0);
- // Sollbestand: Wechselgeld-Startbestand plus Bareinnahmen der ausgewählten Kasse.
+ // Sollbestand: Wechselgeld-Startbestand plus Bareinnahmen.
+ // Bei "Alle Kassen" werden die sechs getrennten Startbestände addiert.
  const targetHint=$("cashTargetHint"),targetStart=$("cashTargetStart"),targetSales=$("cashTargetSales"),targetTotal=$("cashTargetTotal");
  const targetRegister=selectedRegister;
- if(targetRegister==="Alle Kassen"){
-  targetHint.textContent="Bitte oben eine einzelne Kasse auswählen, damit der Sollbestand eindeutig berechnet werden kann.";
-  targetStart.textContent=targetSales.textContent=targetTotal.textContent="—";
- }else{
-  targetHint.textContent="Erwarteter Bargeldbestand für "+targetRegister+" am Ende des Börsentages.";
-  targetStart.textContent=targetSales.textContent=targetTotal.textContent="Wird geladen …";
-  try{
-   const floatRow=await KBCloud.cloudGetRegisterFloat(targetRegister);
-   if(targetRegister===selectedRegister){
-    const startAmount=Number(floatRow?.amount||0);
-    targetStart.textContent=euro(startAmount);
-    targetSales.textContent=euro(cash);
-    targetTotal.textContent=euro(startAmount+cash);
-   }
-  }catch(error){
-   if(targetRegister===selectedRegister){
-    targetStart.textContent="Nicht verfügbar";targetSales.textContent=euro(cash);targetTotal.textContent="—";
-    targetHint.textContent="Startbestand konnte nicht geladen werden. Bitte Datenbankverbindung prüfen.";
-   }
+ targetStart.textContent=targetSales.textContent=targetTotal.textContent="Wird geladen …";
+ try{
+  const registerNames=targetRegister==="Alle Kassen"
+   ? ["Kasse 1","Kasse 2","Kasse 3","Kasse 4","Kasse 5","Kasse 6"]
+   : [targetRegister];
+  const floatRows=await Promise.all(registerNames.map(name=>KBCloud.cloudGetRegisterFloat(name)));
+  if(targetRegister===selectedRegister){
+   const startAmount=floatRows.reduce((sum,row)=>sum+Math.max(0,Number(row?.amount)||0),0);
+   targetHint.textContent=targetRegister==="Alle Kassen"
+    ? "Erwarteter Bargeldbestand aller sechs Kassen zusammen am Ende des Börsentages."
+    : "Erwarteter Bargeldbestand für "+targetRegister+" am Ende des Börsentages.";
+   targetStart.textContent=euro(startAmount);
+   targetSales.textContent=euro(cash);
+   targetTotal.textContent=euro(startAmount+cash);
+  }
+ }catch(error){
+  if(targetRegister===selectedRegister){
+   targetStart.textContent="Nicht verfügbar";targetSales.textContent=euro(cash);targetTotal.textContent="—";
+   targetHint.textContent="Startbestand konnte nicht geladen werden. Bitte Datenbankverbindung prüfen.";
   }
  }
  const commission=items.reduce((a,x)=>a+priceOf(x)*currentRateForItem(x),0),payout=total-commission;
