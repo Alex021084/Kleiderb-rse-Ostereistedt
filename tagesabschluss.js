@@ -197,11 +197,37 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
        const list=receiptGroups[group.dataset.register]||[];
        const target=group.querySelector(".receipt-group-list");
        if(!target)return;
+       const historyByReceipt=new Map();
+       await Promise.all(list.filter(r=>editedReceiptIds.has(String(r.id))).map(async r=>{
+         try{
+           const history=await KBCloud.cloudGetReceiptHistory(r.id);
+           if(history&&history.length) historyByReceipt.set(String(r.id),history[0]);
+         }catch(error){console.warn("Bon-Änderungen konnten nicht geladen werden:",error);}
+       }));
        target.innerHTML=list.map(r=>{
          const its=itemsOf(r), totalR=its.reduce((a,x)=>a+priceOf(x),0);
          const d=new Date(r.created_at);
          const changed=editedReceiptIds.has(String(r.id));
-         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
+         const hist=historyByReceipt.get(String(r.id));
+         const oldItems=hist?.old_snapshot?.receipt_items||[];
+         const diffFor=(item)=>{
+           const old=oldItems.find(o=>String(o.id)===String(item.id));
+           if(!old)return "";
+           const changes=[];
+           const oldSeller=String(old.seller_number??old.sellerNumber??"");
+           const newSeller=String(item.seller_number??item.sellerNumber??"");
+           const oldSize=String(old.size??"");
+           const newSize=String(item.size??"");
+           if(oldSeller!==newSeller)changes.push(`Verkäufer: ${oldSeller||"—"} → ${newSeller||"—"}`);
+           if(oldSize!==newSize)changes.push(`Merkmal/Größe: ${oldSize||"—"} → ${newSize||"—"}`);
+           const oldPrice=Number(old.price??0),newPrice=priceOf(item);
+           if(Math.round(oldPrice*100)!==Math.round(newPrice*100))changes.push(`Preis: ${euro(oldPrice)} → ${euro(newPrice)}`);
+           const oldNote=String(old.unassigned_note??old.unassignedNote??"");
+           const newNote=String(item.unassigned_note??item.unassignedNote??"");
+           if(oldNote!==newNote)changes.push(`Bezeichnung: ${oldNote||"—"} → ${newNote||"—"}`);
+           return changes.length?`<div class="receipt-line-change">↳ ${changes.map(esc).join(" · ")}</div>`:"";
+         };
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>${diffFor(x)}`).join(""):"<div class="receipt-line-meta">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
        }).join("");
        target.querySelectorAll(".receipt-details").forEach((detail,index)=>{
          const receipt=list[index];

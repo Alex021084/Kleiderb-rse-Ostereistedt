@@ -716,3 +716,9 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
  border:1px solid #f3c969;border-radius:999px;background:#fff7df;color:#8a4b08;
  font-size:.78em;font-weight:800;white-space:nowrap;vertical-align:middle;
 }
+
+/* Kleine rote Änderungsdetails direkt unter der betroffenen Artikelzeile */
+.receipt-line-change{
+ color:#c62828;font-size:.72em;line-height:1.25;font-weight:700;
+ margin:-2px 0 7px 12px;overflow-wrap:anywhere;
+}
