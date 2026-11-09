@@ -767,3 +767,55 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
   .top a{font-size:13px;padding:9px 10px}
   .top-cloud-status{max-width:48vw;min-height:36px;padding:6px 9px;font-size:11px}
 }
+
+
+/* Version 46: Buchhaltungs-Kopfzeile – explizit links/rechts, unabhängig von alten Styles */
+header.top{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  width:100%!important;
+  min-height:68px!important;
+  height:auto!important;
+  padding:10px 16px!important;
+  gap:12px!important;
+  overflow:visible!important;
+}
+header.top::before,header.top::after{content:none!important;display:none!important}
+header.top>a{
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  inset:auto!important;
+  z-index:5!important;
+  min-width:max-content!important;
+  min-height:44px!important;
+  margin:0!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+header.top>#cloudStatus{
+  display:inline-flex!important;
+  flex:0 1 auto!important;
+  position:relative!important;
+  inset:auto!important;
+  right:auto!important;
+  left:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  z-index:5!important;
+  margin:0 0 0 auto!important;
+  width:auto!important;
+  max-width:min(48vw,360px)!important;
+  min-width:0!important;
+  border-radius:999px!important;
+  box-sizing:border-box!important;
+}
+header.top>h1,header.top>h2,header.top>strong,header.top>.page-title{display:none!important}
+@media(max-width:700px){
+ header.top{min-height:64px!important;padding:8px 10px!important;gap:8px!important}
+ header.top>a{font-size:13px!important;padding:9px 10px!important}
+ header.top>#cloudStatus{max-width:50vw!important;font-size:11px!important}
+}

@@ -1,0 +1,5 @@
+Version 46 – Korrektur Buchhaltungs-Kopfzeile
+
+Diese Version erzwingt die Kopfzeile im Tagesabschluss: Buchhaltungsbutton links, Cloud-/WLAN-Status rechts mit runden Ecken. Versteckt zusätzliche Titel-Elemente im dunklen Balken. Wichtig: CSS/JS Cache-Buster wurden erhöht, damit iPad Safari nicht die alten Styles der vorherigen Version verwendet.
+
+Bitte alle Dateien der ZIP in GitHub überschreiben und danach die Web-App vollständig schließen und neu über das Home-Bildschirm-Symbol öffnen. Wenn nötig, GitHub Pages kurz Zeit zum Veröffentlichen geben.
