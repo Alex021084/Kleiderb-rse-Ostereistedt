@@ -1,0 +1,5 @@
+Version 44 – iPad/iPhone Home-Bildschirm-Modus
+
+Diese Version ergänzt die Apple-Web-App-Metadaten und ein Web-App-Manifest, damit die Kleiderbörse beim Start über das Home-Bildschirm-Symbol möglichst ohne Safari-Bedienelemente geöffnet wird.
+
+WICHTIG: Bereits vorhandene Home-Bildschirm-Verknüpfungen übernehmen neue Web-App-Metadaten unter iOS nicht immer. Nach dem Aktualisieren bitte das alte Kleiderbörse-Symbol vom Home-Bildschirm entfernen und die Seite in Safari erneut über Teilen > Zum Home-Bildschirm hinzufügen. Anschließend ausschließlich das neu angelegte Symbol öffnen. iOS kann Statusleiste/Uhrzeit weiterhin anzeigen.
