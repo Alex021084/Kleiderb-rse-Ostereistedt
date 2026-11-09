@@ -3,6 +3,42 @@ function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",cu
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 let selectedRegister="Alle Kassen";
 
+const accountingFloatInput=$("accountingFloatInput");
+const accountingFloatStatus=$("accountingFloatStatus");
+const accountingFloatRegister=$("accountingFloatRegister");
+const saveAccountingFloat=$("saveAccountingFloat");
+function parseAccountingEuro(value){
+ const raw=String(value??"").trim().replace(/\\s/g,"").replace(/\\./g,"").replace(",",".");
+ if(!raw)return NaN;
+ const amount=Number(raw);
+ return Number.isFinite(amount)&&amount>=0?Math.round(amount*100)/100:NaN;
+}
+async function loadAccountingFloat(){
+ const single=selectedRegister!=="Alle Kassen";
+ accountingFloatInput.disabled=!single;
+ saveAccountingFloat.disabled=!single;
+ accountingFloatRegister.textContent=single?selectedRegister:"alle Kassen";
+ if(!single){accountingFloatInput.value="";accountingFloatStatus.textContent="Bitte eine einzelne Kasse auswählen, um deren Startbestand zu sehen oder zu ändern.";return;}
+ accountingFloatInput.disabled=true;saveAccountingFloat.disabled=true;
+ accountingFloatStatus.textContent="Gespeicherter Startbestand wird geladen …";
+ try{
+  const row=await KBCloud.cloudGetRegisterFloat(selectedRegister);
+  accountingFloatInput.value=Number(row?.amount||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  accountingFloatStatus.textContent=row?"Letzter gespeicherter Betrag – wird automatisch weitergeführt.":"Für diese Kasse ist noch kein Startbestand hinterlegt.";
+ }catch(error){accountingFloatStatus.textContent="Startbestand konnte nicht geladen werden: "+(error.message||error);}
+ accountingFloatInput.disabled=false;saveAccountingFloat.disabled=false;
+}
+saveAccountingFloat.addEventListener("click",async()=>{
+ const amount=parseAccountingEuro(accountingFloatInput.value);
+ if(!Number.isFinite(amount)){alert("Bitte einen gültigen Betrag eingeben, z. B. 100,00.");accountingFloatInput.focus();return;}
+ saveAccountingFloat.disabled=true;accountingFloatStatus.textContent="Wird gespeichert …";
+ try{
+  await KBCloud.cloudSaveRegisterFloat(selectedRegister,amount);
+  accountingFloatInput.value=amount.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  accountingFloatStatus.textContent="✓ Wechselgeld-Startbestand für "+selectedRegister+" gespeichert.";
+ }catch(error){accountingFloatStatus.textContent="Speichern fehlgeschlagen: "+(error.message||error);}
+ finally{saveAccountingFloat.disabled=false;}
+});
 async function loadData(){
  if(KBCloud.cloudReady()) return await KBCloud.cloudGetReceipts();
  const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),groups={};
@@ -818,7 +854,8 @@ $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
 document.querySelectorAll(".register-filter-button").forEach(btn=>btn.addEventListener("click",()=>{
  selectedRegister=btn.dataset.register;
+ loadAccountingFloat();
  document.querySelectorAll(".register-filter-button").forEach(b=>b.classList.toggle("selected",b===btn));
  render();
 }));
-KBCloud.cloudBanner();render();
+KBCloud.cloudBanner();loadAccountingFloat();render();
