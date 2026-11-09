@@ -242,3 +242,5 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 #toyModal .toy-type-grid > button:focus-visible{outline:3px solid rgba(67,87,220,.22);outline-offset:2px}
 #toyModal .toy-custom-row input:focus{outline:none;border-color:#4357dc !important;box-shadow:0 0 0 3px rgba(67,87,220,.14)}
 #toyModal .toy-custom-row input:-webkit-autofill{-webkit-text-fill-color:#172033;transition:background-color 9999s ease-out}
+
+.payment-back{width:100%;margin-top:12px;min-height:46px;border:1px solid #d8dee8;border-radius:12px;background:#fff;color:#354052;font-size:15px;font-weight:700;cursor:pointer}.payment-back:active{background:#f1f4f8}

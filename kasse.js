@@ -287,7 +287,7 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  if(activeInput==="seller")checkSeller();else { update(); if(mobilePriceValue){ mobilePriceValue.textContent=euro(priceValue()); mobilePriceValue.classList.add("show"); } }
 }));
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
-closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
+closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));const backToRegister=$("backToRegister");if(backToRegister)backToRegister.addEventListener("click",()=>paymentModal.classList.remove("is-open"));newSaleButton.addEventListener("click",newSale);
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>saveSale(b.dataset.payment)));
 function getSelectedRegister(){
   const q=new URLSearchParams(window.location.search).get("kasse");
