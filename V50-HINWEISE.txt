@@ -1,0 +1,3 @@
+Version 50 – Kopfzeilen mit erzwungenen gemeinsamen Maßen
+
+Die vorherigen Regeln hatten auf der Kassenseite geringere CSS-Spezifität als bestehende .cash-register .top-Regeln. Version 50 setzt deshalb body header.top Regeln mit hoher Spezifität und !important in allen drei Stylesheets ans Ende. Gemeinsame Zielmaße: dunkler Balken 68px, Zurück/Buchhaltung-Schaltfläche 44px, Cloudstatus 44px hoch, identische Innenabstände, Schrift und Icon. Cache-Buster auf 50 erhöht.
