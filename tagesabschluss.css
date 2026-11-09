@@ -700,3 +700,12 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 .receipt-delete-actions #receiptDeleteAccept{background:#d92d3a;color:#fff;box-shadow:0 3px 8px rgba(217,45,58,.2)}
 .receipt-delete-actions button:active{transform:scale(.98)}
 @media(max-width:390px){.receipt-delete-dialog{padding:21px 16px 16px}.receipt-delete-summary{grid-template-columns:1fr 1fr}.receipt-delete-summary div:last-child{grid-column:1/-1}.receipt-delete-actions{flex-direction:column}}
+
+/* Wechselgeld-Startbestand: gut sichtbare Eingabe und klarer Speicherbutton */
+#floatBalanceAccounting{background:#f8fafc;border:1px solid #dbe3ef;box-shadow:0 3px 12px rgba(23,32,51,.04)}
+#accountingFloatInput{min-height:50px;background:#fff!important;color:#172033!important;box-sizing:border-box}
+#saveAccountingFloat{min-height:50px;padding:0 22px;border:0;border-radius:12px;background:#2457c5;color:#fff;font-size:16px;font-weight:800;box-shadow:0 3px 8px rgba(36,87,197,.22);cursor:pointer;touch-action:manipulation}
+#saveAccountingFloat:active{transform:scale(.98)}
+#saveAccountingFloat:disabled{opacity:.5;box-shadow:none}
+#accountingFloatStatus{line-height:1.45}
+@media(max-width:600px){#floatBalanceAccounting>div[style*="display:flex"]{align-items:stretch!important;flex-direction:column!important}#floatBalanceAccounting label{display:block}#saveAccountingFloat{width:100%;min-height:52px;font-size:17px}}
