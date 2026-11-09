@@ -305,3 +305,10 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
   #paymentModal .payment{height:62px;font-size:17px;}
   #paymentModal .payment-back{min-height:58px;font-size:17px;}
 }
+
+/* Version 43: Verbindungsstatus dauerhaft oben rechts in der Kassenleiste */
+.top{grid-template-columns:auto 1fr auto}
+.top-cloud-status{justify-self:end;display:inline-flex;align-items:center;justify-content:center;gap:7px;box-sizing:border-box;max-width:min(42vw,330px);min-height:34px;padding:6px 10px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:700 12px/1.2 system-ui,-apple-system,sans-serif;white-space:normal;text-align:left}
+.top-cloud-status>span:first-child{width:19px!important;height:19px!important;flex:0 0 19px!important}
+.top-cloud-status svg{width:19px!important;height:19px!important;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:700px){.top{padding:0 9px;gap:7px}.top a{font-size:12px;padding:8px 9px}.top strong{font-size:16px}.top-cloud-status{max-width:36vw;min-height:30px;padding:5px 7px;font-size:10px;gap:4px}.top-cloud-status>span:first-child{width:16px!important;height:16px!important;flex-basis:16px!important}.top-cloud-status svg{width:16px!important;height:16px!important}}

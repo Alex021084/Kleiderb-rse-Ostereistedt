@@ -1036,34 +1036,16 @@ async function cloudSaveRegisterFloat(registerId,amount){
 window.addEventListener("online",()=>setTimeout(updateCloudBanner,300));
 window.addEventListener("offline",updateCloudBanner);
 function cloudBanner(){
-  if(!document.getElementById("cloudStatus")){
-    const e=document.createElement("div");
+  let e=document.getElementById("cloudStatus");
+  if(!e){
+    e=document.createElement("div");
     e.id="cloudStatus";
+    e.className="top-cloud-status";
     e.setAttribute("role","status");
     e.setAttribute("aria-live","polite");
-    e.style.cssText=[
-      "position:fixed",
-      "left:50%",
-      "bottom:calc(18px + env(safe-area-inset-bottom, 0px))",
-      "transform:translateX(-50%)",
-      "z-index:9999",
-      "display:flex",
-      "align-items:center",
-      "gap:9px",
-      "min-height:44px",
-      "max-width:calc(100vw - 28px)",
-      "box-sizing:border-box",
-      "padding:9px 16px",
-      "border:1px solid rgba(255,255,255,.16)",
-      "border-radius:16px",
-      "background:#172033",
-      "color:#fff",
-      "font:700 14px/1.25 system-ui,-apple-system,sans-serif",
-      "box-shadow:0 8px 24px rgba(15,23,42,.22)",
-      "white-space:normal",
-      "text-align:left"
-    ].join(";");
-    document.body.appendChild(e);
+    const header=document.querySelector("header.top");
+    if(header) header.appendChild(e);
+    else document.body.appendChild(e);
   }
   updateCloudBanner();
 }
