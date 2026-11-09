@@ -911,7 +911,7 @@ floatPad.querySelectorAll("[data-float-key]").forEach(button=>button.addEventLis
  const key=button.dataset.floatKey;
  if(key==="clear")floatPadValue="";
  else if(key===","&&!floatPadValue.includes(","))floatPadValue+=(floatPadValue?",":"0,");
- else if(/^\\d$/.test(key))floatPadValue=(floatPadValue==="0"?key:floatPadValue)+key;
+ else if(/^\d$/.test(key))floatPadValue=(floatPadValue==="0"?key:floatPadValue)+key;
  floatPadDisplay.textContent=(floatPadValue||"0")+" €";
 }));
 
