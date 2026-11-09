@@ -1,0 +1,4 @@
+Version 47 – Kassen-Kopfzeile auf kleinen Bildschirmen
+
+Die zusätzliche Beschriftung 'Kasse 1' im dunklen Balken wird ausgeblendet. Die Kassen-/Zurück-Schaltfläche bleibt links, die Online-/Offline-Anzeige wird rechts ausgerichtet und auf schmalen Bildschirmen begrenzt, damit nichts überlappt. Die große Überschrift 'Kasse 1' im Seiteninhalt bleibt bestehen.
+Cache-Buster für kasse.css wurde erhöht.

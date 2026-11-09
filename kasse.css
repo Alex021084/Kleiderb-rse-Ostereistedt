@@ -312,3 +312,37 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 .top-cloud-status>span:first-child{width:19px!important;height:19px!important;flex:0 0 19px!important}
 .top-cloud-status svg{width:19px!important;height:19px!important;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:700px){.top{padding:0 9px;gap:7px}.top a{font-size:12px;padding:8px 9px}.top strong{font-size:16px}.top-cloud-status{max-width:36vw;min-height:30px;padding:5px 7px;font-size:10px;gap:4px}.top-cloud-status>span:first-child{width:16px!important;height:16px!important;flex-basis:16px!important}.top-cloud-status svg{width:16px!important;height:16px!important}}
+
+
+/* Version 47: kompakte Kopfzeile auf iPhone/iPad */
+.cash-register header.top{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:0 10px!important;
+  overflow:visible!important;
+}
+.cash-register header.top>strong#registerTitle{
+  display:none!important;
+}
+.cash-register header.top>a#backRoleLink{
+  justify-self:start!important;
+  min-width:0!important;
+}
+.cash-register header.top>#cloudStatus{
+  justify-self:end!important;
+  margin:0!important;
+  max-width:min(52vw,340px)!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  text-align:center!important;
+  border-radius:999px!important;
+}
+@media(max-width:700px){
+  .cash-register header.top{grid-template-columns:minmax(0,1fr) auto!important;gap:6px!important;padding:0 8px!important}
+  .cash-register header.top>a#backRoleLink{font-size:12px!important;padding:8px 9px!important}
+  .cash-register header.top>#cloudStatus{max-width:50vw!important;font-size:10px!important;line-height:1.15!important;padding:5px 8px!important}
+}

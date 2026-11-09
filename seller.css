@@ -89,3 +89,47 @@ label span{font-weight:400;color:#89919d}
 .percent-input span{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-weight:800;color:#687382}
 .commission-rate-wrap.hidden{display:none}
 
+
+
+/* Version 48: einheitliche Kopfzeile Verkäuferseite */
+header.top{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:0 10px!important;
+  overflow:visible!important;
+}
+header.top>strong{display:none!important}
+header.top>.home-link{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  justify-self:start!important;
+  min-width:0!important;
+  max-width:max-content!important;
+  z-index:3!important;
+}
+header.top>.home-link:active{transform:scale(.97)!important}
+header.top>#cloudStatus{
+  display:inline-flex!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  justify-self:end!important;
+  margin:0!important;
+  max-width:min(50vw,340px)!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  z-index:3!important;
+}
+@media(max-width:700px){
+ header.top{grid-template-columns:minmax(0,1fr) auto!important;gap:6px!important;padding:0 8px!important}
+ header.top>.home-link{font-size:12px!important;padding:8px 9px!important}
+ header.top>#cloudStatus{max-width:48vw!important;font-size:10px!important;line-height:1.15!important;padding:5px 8px!important}
+}

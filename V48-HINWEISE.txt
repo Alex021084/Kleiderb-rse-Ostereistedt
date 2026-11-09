@@ -1,0 +1,3 @@
+Version 48 – Kopfzeile Verkäuferseite
+
+Die Verkäuferseite hatte bisher eine eigene Kopfzeile ohne festen Statusplatz. Version 48 ergänzt dort den Cloudstatus ausdrücklich rechts und blendet den redundanten zentrierten Titel im dunklen Balken aus. Der Buchhaltungsbutton bleibt links. Cache-Buster für seller.css wurde erhöht.
