@@ -15,6 +15,14 @@ const toyModal=$("toyModal"),closeToy=$("closeToy"),toyTypeButtons=[...document.
 let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",toyType="",activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="",unassignedPhoto="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
+// Verkäufernummern robust vergleichen (Zahl/String, Leerzeichen und unsichtbare Zeichen).
+function sellerNumberKey(value){
+ return String(value??"").normalize("NFKC").replace(/[\\u200B-\\u200D\\uFEFF]/g,"").replace(/\\s+/g,"").trim();
+}
+function findSellerByNumber(value){
+ const key=sellerNumberKey(value);
+ return key ? getSellers().find(s=>sellerNumberKey(s.number??s.seller_number??s.verkaeufernummer)===key) : undefined;
+}
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
 function priceValue(){
  const raw=String(price.value||"").trim().replace(/\./g,",").replace(",", ".");
@@ -31,14 +39,14 @@ function checkSeller(){
  if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
  if(!n){sellerStatus.textContent="Bitte Verkäufernummer eingeben.";update();return false}
- const seller=getSellers().find(s=>String(s.number)===n);
+ const seller=findSellerByNumber(n);
  const ok=!!seller;
  sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
  sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden${String(seller.name||"").trim()?` · ${String(seller.name).trim()}`:""}`:"✕ Verkäufernummer nicht gefunden";update();return ok
 }
 function currentSize(){const s=document.querySelector(".size-button.selected");return isShoe?(shoeSize?`Schuhe ${shoeSize}`:""):isToy?(toyType?`Spielzeug ${toyType}`:""):(s?s.dataset.size:"")}
-function valid(){return (unassignedMode || getSellers().some(s=>String(s.number)===sellerNumber.value.trim()))&&!!currentSize()&&priceValue()>0}
-function update(){const sellerOk=unassignedMode||getSellers().some(s=>String(s.number)===sellerNumber.value.trim());const ok=sellerOk&&currentSize()&&priceValue()>0;addButton.disabled=!ok;finishButton.disabled=!(currentItems.length||ok)}
+function valid(){return (unassignedMode || !!findSellerByNumber(sellerNumber.value))&&!!currentSize()&&priceValue()>0}
+function update(){const sellerOk=unassignedMode||!!findSellerByNumber(sellerNumber.value);const ok=sellerOk&&currentSize()&&priceValue()>0;addButton.disabled=!ok;finishButton.disabled=!(currentItems.length||ok)}
 function selectSize(v){isToy=false;isShoe=false;shoeSize="";toyType="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
 function selectToy(){isToy=true;isShoe=false;shoeSize="";toyType="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));toyCustomInput.value="";toyTypeButtons.forEach(b=>b.classList.remove("selected"));toyModal.classList.add("is-open");setActive("price");update()}
 function closeToyModal(cancel=false){
@@ -72,7 +80,7 @@ async function saveSale(payment, paymentMeta={}){
  savingSale=true;
  try{
    const prepared=currentItems.map(x=>{
-     const seller=getSellers().find(s=>String(s.number)===String(x.sellerNumber));
+     const seller=findSellerByNumber(x.sellerNumber);
      const commissionEnabled=x.sellerNumber ? (seller?seller.commissionEnabled===true:true) : false;
      const commissionRate=x.sellerNumber && commissionEnabled ? Number(seller?.commissionRate??15)/100:0;
      return {...x,commissionEnabled,commissionRate};
@@ -144,7 +152,7 @@ async function renderUnassignedList(){
 }
 async function assignUnassigned(row,number){
   if(!number){alert('Bitte Verkäufernummer eingeben.');return;}
-  const seller=getSellers().find(s=>String(s.number)===String(number));
+  const seller=findSellerByNumber(number);
   if(!seller){alert('Verkäufernummer nicht gefunden.');return;}
   const enabled=seller.commissionEnabled===true;
   const rate=enabled?Number(seller.commissionRate??15)/100:0;
@@ -179,7 +187,7 @@ function updateMobileSellerStatus(){
     mobileSellerStatus.className="mobile-seller-status";
     return;
   }
-  const seller=getSellers().find(s=>String(s.number)===n);
+  const seller=findSellerByNumber(n);
   if(seller){
     mobileSellerStatus.textContent=`✓ Verkäufernummer gefunden${String(seller.name||"").trim()?` · ${String(seller.name).trim()}`:""}`;
     mobileSellerStatus.className="mobile-seller-status valid";
