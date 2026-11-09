@@ -253,3 +253,12 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 .payment-box label{display:block;font-weight:700;margin:10px 0 7px}
 .payment-note{width:100%;min-height:90px;border:1px solid #d7deea;border-radius:12px;padding:12px;font:inherit;resize:vertical}
 .payment-box .touch-input{width:100%;box-sizing:border-box}
+
+/* Eigenes großes Zahlenfeld für die Barzahlung – keine Geräte-Tastatur */
+.cash-received-display{background:#fff !important;cursor:default !important;-webkit-user-select:none;user-select:none}
+.cash-received-display::placeholder{color:#98a2b3}
+.cash-keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0 8px}
+.cash-keypad button{min-height:52px;border:1px solid #d7deea;border-radius:12px;background:#f4f6fa;color:#172033;font-size:22px;font-weight:800;box-shadow:none}
+.cash-keypad button:active{background:#e7ebf5;transform:scale(.98)}
+.cash-keypad button.cash-key-secondary{background:#e9edf5;color:#344054}
+@media(max-width:600px){.cash-keypad button{min-height:48px;font-size:21px}}

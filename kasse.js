@@ -294,7 +294,7 @@ $("backToRegister").addEventListener("click",()=>paymentModal.classList.remove("
 newSaleButton.addEventListener("click",newSale);
 function openCashChange(){
  const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
- cashDue.textContent=euro(total);cashReceived.value=total.toFixed(2);updateCashChange();paymentModal.classList.remove("is-open");cashChangeModal.classList.add("is-open");cashReceived.focus();
+ cashDue.textContent=euro(total);cashReceived.value="";updateCashChange();paymentModal.classList.remove("is-open");cashChangeModal.classList.add("is-open");
 }
 function updateCashChange(){
  const given=Number(String(cashReceived.value||"").replace(",", "."))||0;
@@ -302,12 +302,28 @@ function updateCashChange(){
  cashChange.textContent=euro(Math.max(0,given-total));
 }
 cashReceived.addEventListener("input",updateCashChange);
+$("cashKeypad").addEventListener("click",(event)=>{
+ const button=event.target.closest("button[data-cash-key]");
+ if(!button)return;
+ const key=button.dataset.cashKey;
+ let value=String(cashReceived.value||"");
+ if(key==="clear") value="";
+ else if(key==="backspace") value=value.slice(0,-1);
+ else if(/^[0-9]$/.test(key)){
+   if(value.length>=7)return;
+   value+=key;
+ }
+ cashReceived.value=value;
+ updateCashChange();
+});
 function returnToPayment(modal){modal.classList.remove("is-open");paymentModal.classList.add("is-open");}
 $("cancelCashChange").addEventListener("click",()=>returnToPayment(cashChangeModal));
 $("cashBack").addEventListener("click",()=>returnToPayment(cashChangeModal));
 $("confirmCash").addEventListener("click",async()=>{
- const given=Number(String(cashReceived.value||"").replace(",", "."))||0;
+ const rawGiven=String(cashReceived.value||"").trim();
+ const given=rawGiven===""?0:Number(rawGiven.replace(",", "."))||0;
  const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
+ if(rawGiven===""){alert("Bitte zuerst den erhaltenen Bargeldbetrag eingeben.");return;}
  if(given+0.00001<total){alert("Der erhaltene Betrag ist kleiner als der zu zahlende Betrag.");return;}
  cashChangeModal.classList.remove("is-open");
  await saveSale("Bar",{cashReceived:given,changeGiven:Math.round((given-total)*100)/100});
