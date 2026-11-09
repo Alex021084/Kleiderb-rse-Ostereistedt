@@ -731,10 +731,11 @@ async function cloudEditReceipt(receiptId, payment, items, reason){
   const current=all.find(r=>String(r.id)===String(receiptId));
   if(!current) throw new Error("Kassenbon wurde nicht gefunden. Bitte neu laden.");
 
+  const oldItems=current.receipt_items||[];
   const oldSnapshot={
     id:current.id, receipt_no:current.receipt_no, register_id:current.register_id,
     payment:current.payment, total:Number(current.total||0), created_at:current.created_at,
-    receipt_items:(current.receipt_items||[]).map(x=>({...x}))
+    receipt_items:oldItems.map(x=>({...x}))
   };
   const normalized=items.map(x=>({
     id:x.id||null, seller_number:x.seller_number?String(x.seller_number):null,
@@ -744,22 +745,10 @@ async function cloudEditReceipt(receiptId, payment, items, reason){
   }));
   if(!normalized.length) throw new Error("Ein Kassenbon muss mindestens einen Artikel enthalten.");
   if(normalized.some(x=>!x.size.trim()||!Number.isFinite(x.price)||x.price<0)) throw new Error("Bitte Artikel und gültige Preise prüfen.");
-  const total=normalized.reduce((sum,x)=>sum+x.price,0);
-  const history=await apiRequest("receipt_edit_history",{
-    method:"POST",headers:{"Prefer":"return=minimal"},
-    body:JSON.stringify({
-      receipt_id:current.id, reason:String(reason||"Nachträgliche Korrektur"),
-      old_snapshot:oldSnapshot,
-      new_snapshot:{payment,total,receipt_items:normalized.map(x=>({...x}))}
-    })
-  });
+  const total=Math.round(normalized.reduce((sum,x)=>sum+x.price,0)*100)/100;
 
-  await apiRequest("receipts?id=eq."+encodeURIComponent(receiptId),{
-    method:"PATCH",headers:{"Prefer":"return=minimal"},
-    body:JSON.stringify({payment,total})
-  });
-
-  const oldItems=current.receipt_items||[];
+  // Positionen zuerst speichern und jede Antwort prüfen. So kann der Bonkopf
+  // niemals einen anderen Betrag zeigen als seine gespeicherten Artikel.
   const keepIds=normalized.filter(x=>x.id).map(x=>String(x.id));
   const removeIds=oldItems.filter(x=>!keepIds.includes(String(x.id))).map(x=>String(x.id));
   if(removeIds.length){
@@ -772,15 +761,34 @@ async function cloudEditReceipt(receiptId, payment, items, reason){
       unassigned_note:item.unassigned_note,size:item.size,price:item.price,
       commission_enabled:item.commission_enabled,commission_rate:item.commission_rate};
     if(item.id){
-      await apiRequest("receipt_items?id=eq."+encodeURIComponent(item.id),{
-        method:"PATCH",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)
+      const updated=await apiRequest("receipt_items?id=eq."+encodeURIComponent(item.id),{
+        method:"PATCH",headers:{"Prefer":"return=representation"},body:JSON.stringify(row)
       });
+      if(!Array.isArray(updated)||!updated.length) throw new Error("Eine Artikelposition konnte nicht aktualisiert werden.");
     }else{
-      await apiRequest("receipt_items",{
-        method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)
+      const inserted=await apiRequest("receipt_items",{
+        method:"POST",headers:{"Prefer":"return=representation"},body:JSON.stringify(row)
       });
+      if(!Array.isArray(inserted)||!inserted.length) throw new Error("Eine neue Artikelposition konnte nicht gespeichert werden.");
     }
   }
+
+  // Bonbetrag und Zahlungsart aus den tatsächlich gespeicherten Positionen aktualisieren.
+  const receiptUpdate=await apiRequest("receipts?id=eq."+encodeURIComponent(receiptId),{
+    method:"PATCH",headers:{"Prefer":"return=representation"},
+    body:JSON.stringify({payment,total})
+  });
+  if(!Array.isArray(receiptUpdate)||!receiptUpdate.length) throw new Error("Der Gesamtbetrag des Kassenbons konnte nicht aktualisiert werden.");
+
+  // Erst nach erfolgreicher Speicherung die dauerhafte Änderungshistorie anlegen.
+  await apiRequest("receipt_edit_history",{
+    method:"POST",headers:{"Prefer":"return=minimal"},
+    body:JSON.stringify({
+      receipt_id:current.id, reason:String(reason||"Nachträgliche Korrektur"),
+      old_snapshot:oldSnapshot,
+      new_snapshot:{payment,total,receipt_items:normalized.map(x=>({...x}))}
+    })
+  });
   return {id:current.id,total};
 }
 

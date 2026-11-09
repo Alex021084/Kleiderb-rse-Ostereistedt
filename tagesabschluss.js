@@ -92,18 +92,15 @@ async function render(){
  };
  const total=items.reduce((a,x)=>a+priceOf(x),0);
  const cash=receipts.filter(r=>(r.payment||"")==="Bar").reduce((a,r)=>{
-  const t=Number(r.total);
-  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+  return a+itemsOf(r).reduce((s,x)=>s+priceOf(x),0);
 },0);
 
 const card=receipts.filter(r=>(r.payment||"")==="EC").reduce((a,r)=>{
-  const t=Number(r.total);
-  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+  return a+itemsOf(r).reduce((s,x)=>s+priceOf(x),0);
 },0);
 
 const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
-  const t=Number(r.total);
-  return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
+  return a+itemsOf(r).reduce((s,x)=>s+priceOf(x),0);
 },0);
  // Sollbestand: Wechselgeld-Startbestand plus Bareinnahmen.
  // Bei "Alle Kassen" werden die sechs getrennten Startbestände addiert.
@@ -201,7 +198,7 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
        const target=group.querySelector(".receipt-group-list");
        if(!target)return;
        target.innerHTML=list.map(r=>{
-         const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
+         const its=itemsOf(r), totalR=its.reduce((a,x)=>a+priceOf(x),0);
          const d=new Date(r.created_at);
          const changed=editedReceiptIds.has(String(r.id));
          return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
