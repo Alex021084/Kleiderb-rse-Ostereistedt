@@ -309,8 +309,11 @@ $("cashKeypad").addEventListener("click",(event)=>{
  let value=String(cashReceived.value||"");
  if(key==="clear") value="";
  else if(key==="backspace") value=value.slice(0,-1);
- else if(/^[0-9]$/.test(key)){
-   if(value.length>=7)return;
+ else if(key==="comma"){
+   if(!value.includes(",")) value=value?value+",":"0,";
+ }else if(/^[0-9]$/.test(key)){
+   const commaIndex=value.indexOf(",");
+   if(value.length>=8 || (commaIndex>=0 && value.length-commaIndex>2))return;
    value+=key;
  }
  cashReceived.value=value;
