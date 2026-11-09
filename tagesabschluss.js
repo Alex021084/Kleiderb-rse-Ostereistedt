@@ -173,6 +173,12 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
  });
  $("registerRows").innerHTML=Object.entries(regs).sort((a,b)=>a[0].localeCompare(b[0],"de-DE",{numeric:true})).map(([k,x])=>`<div class="seller-row"><div class="seller-name"><strong>${esc(k)}</strong><div class="muted">${x.receipts} Bons · ${x.items} Artikel</div></div><div><div class="muted">Umsatz</div><strong>${euro(x.total)}</strong></div><div><div class="muted">Bar / EC</div><strong>${euro(x.cash)} / ${euro(x.card)}</strong></div><div><div class="muted">PayPal</div><strong>${euro(x.paypal)}</strong></div></div>`).join("")||'<div class="seller-empty">Noch keine Kassenbons.</div>';
 
+ // Dauerhafte Änderungsmarkierung: Jeder Bon mit mindestens einem Historieneintrag.
+ let editedReceiptIds=new Set();
+ if(KBCloud.cloudReady() && KBCloud.cloudGetEditedReceiptIds){
+   try{ editedReceiptIds=new Set(await KBCloud.cloudGetEditedReceiptIds()); }
+   catch(error){ console.warn("Änderungsmarkierungen konnten nicht geladen werden:",error); }
+ }
  const receiptGroups={};
  receipts.forEach(r=>{
    const k=r.register_id||r.registerId||"Kasse 1";
@@ -197,7 +203,8 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
        target.innerHTML=list.map(r=>{
          const its=itemsOf(r), receiptTotal=Number(r.total), totalR=Number.isFinite(receiptTotal)&&receiptTotal>0?receiptTotal:its.reduce((a,x)=>a+priceOf(x),0);
          const d=new Date(r.created_at);
-         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong> · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
+         const changed=editedReceiptIds.has(String(r.id));
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${its.length?its.map(x=>`<div class="receipt-line-meta">${isUnassigned(x)?`<span class="unassigned-meta">Nicht zugeordnet${(x.unassigned_note??x.unassignedNote)?` · ${esc(x.unassigned_note??x.unassignedNote)}`:""}</span>`:`Verkäufer ${esc(x.seller_number??x.sellerNumber??"")}`} · ${esc(x.size??"")} · ${euro(priceOf(x))}</div>`).join(""):"<div class=\"receipt-line-meta\">Keine Einzelpositionen gespeichert.</div>"}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
        }).join("");
        target.querySelectorAll(".receipt-details").forEach((detail,index)=>{
          const receipt=list[index];

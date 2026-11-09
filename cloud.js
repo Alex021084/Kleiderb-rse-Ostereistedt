@@ -790,6 +790,13 @@ async function cloudGetReceiptHistory(receiptId){
     encodeURIComponent(receiptId)+"&order=edited_at.desc") || [];
 }
 
+// Liefert alle Bons, zu denen mindestens eine nachträgliche Änderung gespeichert wurde.
+async function cloudGetEditedReceiptIds(){
+  await cloudClient();
+  const rows=await apiRequest("receipt_edit_history?select=receipt_id&order=edited_at.desc") || [];
+  return [...new Set(rows.map(row=>String(row.receipt_id)))];
+}
+
 /* ABSCHLUSS */
 
 async function cloudResetReceipts(){
@@ -1137,6 +1144,7 @@ window.KBCloud={
   cloudUpdateReceiptItem,
   cloudEditReceipt,
   cloudGetReceiptHistory,
+  cloudGetEditedReceiptIds,
 
   cloudResetReceipts,
 

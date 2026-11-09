@@ -709,3 +709,10 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 #saveAccountingFloat:disabled{opacity:.5;box-shadow:none}
 #accountingFloatStatus{line-height:1.45}
 @media(max-width:600px){#floatBalanceAccounting>div[style*="display:flex"]{align-items:stretch!important;flex-direction:column!important}#floatBalanceAccounting label{display:block}#saveAccountingFloat{width:100%;min-height:52px;font-size:17px}}
+
+/* Dauerhafte Kennzeichnung nachträglich bearbeiteter Kassenbons */
+.receipt-changed-badge{
+ display:inline-flex;align-items:center;gap:4px;margin:0 5px;padding:3px 9px;
+ border:1px solid #f3c969;border-radius:999px;background:#fff7df;color:#8a4b08;
+ font-size:.78em;font-weight:800;white-space:nowrap;vertical-align:middle;
+}
