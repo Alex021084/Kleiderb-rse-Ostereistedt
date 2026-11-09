@@ -15,6 +15,10 @@ const toyModal=$("toyModal"),closeToy=$("closeToy"),toyTypeButtons=[...document.
 let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",toyType="",activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="",unassignedPhoto="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
+function offlineQueue(){try{return JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]")}catch(e){return []}}
+function saveOfflineQueue(q){localStorage.setItem("kb_offline_receipts",JSON.stringify(q));if(KBCloud.updateCloudBanner)KBCloud.updateCloudBanner()}
+async function syncOfflineReceipts(){if(!navigator.onLine||!KBCloud.cloudReady()||!KBCloud.cloudCreateReceipt)return;const q=offlineQueue();if(!q.length)return;for(const entry of q){try{const previousRegister=KBCloud.KB_CLOUD.register;KBCloud.KB_CLOUD.register=entry.registerId;await KBCloud.cloudCreateReceipt(entry.items,entry.payment,entry.paymentMeta,entry.clientUuid);KBCloud.KB_CLOUD.register=previousRegister;saveOfflineQueue(offlineQueue().filter(x=>x.clientUuid!==entry.clientUuid));}catch(e){console.warn("Offline-Synchronisierung wartet:",e);break}}}
+window.addEventListener("online",()=>{setTimeout(syncOfflineReceipts,1200)});
 // Verkäufernummern robust vergleichen (Zahl/String, Leerzeichen und unsichtbare Zeichen).
 function sellerNumberKey(value){
  return String(value??"").normalize("NFKC").replace(/[\\u200B-\\u200D\\uFEFF]/g,"").replace(/\\s+/g,"").trim();
@@ -86,14 +90,20 @@ async function saveSale(payment, paymentMeta={}){
      return {...x,commissionEnabled,commissionRate};
    });
    let receiptNo=null;
-   if(KBCloud.cloudReady()){
-     const receipt=await KBCloud.cloudCreateReceipt(prepared,payment,paymentMeta);
-     receiptNo=receipt.receipt_no ?? receipt.id;
-   }else{
-     const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]"),timestamp=new Date().toISOString();
-     const receiptId=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;
-     prepared.forEach(x=>sales.push({...x,payment,paymentNote:paymentMeta.note||"",cashReceived:paymentMeta.cashReceived??null,changeGiven:paymentMeta.changeGiven??null,timestamp,receiptId,registerId:KBCloud.KB_CLOUD.register}));
+   const timestamp=new Date().toISOString();
+   const clientUuid=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`);
+   let savedInCloud=false;
+   if(KBCloud.cloudReady() && navigator.onLine){
+     try{const receipt=await KBCloud.cloudCreateReceipt(prepared,payment,paymentMeta,clientUuid);receiptNo=receipt.receipt_no ?? receipt.id;savedInCloud=true;}
+     catch(cloudError){console.warn("Cloud nicht erreichbar – speichere lokal:",cloudError);}
+   }
+   if(!savedInCloud){
+     const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]");
+     const registerId=KBCloud.KB_CLOUD.register;
+     const receiptId=clientUuid;
+     prepared.forEach(x=>sales.push({...x,payment,paymentNote:paymentMeta.note||"",cashReceived:paymentMeta.cashReceived??null,changeGiven:paymentMeta.changeGiven??null,timestamp,receiptId,registerId,syncPending:true}));
      localStorage.setItem("kb_sales",JSON.stringify(sales));
+     const queue=offlineQueue();queue.push({clientUuid,items:prepared,payment,paymentMeta,registerId,timestamp});saveOfflineQueue(queue);
      receiptNo=receiptId.slice(0,8).toUpperCase();
    }
    paymentModal.classList.remove("is-open");
@@ -367,9 +377,9 @@ function getSelectedRegister(){
 }
 
 async function initCloud(){
-  if(KBCloud.cloudReady()){
-    try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));}
-    catch(e){console.error(e);alert("Cloud nicht erreichbar. Bitte Internetverbindung prüfen.");}
+  if(KBCloud.cloudReady() && navigator.onLine){
+    try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));localStorage.setItem("kb_sellers",JSON.stringify(sellers));}
+    catch(e){console.warn("Cloud nicht erreichbar – nutze gespeicherte Verkäuferliste:",e);sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({...s,commissionEnabled:s.commissionEnabled===undefined?true:s.commissionEnabled,commissionRate:Number(s.commissionRate??15)}));}
   }else{sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(s=>({...s,commissionEnabled:s.commissionEnabled===undefined?true:s.commissionEnabled,commissionRate:Number(s.commissionRate??15)}));}
   const selectedRegister=getSelectedRegister();
   const title=document.getElementById("registerTitle");
@@ -377,6 +387,6 @@ async function initCloud(){
   if(title) title.textContent=selectedRegister;
   if(pageTitle) pageTitle.textContent=selectedRegister;
   if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
-  KBCloud.cloudBanner();render();setActive("seller");
+  KBCloud.cloudBanner();render();setActive("seller");syncOfflineReceipts();
 }
 initCloud();

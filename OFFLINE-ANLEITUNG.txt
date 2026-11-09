@@ -1,0 +1,32 @@
+OFFLINE-SPEICHERUNG – VERSION 41
+
+WICHTIG: Vor dem Einsatz bitte zuerst OFFLINE-SYNC-MIGRATION.sql einmalig
+im SQL Editor des Supabase-Projekts ausführen. Ohne diese Datenbankänderung
+kann die App Offline-Bons nicht sicher in die Cloud übertragen.
+
+Was diese Zwischenversion macht:
+- Verkäuferliste wird nach erfolgreichem Cloud-Laden auf dem Gerät zwischengespeichert.
+- Bei fehlender Internetverbindung oder fehlgeschlagenem Cloud-Aufruf wird ein
+  Verkauf lokal auf dem verwendeten Gerät gespeichert.
+- Jeder lokale Bon erhält eine eindeutige Kennung und wird in eine Warteschlange gelegt.
+- Bei wiederhergestellter Internetverbindung versucht die Kasse automatisch,
+  die wartenden Bons zu übertragen.
+- Die Statusanzeige unten zeigt Offline-Status bzw. wartende Bons.
+
+WICHTIGE GRENZEN DIESER ERSTEN STUFE:
+- Die App-Dateien selbst müssen im Browser bereits geladen sein. Diese Version
+  enthält noch keinen vollständigen Service-Worker-App-Cache für einen erstmaligen
+  Start ohne Internet.
+- Verkäufer-/Artikeländerungen auf einem anderen Gerät werden erst sichtbar,
+  wenn dieses Gerät wieder online ist und die Verkäuferliste neu geladen wird.
+- Offline-Bons bleiben zunächst lokal auf genau diesem Gerät. Bitte Browserdaten
+  nicht löschen und Gerät nicht zurücksetzen, solange Bons auf Synchronisierung warten.
+- Nach dem SQL-Update und vor echtem Einsatz unbedingt mit Testdaten prüfen.
+
+Empfohlener Test:
+1. SQL-Datei im Supabase SQL Editor ausführen.
+2. App online öffnen und Kasse auswählen, damit Verkäuferliste geladen wird.
+3. Gerät in Flugmodus setzen und einen kleinen Testverkauf durchführen.
+4. Anzeige muss Offline / wartende Bons zeigen.
+5. Flugmodus ausschalten und einige Sekunden warten.
+6. In der Buchhaltung prüfen, ob der Bon genau einmal angekommen ist.

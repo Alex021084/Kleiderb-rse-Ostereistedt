@@ -548,10 +548,16 @@ async function cloudDeleteSeller(id){
 async function cloudCreateReceipt(
   items,
   payment,
-  paymentMeta={}
+  paymentMeta={},
+  clientUuid=null
 ){
 
   await cloudClient();
+  // Bereits synchronisierte Offline-Bons nicht ein zweites Mal anlegen.
+  if(clientUuid){
+    const existing=await apiRequest("receipts?select=id,receipt_no&client_uuid=eq."+encodeURIComponent(clientUuid));
+    if(Array.isArray(existing) && existing[0]) return existing[0];
+  }
 
   const total=
     items.reduce(
@@ -574,6 +580,7 @@ async function cloudCreateReceipt(
           register_id:
             KB_CLOUD.register,
 
+          client_uuid:clientUuid,
           payment:payment,
 
           total:total,
@@ -1026,6 +1033,8 @@ async function cloudSaveRegisterFloat(registerId,amount){
 
 /* CLOUD-STATUS */
 
+window.addEventListener("online",()=>setTimeout(updateCloudBanner,300));
+window.addEventListener("offline",updateCloudBanner);
 function cloudBanner(){
 
   if(!document.getElementById("cloudStatus")){
@@ -1059,22 +1068,12 @@ function updateCloudBanner(){
   if(!e)
     return;
 
-  if(!cloudReady()){
-
-    e.textContent=
-      "☁ Cloud noch nicht eingerichtet";
-
-  }else if(authSessionValid()){
-
-    e.textContent=
-      "☁ Cloud verbunden · " +
-      KB_CLOUD.register;
-
-  }else{
-
-    e.textContent=
-      "☁ Bitte anmelden";
-  }
+  let pending=0;try{pending=JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]").length}catch(ignore){}
+  if(!navigator.onLine){e.textContent="⚠ Offline · lokal gespeichert"+(pending?" · "+pending+" Bons warten":"");}
+  else if(pending){e.textContent="⟳ "+pending+" Bons warten auf Synchronisierung";}
+  else if(!cloudReady()){e.textContent="☁ Cloud noch nicht eingerichtet";}
+  else if(authSessionValid()){e.textContent="☁ Cloud verbunden · "+KB_CLOUD.register;}
+  else{e.textContent="☁ Bitte anmelden";}
 }
 
 
@@ -1184,6 +1183,7 @@ window.KBCloud={
   cloudSaveRegisterFloat,
 
   cloudBanner,
+  updateCloudBanner,
   showLogin,
   signOut:()=>{
     clearAuthSession();
