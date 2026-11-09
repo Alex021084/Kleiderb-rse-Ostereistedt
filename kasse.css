@@ -262,3 +262,46 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 .cash-keypad button:active{background:#e7ebf5;transform:scale(.98)}
 .cash-keypad button.cash-key-secondary{background:#e9edf5;color:#344054}
 @media(max-width:600px){.cash-keypad button{min-height:48px;font-size:21px}}
+
+
+/* Kassenbon: klarer Abstand und gut sichtbarer Zurueck-Button */
+#paymentModal .payment-box{
+  padding:24px;
+}
+#paymentModal .payment-buttons{
+  margin-bottom:22px;
+}
+#paymentModal .payment-back{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:58px;
+  margin-top:0;
+  border:0;
+  border-radius:14px;
+  padding:14px 18px;
+  background:#dceeff;
+  color:#1749b5;
+  font-size:18px;
+  font-weight:850;
+  flex:none;
+  cursor:pointer;
+  transition:background .15s ease,transform .15s ease;
+}
+#paymentModal .payment-back:active{
+  background:#c8e2ff;
+  transform:scale(.985);
+}
+@media (max-width:600px){
+  #paymentModal{padding:18px!important;}
+  #paymentModal .payment-box{
+    width:100%;
+    max-width:520px;
+    padding:22px 20px;
+    border-radius:22px;
+  }
+  #paymentModal .payment-buttons{gap:9px;margin-bottom:22px;}
+  #paymentModal .payment{height:62px;font-size:17px;}
+  #paymentModal .payment-back{min-height:58px;font-size:17px;}
+}

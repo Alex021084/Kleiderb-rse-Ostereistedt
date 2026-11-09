@@ -3,7 +3,7 @@ const sellerNumber=$("sellerNumber"),sellerStatus=$("sellerStatus"),price=$("pri
 const sizeButtons=[...document.querySelectorAll(".size-button")],keypadButtons=[...document.querySelectorAll(".right-panel .keypad button")];
 const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$("cancelEditButton"),articleTitle=$("articleTitle"),activeField=$("activeField");
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
-const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount"),closePayment=$("closePayment");
+const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount");
 const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
 const cashChangeModal=$("cashChangeModal"),cashReceived=$("cashReceived"),cashDue=$("cashDue"),cashChange=$("cashChange"),nonCashConfirmModal=$("nonCashConfirmModal"),paymentNote=$("paymentNote");
 let pendingPayment=null;
@@ -289,7 +289,6 @@ keypadButtons.forEach(b=>b.addEventListener("click",()=>{
  if(activeInput==="seller")checkSeller();else { update(); if(mobilePriceValue){ mobilePriceValue.textContent=euro(priceValue()); mobilePriceValue.classList.add("show"); } }
 }));
 addButton.addEventListener("click",saveItem);finishButton.addEventListener("click",showPayment);cancelEditButton.addEventListener("click",nextArticle);
-closePayment.addEventListener("click",()=>paymentModal.classList.remove("is-open"));
 $("backToRegister").addEventListener("click",()=>paymentModal.classList.remove("is-open"));
 newSaleButton.addEventListener("click",newSale);
 function openCashChange(){
