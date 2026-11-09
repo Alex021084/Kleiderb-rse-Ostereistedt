@@ -970,6 +970,29 @@ async function cloudGetArchive(id){
   return row?.snapshot || null;
 }
 
+/* WECHSELGELD-STARTBESTAND – dauerhaft je Kasse gespeichert */
+async function cloudGetRegisterFloat(registerId){
+  await cloudClient();
+  const rows=await apiRequest(
+    "register_float_balances?register_id=eq."+encodeURIComponent(String(registerId))+"&select=register_id,amount,updated_at"
+  );
+  return Array.isArray(rows)&&rows.length?rows[0]:null;
+}
+
+async function cloudSaveRegisterFloat(registerId,amount){
+  await cloudClient();
+  const rows=await apiRequest("register_float_balances?on_conflict=register_id",{
+    method:"POST",
+    headers:{"Prefer":"resolution=merge-duplicates,return=representation"},
+    body:JSON.stringify({
+      register_id:String(registerId),
+      amount:Number(amount),
+      updated_at:new Date().toISOString()
+    })
+  });
+  return Array.isArray(rows)?rows[0]:rows;
+}
+
 /* CLOUD-STATUS */
 
 function cloudBanner(){
@@ -1125,6 +1148,8 @@ window.KBCloud={
   cloudSaveArchive,
   cloudDeleteArchive,
   cloudGetArchive,
+  cloudGetRegisterFloat,
+  cloudSaveRegisterFloat,
 
   cloudBanner,
 

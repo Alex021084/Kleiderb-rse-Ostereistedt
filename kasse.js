@@ -366,6 +366,51 @@ function getSelectedRegister(){
   return localStorage.getItem("kb_register") || "Kasse 1";
 }
 
+const floatBalanceInput=$("floatBalanceInput");
+const floatBalanceStatus=$("floatBalanceStatus");
+const floatBalanceHint=$("floatBalanceHint");
+const saveFloatBalanceButton=$("saveFloatBalance");
+let loadedFloatBalance=0;
+
+function parseEuroAmount(value){
+ const raw=String(value??"").trim().replace(/\\s/g,"").replace(/\\./g,"").replace(",",".");
+ if(!raw)return NaN;
+ const amount=Number(raw);
+ return Number.isFinite(amount)&&amount>=0?Math.round(amount*100)/100:NaN;
+}
+function showFloatBalance(amount){
+ loadedFloatBalance=Number(amount)||0;
+ floatBalanceInput.value=loadedFloatBalance.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+async function loadFloatBalance(registerId){
+ floatBalanceInput.disabled=true;saveFloatBalanceButton.disabled=true;
+ floatBalanceStatus.textContent="Wechselgeld-Startbestand wird geladen …";
+ try{
+   const row=await KBCloud.cloudGetRegisterFloat(registerId);
+   showFloatBalance(row?row.amount:0);
+   floatBalanceHint.textContent=row?"Gespeicherter Betrag für diese Kasse":"Für diese Kasse ist noch kein Startbestand gespeichert";
+   floatBalanceStatus.textContent=row?"Der letzte Startbestand wurde automatisch übernommen.":"Bitte den Wechselgeld-Startbestand einmalig eintragen.";
+ }catch(error){
+   floatBalanceStatus.textContent="Startbestand konnte nicht geladen werden: "+(error.message||error);
+ }
+ floatBalanceInput.disabled=false;saveFloatBalanceButton.disabled=false;
+}
+saveFloatBalanceButton.addEventListener("click",async()=>{
+ const amount=parseEuroAmount(floatBalanceInput.value);
+ if(!Number.isFinite(amount)){alert("Bitte einen gültigen Betrag eingeben, z. B. 100,00.");floatBalanceInput.focus();return;}
+ saveFloatBalanceButton.disabled=true;
+ floatBalanceStatus.textContent="Wird gespeichert …";
+ try{
+   await KBCloud.cloudSaveRegisterFloat(getSelectedRegister(),amount);
+   showFloatBalance(amount);
+   floatBalanceHint.textContent="Gespeicherter Betrag für diese Kasse";
+   floatBalanceStatus.textContent="✓ Wechselgeld-Startbestand gespeichert.";
+ }catch(error){
+   floatBalanceStatus.textContent="Speichern fehlgeschlagen: "+(error.message||error);
+   alert("Der Wechselgeld-Startbestand konnte nicht gespeichert werden. Bitte Internetverbindung prüfen.\n\n"+(error.message||error));
+ }finally{saveFloatBalanceButton.disabled=false;}
+});
+
 async function initCloud(){
   if(KBCloud.cloudReady()){
     try{sellers=(await KBCloud.cloudGetSellers()).map(s=>({...s,commissionEnabled:s.commission_enabled!==false,commissionRate:Number(s.commission_rate??15)}));}
@@ -377,6 +422,7 @@ async function initCloud(){
   if(title) title.textContent=selectedRegister;
   if(pageTitle) pageTitle.textContent=selectedRegister;
   if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
+  await loadFloatBalance(selectedRegister);
   KBCloud.cloudBanner();render();setActive("seller");
 }
 initCloud();
