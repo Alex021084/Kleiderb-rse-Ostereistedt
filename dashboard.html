@@ -14,6 +14,16 @@
     <img class="home-logo" src="kleiderboerse-logo.jpg?v=59" alt="Kleiderbörse Ostereistedt">
   </header>
 
+  <section id="homeCloudPanel" style="margin:14px 0 20px;padding:16px;border:1px solid #d9e1ec;border-radius:18px;background:#fff">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong style="display:block;font-size:18px">☁ Cloud-Verbindung</strong>
+        <span id="homeCloudStatus" style="font-size:14px;color:#667085">Verbindung wird geprüft …</span>
+      </div>
+      <button id="homeCloudLogin" type="button" style="border:0;border-radius:12px;background:#2459c5;color:#fff;padding:13px 18px;font-weight:800;font-size:15px">Cloud anmelden</button>
+    </div>
+  </section>
+
   <div class="menu">
     <a class="menu-button blue" id="openRegisterModal" href="#registerModal" aria-haspopup="dialog">
       <span class="icon">🧾</span>
@@ -54,10 +64,30 @@
   </div>
 </div>
 <script src="auth.js"></script>
+<script src="cloud-config.js"></script>
+<script src="cloud.js?v=82"></script>
 <script>
 (function(){
   if(!KBAuth.requireRole(["accounting"])) return;
   document.getElementById("kbLogout").onclick=function(){KBAuth.logout()};
+  var cloudStatus=document.getElementById("homeCloudStatus");
+  var cloudButton=document.getElementById("homeCloudLogin");
+  function refreshCloudPanel(){
+    var signed=window.KBCloud && KBCloud.isSignedIn();
+    cloudStatus.textContent=signed?"Verbunden – Cloud ist angemeldet.":"Nicht angemeldet – bitte anmelden.";
+    cloudStatus.style.color=signed?"#16804c":"#b45309";
+    cloudButton.textContent=signed?"Cloud-Konto wechseln / abmelden":"Cloud anmelden";
+  }
+  cloudButton.onclick=function(){
+    if(window.KBCloud){
+      if(KBCloud.isSignedIn()){
+        if(confirm("Möchtest du die Cloud-Verbindung abmelden?")) KBCloud.signOut();
+      }else KBCloud.showLogin();
+    }
+    setTimeout(refreshCloudPanel,250);
+  };
+  refreshCloudPanel();
+  window.addEventListener("focus",refreshCloudPanel);
   var modal=document.getElementById("registerModal"), close=document.getElementById("closeRegisterModal");
   close.onclick=function(){window.location.hash=""};
 })();

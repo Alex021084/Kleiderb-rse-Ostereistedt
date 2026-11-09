@@ -204,9 +204,19 @@ async function apiRequest(path,options={}){
   );
 
   if(response.status === 401){
-    throw new Error(
-      "Sitzung abgelaufen. Bitte erneut anmelden."
-    );
+    // Ein noch nicht abgelaufener, aber vom Server abgewiesener Token
+    // wird einmal erneuert und die Anfrage anschließend wiederholt.
+    const session=getAuthSession();
+    if(session?.refresh_token && !options.__authRetried){
+      const refreshed=await authRefresh();
+      if(refreshed){
+        return apiRequest(path,Object.assign({},options,{__authRetried:true}));
+      }
+    }
+    clearAuthSession();
+    showLogin();
+    updateCloudBanner();
+    throw new Error("Cloud-Sitzung abgelaufen. Bitte erneut anmelden.");
   }
 
   let data = null;
@@ -1168,6 +1178,13 @@ window.KBCloud={
   cloudSaveRegisterFloat,
 
   cloudBanner,
+  showLogin,
+  signOut:()=>{
+    clearAuthSession();
+    showLogin();
+    updateCloudBanner();
+  },
+  isSignedIn:authSessionValid,
 
   registerPicker,
 
