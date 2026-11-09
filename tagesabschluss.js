@@ -9,7 +9,7 @@ const accountingFloatRegister=$("accountingFloatRegister");
 const saveAccountingFloat=$("saveAccountingFloat");
 let accountingFloatLoadToken=0;
 function parseAccountingEuro(value){
- const raw=String(value??"").trim().replace(/\\s/g,"").replace(/\\./g,"").replace(",",".");
+ const raw=String(value??"").trim().replace(/\s/g,"").replace(/\./g,"").replace(",",".");
  if(!raw)return NaN;
  const amount=Number(raw);
  return Number.isFinite(amount)&&amount>=0?Math.round(amount*100)/100:NaN;
@@ -35,6 +35,8 @@ async function loadAccountingFloat(){
 }
 
 saveAccountingFloat.addEventListener("click",async()=>{
+ const register=selectedRegister;
+ if(register==="Alle Kassen"){accountingFloatStatus.textContent="Bitte zuerst eine einzelne Kasse auswählen.";return;}
  const amount=parseAccountingEuro(accountingFloatInput.value);
  if(!Number.isFinite(amount)){alert("Bitte einen gültigen Betrag eingeben, z. B. 100,00.");accountingFloatInput.focus();return;}
  saveAccountingFloat.disabled=true;accountingFloatStatus.textContent="Wird gespeichert …";
