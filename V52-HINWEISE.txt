@@ -1,0 +1,3 @@
+Version 52 – einheitliche Statuskachel in allen Kopfzeilen
+
+Kasse, Verkäufer und Tagesabschluss verwenden jetzt dieselbe Grid-Kopfzeile. Der Buchhaltungs-/Kassenbutton belegt die linke Hälfte, die Online-/Offline-Kachel ist mittig in der rechten Hälfte angeordnet. Gemeinsame Höhe 48px, maximale Breite 260px, gleiche Schrift- und Symbolgröße sowie abgerundete Form. Dunkler Balken einheitlich 68px. CSS Cache-Buster auf 52.
