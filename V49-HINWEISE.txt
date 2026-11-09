@@ -1,0 +1,4 @@
+Version 49 – einheitliche Kopfzeilen
+
+Die dunklen Kopfzeilen auf Kasse, Verkäufer und Tagesabschluss verwenden jetzt dieselben Maße: Balkenhöhe 68px, Navigation 44px hoch und Cloud-Status mit einheitlicher Schrift, Innenabstand, Icongröße und abgerundeter Form. Der mittige Seitentitel bleibt im Balken ausgeblendet. Die großen Seitentitel im Inhalt bleiben.
+CSS Cache-Buster auf Version 49 erhöht.
