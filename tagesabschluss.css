@@ -726,3 +726,44 @@ h1{font-size:30px;margin:0}.summary-head p{margin:5px 0 0;color:#747e8c}
 
 /* Sicherheitsregel: ausgeblendete Bereiche dürfen nicht durch Komponenten-CSS sichtbar werden. */
 [hidden], #floatBalanceAccounting[hidden] { display: none !important; }
+
+
+/* Version 45: aufgeraeumte Buchhaltungs-Kopfzeile mit Status rechts */
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  height:auto;
+  min-height:74px;
+  padding:calc(10px + env(safe-area-inset-top, 0px)) 18px 10px;
+}
+.top a{flex:0 0 auto;position:relative;z-index:2;min-height:44px}
+.top-cloud-status{
+  margin-left:auto;
+  position:relative;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  box-sizing:border-box;
+  max-width:min(48vw,360px);
+  min-height:38px;
+  padding:7px 12px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  font:700 12px/1.2 system-ui,-apple-system,sans-serif;
+  white-space:normal;
+  text-align:left;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.top-cloud-status>span:first-child{width:20px!important;height:20px!important;flex:0 0 20px!important}
+.top-cloud-status svg{width:20px!important;height:20px!important;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:700px){
+  .top{min-height:68px;padding-left:10px;padding-right:10px;gap:8px}
+  .top a{font-size:13px;padding:9px 10px}
+  .top-cloud-status{max-width:48vw;min-height:36px;padding:6px 9px;font-size:11px}
+}

@@ -1,0 +1,8 @@
+Version 45 – Buchhaltung-Kopfzeile
+
+- Verbindungsstatus in der Buchhaltung explizit rechts oben im blauen Balken.
+- Statusanzeige mit abgerundeten Ecken und WLAN-/Synchronisierungs-Symbol.
+- Ueberschrift 'Tagesabschluss' aus dem dunklen oberen Balken entfernt.
+- Buchhaltungsbutton links bleibt sichtbar und erhaelt ausreichend Touch-Flaeche.
+- Safe-Area-Abstand oben beruecksichtigt, damit iPad/iPhone Statusleiste den Button nicht ueberdeckt.
+- Offline-Speicherung und Synchronisierung aus Version 44 beibehalten.
