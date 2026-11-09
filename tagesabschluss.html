@@ -58,6 +58,17 @@
       <small id="articleCount">0 Artikel</small>
     </div>
 
+    <section id="cashTargetBalance" class="seller-summary" style="margin-top:16px;border:2px solid #bbf7d0;background:#f0fdf4">
+      <div class="seller-summary-head"><h2 style="color:#166534">Sollbestand Barkasse</h2></div>
+      <p id="cashTargetHint" style="margin:0 0 12px;color:#475569">Bitte eine einzelne Kasse auswählen.</p>
+      <div style="display:grid;gap:9px;max-width:520px">
+        <div style="display:flex;justify-content:space-between;gap:12px"><span>Wechselgeld-Startbestand</span><strong id="cashTargetStart">—</strong></div>
+        <div style="display:flex;justify-content:space-between;gap:12px"><span>+ Bareinnahmen</span><strong id="cashTargetSales">—</strong></div>
+        <div style="height:1px;background:#86b99a"></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;font-size:1.2em;color:#166534"><strong>Sollbestand am Tagesende</strong><strong id="cashTargetTotal">—</strong></div>
+      </div>
+    </section>
+
     <div class="payment-grid">
       <div class="payment-card cash">
         <span>Bar</span>
@@ -164,6 +175,6 @@
 </div>
 <script src="cloud-config.js"></script>
 <script src="cloud.js?v=81"></script>
-<script src="tagesabschluss.js?v=86"></script>
+<script src="tagesabschluss.js?v=87"></script>
 </body>
 </html>

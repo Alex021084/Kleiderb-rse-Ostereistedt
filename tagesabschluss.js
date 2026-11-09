@@ -97,6 +97,30 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
   const t=Number(r.total);
   return a+(Number.isFinite(t)&&t>0?t:itemsOf(r).reduce((s,x)=>s+priceOf(x),0));
 },0);
+ // Sollbestand: Wechselgeld-Startbestand plus Bareinnahmen der ausgewählten Kasse.
+ const targetHint=$("cashTargetHint"),targetStart=$("cashTargetStart"),targetSales=$("cashTargetSales"),targetTotal=$("cashTargetTotal");
+ const targetRegister=selectedRegister;
+ if(targetRegister==="Alle Kassen"){
+  targetHint.textContent="Bitte oben eine einzelne Kasse auswählen, damit der Sollbestand eindeutig berechnet werden kann.";
+  targetStart.textContent=targetSales.textContent=targetTotal.textContent="—";
+ }else{
+  targetHint.textContent="Erwarteter Bargeldbestand für "+targetRegister+" am Ende des Börsentages.";
+  targetStart.textContent=targetSales.textContent=targetTotal.textContent="Wird geladen …";
+  try{
+   const floatRow=await KBCloud.cloudGetRegisterFloat(targetRegister);
+   if(targetRegister===selectedRegister){
+    const startAmount=Number(floatRow?.amount||0);
+    targetStart.textContent=euro(startAmount);
+    targetSales.textContent=euro(cash);
+    targetTotal.textContent=euro(startAmount+cash);
+   }
+  }catch(error){
+   if(targetRegister===selectedRegister){
+    targetStart.textContent="Nicht verfügbar";targetSales.textContent=euro(cash);targetTotal.textContent="—";
+    targetHint.textContent="Startbestand konnte nicht geladen werden. Bitte Datenbankverbindung prüfen.";
+   }
+  }
+ }
  const commission=items.reduce((a,x)=>a+priceOf(x)*currentRateForItem(x),0),payout=total-commission;
  $("totalRevenue").textContent=euro(total);$("cashTotal").textContent=euro(cash);$("cardTotal").textContent=euro(card);$("paypalTotal").textContent=euro(paypal);
  $("commissionGross").textContent=euro(total);$("commission").textContent=euro(commission);$("payout").textContent=euro(payout);
