@@ -18,6 +18,9 @@ async function loadAccountingFloat(){
  const token=++accountingFloatLoadToken;
  const register=selectedRegister;
  const single=register!=="Alle Kassen";
+ // Die Eingabekarte ist nur bei einer einzelnen Kasse sinnvoll.
+ // Bei "Alle Kassen" bleibt ausschließlich die darunterliegende Sollbestand-Summe sichtbar.
+ $("floatBalanceAccounting").hidden=!single;
  accountingFloatRegister.textContent=single?register:"alle Kassen";
  if(!single){accountingFloatInput.value="";accountingFloatInput.disabled=true;saveAccountingFloat.disabled=true;accountingFloatStatus.textContent="Bitte eine einzelne Kasse auswählen, um deren Startbestand zu sehen oder zu ändern.";return;}
  accountingFloatInput.disabled=true;saveAccountingFloat.disabled=true;
