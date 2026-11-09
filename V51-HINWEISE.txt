@@ -1,0 +1,3 @@
+Version 51 – neutrale Bezeichnung der Verkäuferauszahlung
+
+Die Verkäuferabrechnung weist den Betrag jetzt neutral als AUSZAHLUNGSBETRAG aus. Die falsche pauschale Aussage 'in Bar erhalten' sowie die methodenabhängigen Formulierungen (PayPal/EC/Überweisung) wurden aus der Abrechnung entfernt. HTML-Druckansicht und PDF-Zeichnung wurden angepasst. Kein Datenbankeingriff.
