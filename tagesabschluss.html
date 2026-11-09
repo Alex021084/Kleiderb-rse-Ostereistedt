@@ -44,7 +44,7 @@
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label for="accountingFloatInput" style="font-weight:700">Startbestand für <span id="accountingFloatRegister">Kasse 1</span></label>
         <div style="display:flex;align-items:center;gap:7px">
-          <input id="accountingFloatInput" type="text" inputmode="decimal" placeholder="0,00" aria-label="Wechselgeld-Startbestand in Euro" style="width:130px;max-width:45vw;padding:11px;border:1px solid #cbd5e1;border-radius:9px;font-size:18px;font-weight:800;text-align:right">
+          <input id="accountingFloatInput" type="text" inputmode="none" readonly placeholder="0,00" aria-label="Wechselgeld-Startbestand in Euro" style="width:130px;max-width:45vw;padding:11px;border:1px solid #cbd5e1;border-radius:9px;font-size:18px;font-weight:800;text-align:right">
           <strong>€</strong>
         </div>
         <button id="saveAccountingFloat" type="button">Startbestand speichern</button>
@@ -181,10 +181,10 @@
   </div>
   <div id="floatPadDisplay" style="background:#f1f5f9;border-radius:12px;padding:14px;text-align:right;font-size:30px;font-weight:800;margin-bottom:12px">0,00 €</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
-   <button type="button" data-float-key="1">1</button><button type="button" data-float-key="2">2</button><button type="button" data-float-key="3">3</button>
-   <button type="button" data-float-key="4">4</button><button type="button" data-float-key="5">5</button><button type="button" data-float-key="6">6</button>
-   <button type="button" data-float-key="7">7</button><button type="button" data-float-key="8">8</button><button type="button" data-float-key="9">9</button>
-   <button type="button" data-float-key="clear">C</button><button type="button" data-float-key="0">0</button><button type="button" data-float-key=",">,</button>
+   <button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="1">1</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="2">2</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="3">3</button>
+   <button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="4">4</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="5">5</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="6">6</button>
+   <button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="7">7</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="8">8</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="9">9</button>
+   <button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="clear" style="min-height:62px;border:1px solid #fecaca;border-radius:12px;background:#fff1f2;color:#be123c;font-size:24px;font-weight:900;box-shadow:0 2px 0 #fecaca;touch-action:manipulation">C</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="0">0</button><button type="button" style="min-height:62px;border:1px solid #d7deea;border-radius:12px;background:#f1f5f9;color:#172033;font-size:26px;font-weight:800;box-shadow:0 2px 0 #cbd5e1;touch-action:manipulation" data-float-key="," style="min-height:62px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:28px;font-weight:900;box-shadow:0 2px 0 #bfdbfe;touch-action:manipulation">,</button>
   </div>
   <button id="floatPadApply" type="button" style="width:100%;margin-top:12px;background:#15803d;color:white;border:0;border-radius:12px;padding:14px;font-size:18px;font-weight:800">Übernehmen</button>
  </div>
@@ -192,7 +192,7 @@
 
 <script src="cloud-config.js"></script>
 <script src="cloud.js?v=81"></script>
-<script src="tagesabschluss.js?v=92"></script>
+<script src="tagesabschluss.js?v=93"></script>
 
 
 

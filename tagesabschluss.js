@@ -901,7 +901,7 @@ function showFloatPad(){
 }
 function hideFloatPad(){floatPad.style.display="none";}
 floatInput.addEventListener("click",showFloatPad);
-floatInput.addEventListener("focus",showFloatPad);
+
 $("floatPadClose").addEventListener("click",hideFloatPad);
 $("floatPadApply").addEventListener("click",()=>{
  floatInput.value=floatPadValue.replace(/,$/,"");
