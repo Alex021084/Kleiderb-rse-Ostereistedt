@@ -46,7 +46,12 @@ saveAccountingFloat.addEventListener("click",async()=>{
  try{
   await KBCloud.cloudSaveRegisterFloat(register,amount);
   accountingFloatInput.value=amount.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(register===selectedRegister)accountingFloatStatus.textContent="✓ Startbestand für "+register+" gespeichert.";
+  if(register===selectedRegister){
+   accountingFloatStatus.textContent="✓ Startbestand für "+register+" gespeichert. Sollbestand wird aktualisiert …";
+   // Nach erfolgreichem Speichern die Tagesabschluss-Anzeige sofort neu berechnen.
+   await render();
+   if(register===selectedRegister)accountingFloatStatus.textContent="✓ Startbestand für "+register+" gespeichert. Sollbestand wurde aktualisiert.";
+  }
  }catch(error){accountingFloatStatus.textContent="Speichern fehlgeschlagen: "+(error.message||error);}
  finally{saveAccountingFloat.disabled=(selectedRegister==="Alle Kassen");}
 });
