@@ -628,3 +628,20 @@ body header.top > h2{display:none!important}
 #mobileKeypadModal .mobile-keypad-box .keypad{gap:11px!important}
 #mobileKeypadModal .mobile-keypad-box .keypad button{height:82px!important;font-size:27px!important}
 #mobileKeypadModal .mobile-keypad-box .keypad .confirm-key{font-size:34px!important}
+
+
+/* Version 55: Größen-Auswahl leicht vergrößert */
+.size-grid{gap:7px!important}
+.size-button{
+  height:47px!important;
+  min-height:47px!important;
+  font-size:16px!important;
+  border-radius:10px!important;
+}
+@media(orientation:portrait){
+  .size-button{height:44px!important;min-height:44px!important;font-size:15px!important}
+}
+@media(max-width:900px){
+  .size-grid{gap:7px!important}
+  .size-button{height:48px!important;min-height:48px!important;font-size:16px!important}
+}

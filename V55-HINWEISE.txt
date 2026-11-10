@@ -1,0 +1,3 @@
+Version 55 – Größen-Auswahl leicht vergrößert
+
+Die Größen-Buttons wurden dezent vergrößert: etwa 47–48px Höhe und 16px Schrift (im Hochformat 44px und 15px). Die Abstände wurden leicht erhöht. Keine Verkaufs-, Synchronisations- oder Datenbanklogik geändert.
