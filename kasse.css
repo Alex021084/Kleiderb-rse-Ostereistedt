@@ -680,3 +680,37 @@ body header.top > h2{display:none!important}
  .entry-panel .price-wrap .touch-input{height:58px!important;min-height:58px!important;font-size:25px!important}
  .entry-panel .price-wrap span{font-size:25px!important}
 }
+
+
+/* Version 57: kompakteres Zahlenfeld, damit mindestens drei Bonpositionen sichtbar bleiben */
+.keypad{gap:7px!important}
+.keypad button{height:54px!important;min-height:54px!important;font-size:22px!important;border-radius:11px!important}
+.keypad .confirm-key{font-size:27px!important}
+@media(max-width:900px){
+  .keypad{gap:7px!important}
+  .keypad button{height:54px!important;min-height:54px!important;font-size:22px!important}
+}
+@media(max-width:700px) and (orientation:portrait){
+  .keypad button{height:54px!important;min-height:54px!important}
+}
+#mobileKeypadModal .mobile-keypad-box .keypad button{height:58px!important;min-height:58px!important}
+
+/* Kassenbon lässt sich antippen und groß anzeigen */
+.receipt-live{cursor:pointer}
+.receipt-live:focus-visible{outline:3px solid #5265df;outline-offset:2px}
+.receipt-preview-modal{z-index:3000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.62)}
+.receipt-preview-modal.show{display:flex}
+.receipt-preview-box{width:min(560px,100%);max-height:calc(100dvh - 36px);overflow:auto;background:#fff;border-radius:20px;padding:20px;box-shadow:0 18px 55px rgba(0,0,0,.28)}
+.receipt-preview-box .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.receipt-preview-box .modal-head h2{margin:0;font-size:24px}
+.receipt-preview-items{max-height:55dvh;overflow:auto}
+.receipt-preview-items .receipt-line{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px 2px}
+.receipt-preview-items .receipt-action{display:none!important}
+.receipt-preview-items .receipt-line-meta{font-size:14px}
+.receipt-preview-total{display:flex;justify-content:space-between;align-items:center;border-top:2px solid #d8dee8;margin-top:12px;padding:14px 2px;font-size:20px}
+.receipt-preview-total strong{font-size:24px}
+.receipt-preview-close{width:100%;min-height:52px;margin-top:10px;font-size:18px}
+@media(max-width:600px){
+ .receipt-preview-box{padding:16px;border-radius:18px}
+ .receipt-preview-box .modal-head h2{font-size:22px}
+}

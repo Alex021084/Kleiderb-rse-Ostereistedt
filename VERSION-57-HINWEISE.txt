@@ -1,0 +1,1 @@
+Version 57\n- Zahlenfeld kompakter: ca. 54 px Tastenhöhe statt der zuletzt stark vergrößerten Tasten.\n- Kassenbon kann durch Antippen groß in einem Popup geöffnet werden.\n- Popup zeigt die aktuellen Bonpositionen und den Gesamtbetrag; Bearbeiten/Löschen bleibt im normalen Bon.\n
