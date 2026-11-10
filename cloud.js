@@ -747,72 +747,41 @@ async function cloudUpdateReceiptItem(
 }
 
 
-/* KASSENBON-KORREKTUR MIT ÄNDERUNGSHISTORIE */
+/* KASSENBON-KORREKTUR – atomar über eine PostgreSQL-Transaktion */
 async function cloudEditReceipt(receiptId, payment, items, reason){
   await cloudClient();
-  const all=await cloudGetReceipts();
-  const current=all.find(r=>String(r.id)===String(receiptId));
-  if(!current) throw new Error("Kassenbon wurde nicht gefunden. Bitte neu laden.");
+  if(!Array.isArray(items) || !items.length)
+    throw new Error("Ein Kassenbon muss mindestens einen Artikel enthalten.");
+  if(!["Bar","EC","PayPal"].includes(payment))
+    throw new Error("Bitte eine gültige Zahlungsart auswählen.");
 
-  const oldItems=current.receipt_items||[];
-  const oldSnapshot={
-    id:current.id, receipt_no:current.receipt_no, register_id:current.register_id,
-    payment:current.payment, total:Number(current.total||0), created_at:current.created_at,
-    receipt_items:oldItems.map(x=>({...x}))
-  };
   const normalized=items.map(x=>({
-    id:x.id||null, seller_number:x.seller_number?String(x.seller_number):null,
-    unassigned_note:String(x.unassigned_note||""), size:String(x.size||""),
-    price:Number(x.price||0), commission_enabled:x.commission_enabled!==false,
+    id:x.id===null||x.id===undefined||x.id===""?null:Number(x.id),
+    seller_number:x.seller_number?String(x.seller_number):null,
+    unassigned_note:String(x.unassigned_note||""),
+    size:String(x.size||""),
+    price:Number(x.price),
+    commission_enabled:x.commission_enabled!==false,
     commission_rate:Number(x.commission_rate??0.15)
   }));
-  if(!normalized.length) throw new Error("Ein Kassenbon muss mindestens einen Artikel enthalten.");
-  if(normalized.some(x=>!x.size.trim()||!Number.isFinite(x.price)||x.price<0)) throw new Error("Bitte Artikel und gültige Preise prüfen.");
-  const total=Math.round(normalized.reduce((sum,x)=>sum+x.price,0)*100)/100;
+  if(normalized.some(x=>!x.size.trim()||!Number.isFinite(x.price)||x.price<0||!Number.isFinite(x.commission_rate)||x.commission_rate<0||x.commission_rate>1))
+    throw new Error("Bitte Artikel, Preise und Provisionswerte prüfen.");
 
-  // Positionen zuerst speichern und jede Antwort prüfen. So kann der Bonkopf
-  // niemals einen anderen Betrag zeigen als seine gespeicherten Artikel.
-  const keepIds=normalized.filter(x=>x.id).map(x=>String(x.id));
-  const removeIds=oldItems.filter(x=>!keepIds.includes(String(x.id))).map(x=>String(x.id));
-  if(removeIds.length){
-    await apiRequest("receipt_items?id=in.("+removeIds.map(encodeURIComponent).join(",")+")",{
-      method:"DELETE",headers:{"Prefer":"return=minimal"}
-    });
-  }
-  for(const item of normalized){
-    const row={receipt_id:current.id,seller_number:item.seller_number,
-      unassigned_note:item.unassigned_note,size:item.size,price:item.price,
-      commission_enabled:item.commission_enabled,commission_rate:item.commission_rate};
-    if(item.id){
-      const updated=await apiRequest("receipt_items?id=eq."+encodeURIComponent(item.id),{
-        method:"PATCH",headers:{"Prefer":"return=representation"},body:JSON.stringify(row)
-      });
-      if(!Array.isArray(updated)||!updated.length) throw new Error("Eine Artikelposition konnte nicht aktualisiert werden.");
-    }else{
-      const inserted=await apiRequest("receipt_items",{
-        method:"POST",headers:{"Prefer":"return=representation"},body:JSON.stringify(row)
-      });
-      if(!Array.isArray(inserted)||!inserted.length) throw new Error("Eine neue Artikelposition konnte nicht gespeichert werden.");
-    }
-  }
-
-  // Bonbetrag und Zahlungsart aus den tatsächlich gespeicherten Positionen aktualisieren.
-  const receiptUpdate=await apiRequest("receipts?id=eq."+encodeURIComponent(receiptId),{
-    method:"PATCH",headers:{"Prefer":"return=representation"},
-    body:JSON.stringify({payment,total})
-  });
-  if(!Array.isArray(receiptUpdate)||!receiptUpdate.length) throw new Error("Der Gesamtbetrag des Kassenbons konnte nicht aktualisiert werden.");
-
-  // Erst nach erfolgreicher Speicherung die dauerhafte Änderungshistorie anlegen.
-  await apiRequest("receipt_edit_history",{
-    method:"POST",headers:{"Prefer":"return=minimal"},
+  // Die SQL-Funktion speichert Positionen, Bonkopf und Historie in EINER
+  // Transaktion. Bei einem Fehler wird alles zurückgerollt.
+  const result=await apiRequest("rpc/kb_edit_receipt",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      receipt_id:current.id, reason:String(reason||"Nachträgliche Korrektur"),
-      old_snapshot:oldSnapshot,
-      new_snapshot:{payment,total,receipt_items:normalized.map(x=>({...x}))}
+      p_receipt_id:Number(receiptId),
+      p_payment:payment,
+      p_items:normalized,
+      p_reason:String(reason||"Nachträgliche Korrektur")
     })
   });
-  return {id:current.id,total};
+  if(!result || result.ok!==true)
+    throw new Error(result?.message||"Die Korrektur wurde von der Datenbank nicht bestätigt.");
+  return result;
 }
 
 async function cloudGetReceiptHistory(receiptId){

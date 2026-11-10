@@ -1,0 +1,12 @@
+VERSION 59 – KASSENBON-KORREKTUREN ZUVERLÄSSIG SPEICHERN
+
+- Bonkorrekturen werden nun über eine einzige Datenbanktransaktion gespeichert.
+- Artikelpositionen, Zahlungsart und Bon-Gesamtbetrag bleiben dadurch konsistent.
+- Die Änderungshistorie wird nur bei vollständig erfolgreicher Korrektur angelegt.
+- Bei einem Fehler wird die gesamte Änderung zurückgerollt; es bleiben keine halben Korrekturen zurück.
+- Die Buchhaltung lädt nach einer erfolgreichen Korrektur neu. Umsatz je Kasse verwendet den gespeicherten Bonbetrag.
+- Der dauerhafte ⚠️-Hinweis wird weiterhin aus der Änderungshistorie ermittelt.
+
+WICHTIG: Vor dem Hochladen der App-Dateien zuerst CLOUD-MIGRATION-V70-BONKORREKTUR.sql
+im Supabase SQL Editor vollständig ausführen und RUN drücken.
+Die bisherige Version 58 als Sicherung behalten.
