@@ -34,13 +34,21 @@ async function syncOfflineReceipts(){
  }finally{window.kbOfflineSyncing=false;if(KBCloud.updateCloudBanner)KBCloud.updateCloudBanner()}
 }
 window.addEventListener("online",()=>{setTimeout(syncOfflineReceipts,1200)});
-// Verkäufernummern robust vergleichen (Zahl/String, Leerzeichen und unsichtbare Zeichen).
+// Verkäufernummern ausschließlich vollständig und exakt vergleichen.
+// Unsichtbare Unicode-Zeichen und versehentliche Leerzeichen werden entfernt;
+// Teiltreffer (z. B. 1 für 21) sind ausdrücklich ausgeschlossen.
 function sellerNumberKey(value){
- return String(value??"").normalize("NFKC").replace(/[\\u200B-\\u200D\\uFEFF]/g,"").replace(/\\s+/g,"").trim();
+ return String(value??"").normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g,"").replace(/\s+/g,"").trim();
 }
 function findSellerByNumber(value){
  const key=sellerNumberKey(value);
- return key ? getSellers().find(s=>sellerNumberKey(s.number??s.seller_number??s.verkaeufernummer)===key) : undefined;
+ if(!key) return undefined;
+ const matches=getSellers().filter(s=>{
+  const raw=s.number!==undefined&&s.number!==null?s.number:(s.seller_number??s.verkaeufernummer);
+  return sellerNumberKey(raw)===key;
+ });
+ // Bei doppelten Nummern lieber keinen falschen Verkäufer zuordnen.
+ return matches.length===1?matches[0]:undefined;
 }
 function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
 function priceValue(){

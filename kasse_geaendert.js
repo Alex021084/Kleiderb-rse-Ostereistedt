@@ -21,7 +21,7 @@ function checkSeller(){
  if(unassignedMode){sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent=unassignedNote?`Nicht zugeordnet · ${unassignedNote}`:"Nicht zugeordnet";update();return true}
  const n=sellerNumber.value.trim();sellerNumber.classList.remove("valid","invalid");sellerStatus.classList.remove("valid","invalid");
  if(!n){sellerStatus.textContent="Bitte Verkäufernummer eingeben.";update();return false}
- const seller=getSellers().find(s=>String(s.number)===n);
+ const seller=getSellers().find(s=>String(s.number??s.seller_number??s.verkaeufernummer).trim()===n);
  const ok=!!seller;
  sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
  sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden${String(seller.name||"").trim()?` · ${String(seller.name).trim()}`:""}`:"✕ Verkäufernummer nicht gefunden";update();return ok

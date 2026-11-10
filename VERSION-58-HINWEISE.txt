@@ -1,0 +1,7 @@
+Version 58
+- Verkäufernummern werden ausschließlich vollständig und exakt zugeordnet.
+- Eine Eingabe „1“ kann nicht mehr versehentlich Verkäufernummer „21“ treffen.
+- Unsichtbare Unicode-Zeichen/Leerzeichen werden bei der Prüfung bereinigt.
+- Bei doppelten Nummern wird kein Verkäufer automatisch zugeordnet.
+- Cache-Version der Kassen-JavaScript-Datei erhöht, damit Geräte den Fix laden.
+- Bestehende Verkäufer- und Verkaufsdaten bleiben unverändert.
