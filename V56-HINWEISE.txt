@@ -1,0 +1,3 @@
+Version 56 – Preisfeld optisch hervorgehoben
+
+Die Preisbeschriftung ist etwas größer und fett. Das Preisfeld ist höher, hat einen kräftigeren blauen Rahmen, einen dezent hellblauen Hintergrund und eine größere/fettere Eingabeschrift. Das Euro-Zeichen ist ebenfalls besser sichtbar. Keine Preisberechnung oder Verkaufslogik geändert.

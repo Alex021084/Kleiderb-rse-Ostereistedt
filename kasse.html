@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Kasse</title>
-<link rel="stylesheet" href="kasse.css?v=55">
+<link rel="stylesheet" href="kasse.css?v=56">
 <style>
 .entry-buttons{padding-top:8px!important;padding-bottom:48px!important;gap:10px!important}
 .entry-buttons .continue,.entry-buttons .finish{height:62px!important;font-size:19px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:11px!important;border-radius:12px!important}
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function(){
         <button type="button" class="size-button" data-size="140">140</button><button type="button" class="size-button" data-size="146">146</button><button type="button" class="size-button" data-size="152">152</button><button type="button" class="size-button" data-size="158">158</button><button type="button" class="size-button" data-size="164">164</button><button type="button" class="size-button" data-size="170">170</button><button type="button" class="size-button" data-size="176">176</button>
       </div>
       <div class="special-item-row"><button id="toyButton" class="toy-button" type="button" aria-pressed="false">🧸 &nbsp; Spielzeug</button><button id="shoeButton" class="toy-button shoe-button" type="button" aria-pressed="false">👟 &nbsp; Schuhe</button></div>
-      <label>Preis</label><div class="price-wrap"><input id="price" class="touch-input" type="text" inputmode="none" readonly placeholder="0,00"><span>€</span></div>
+      <label class="price-label">Preis</label><div class="price-wrap"><input id="price" class="touch-input" type="text" inputmode="none" readonly placeholder="0,00"><span>€</span></div>
       <div class="entry-buttons"><button id="addButton" class="continue" type="button" disabled><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="16" r="11"></circle><path d="M16 10v12M10 16h12"></path></svg></span><span>Weiterer Artikel</span></button><button id="finishButton" class="finish" type="button" disabled><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 36 32" focusable="false"><rect x="3" y="5" width="30" height="22" rx="4"></rect><path d="M4 12h28"></path><path d="M9 21h7"></path></svg></span><span>Bezahlen</span></button></div>
       <button id="cancelEditButton" class="cancel-edit hidden" type="button">Bearbeiten abbrechen</button>
     </section>
