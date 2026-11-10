@@ -1,0 +1,3 @@
+Version 53 – Zahlenfeld-Tasten vergrößert
+
+Die Tasten des Kassen-Zahlenfelds wurden ungefähr 30 Prozent höher gesetzt: Desktop/Querformat 64px, Hochformat 60px, kleinere Ansichten 73px; das mobile Zahlenfeld-Popup 75px. Schriftgrößen und Tastenanordnung bleiben unverändert. Nur kasse.css wurde angepasst; Cache-Buster auf 53.

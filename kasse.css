@@ -22,11 +22,11 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
 .entry-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:10px}
 .continue,.finish,.cancel-edit{width:100%;height:52px;border:0;border-radius:11px;font-size:17px;font-weight:800}.continue{background:#4357dc;color:#fff}.continue:disabled{background:#cbd1dc;color:#78818e}.finish{background:#172033;color:#fff}.finish:disabled{background:#cbd1dc;color:#78818e}.cancel-edit{margin-top:7px;background:#edf0f5;color:#4d5664}.hidden{display:none!important}
 .right-panel{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden}.keypad-card{padding:12px}.keypad-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.keypad-title strong{font-size:17px}.keypad-title span{font-size:13px;color:#697382}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.keypad button{height:49px;border:1px solid #d6dce5;border-radius:10px;background:#edf0f5;color:#172033;font-size:22px;font-weight:800}.keypad button:active{background:#dce2ec;transform:scale(.98)}.keypad .comma{grid-column:1}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.keypad button{height:64px;border:1px solid #d6dce5;border-radius:10px;background:#edf0f5;color:#172033;font-size:22px;font-weight:800}.keypad button:active{background:#dce2ec;transform:scale(.98)}.keypad .comma{grid-column:1}
 .receipt-live{min-height:0;display:flex;flex-direction:column;padding:13px;overflow:hidden}.receipt-head{display:flex;justify-content:space-between;padding-bottom:9px;border-bottom:1px dashed #cbd2dc;flex:none}.receipt-head strong{font-size:18px}.receipt-head span{color:#737d8b;font-size:13px}.receipt-items{overflow:auto;min-height:0;flex:1;padding:2px 0}.receipt-empty{text-align:center;color:#9098a4;padding:30px 10px}.receipt-line{display:grid;grid-template-columns:minmax(0,1fr) auto 36px 36px;gap:5px;align-items:center;padding:8px 0;border-bottom:1px solid #edf0f4}.receipt-line-meta{font-size:12px;color:#727c8b;margin-top:2px}.receipt-action{width:36px;height:36px;border:0;border-radius:8px;background:#edf0f5;color:#4357dc;font-weight:800}.receipt-delete{color:#b33b3b}.receipt-total{display:flex;justify-content:space-between;border-top:2px solid #172033;padding-top:9px;margin-top:3px;font-size:16px;flex:none}.receipt-total strong{font-size:20px}
 .modal{display:none;position:fixed;inset:0;background:rgba(17,24,39,.68);place-items:center;padding:18px;z-index:20}.modal.is-open{display:grid!important}.payment-box,.success-box{width:min(520px,100%);background:#fff;border-radius:20px;padding:22px}.modal-head{display:flex;justify-content:space-between;gap:14px}.modal-head h2{margin:0}.close{width:42px;height:42px;border:0;border-radius:50%;background:#edf0f5;font-size:25px}.final-count{color:#737d8b;margin-top:4px}.final-receipt{margin-top:18px;border-top:1px dashed #cbd2dc;border-bottom:1px dashed #cbd2dc;max-height:300px;overflow:auto}.payment-total{display:flex;justify-content:space-between;font-size:19px;padding:16px 0}.payment-total strong{font-size:24px}.payment-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.payment{height:62px;border:0;border-radius:13px;font-size:18px;font-weight:800}.cash{background:#e8f5eb;color:#247a42}.card{background:#e9edff;color:#4357dc}.paypal{background:#edf0f5;color:#172033}.success-box{text-align:center;padding:30px 22px}.success-icon{width:62px;height:62px;border-radius:50%;background:#e8f5eb;color:#247a42;display:grid;place-items:center;font-size:35px;font-weight:800;margin:0 auto 14px}.success-box h2{margin:0 0 8px}.success-box p{color:#6d7684;margin:0 0 20px}
 @media(max-width:900px){.cash-main{grid-template-columns:minmax(0,1fr) 43%}.size-grid{grid-template-columns:repeat(5,1fr)}}
-@media(orientation:portrait){.cash-main{grid-template-columns:52% 48%}.size-grid{grid-template-columns:repeat(4,1fr)}.size-button{height:38px;font-size:14px}.touch-input{height:44px}.keypad button{height:46px}}
+@media(orientation:portrait){.cash-main{grid-template-columns:52% 48%}.size-grid{grid-template-columns:repeat(4,1fr)}.size-button{height:38px;font-size:14px}.touch-input{height:44px}.keypad button{height:60px}}
 .keypad .confirm-key{grid-column:2 / 4;background:#2e9b55;border-color:#2e9b55;color:#fff;font-size:28px}.keypad .confirm-key:active{background:#247c43}
 .cash-register .top{height:64px !important;min-height:64px !important;display:grid !important;grid-template-columns:auto 1fr auto !important;align-items:center !important;gap:16px !important;padding:0 18px !important;overflow:hidden !important}
 .cash-register .top a{width:auto !important;max-width:max-content !important;justify-self:start !important;flex:none !important;padding:10px 15px !important;border-radius:11px !important;background:#2b3850 !important;border:1px solid rgba(255,255,255,.20) !important;color:#fff !important;font-size:15px !important;font-weight:750 !important;white-space:nowrap !important}
@@ -59,7 +59,7 @@ label{display:block;font-size:15px;font-weight:800;margin:8px 0 5px}
   .keypad-card{padding:10px}
   .keypad-title{margin-bottom:6px}
   .keypad-title strong{font-size:16px}
-  .keypad button{height:43px;font-size:20px}
+  .keypad button{height:56px;font-size:20px}
   .receipt-live{padding:11px}
 }
 @media (orientation: landscape){
@@ -604,3 +604,27 @@ body header.top > h2{display:none!important}
  body header.top > #cloudStatus > span:first-child,
  body header.top > #cloudStatus svg{width:18px!important;height:18px!important;flex-basis:18px!important}
 }
+
+
+/* Version 53: Zahlenfeld-Tasten rund 30 Prozent höher */
+.keypad button{height:64px!important}
+@media(orientation:portrait){.keypad button{height:60px!important}}
+@media(max-width:900px){.keypad button{height:73px!important}}
+#mobileKeypadModal .mobile-keypad-box .keypad button{height:75px!important}
+
+
+/* Version 54: Zahlenfeld insgesamt großzügiger – Höhe, Schrift und Abstände */
+.keypad{gap:10px!important}
+.keypad button{height:78px!important;font-size:25px!important;border-radius:13px!important}
+.keypad .confirm-key{font-size:32px!important}
+@media(orientation:portrait){
+  .keypad button{height:74px!important;font-size:24px!important}
+}
+@media(max-width:900px){
+  .keypad{gap:11px!important}
+  .keypad button{height:86px!important;font-size:26px!important}
+  .keypad .confirm-key{font-size:34px!important}
+}
+#mobileKeypadModal .mobile-keypad-box .keypad{gap:11px!important}
+#mobileKeypadModal .mobile-keypad-box .keypad button{height:82px!important;font-size:27px!important}
+#mobileKeypadModal .mobile-keypad-box .keypad .confirm-key{font-size:34px!important}

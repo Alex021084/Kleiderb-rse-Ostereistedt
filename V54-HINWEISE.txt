@@ -1,0 +1,3 @@
+Version 54 – Zahlenfeld insgesamt vergrößert
+
+Zusätzlich zur größeren Tastenhöhe wurden die Ziffern etwas größer, die Abstände zwischen den Tasten erweitert und die Ecken stärker abgerundet. Für normale Querformatansichten 78px Tastenhöhe, für kompaktere Ansichten 86px und für das mobile Zahlenfeld-Popup 82px. Bestätigungs-Taste entsprechend angepasst. Keine Datenbank- oder Verkaufslogik geändert.
