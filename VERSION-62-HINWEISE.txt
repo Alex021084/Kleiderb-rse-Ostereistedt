@@ -1,0 +1,7 @@
+Version 62 – Kompakte Bargeldeingabe
+
+- Das Feld „Erhaltenes Bargeld“ steht jetzt rechts neben der Beschriftung.
+- Das blaue Eingabefeld ist kompakt dimensioniert und zeigt Platz für bis zu 999,99 €.
+- Das Euro-Zeichen steht direkt rechts neben dem Eingabefeld.
+- Die Eingabe über das vorhandene Zahlenfeld ist auf maximal drei Vorkommastellen und zwei Nachkommastellen begrenzt.
+- Die übrigen Zahlungs- und Speicherabläufe bleiben unverändert.

@@ -353,7 +353,8 @@ $("cashKeypad").addEventListener("click",(event)=>{
    if(!value.includes(",")) value=value?value+",":"0,";
  }else if(/^[0-9]$/.test(key)){
    const commaIndex=value.indexOf(",");
-   if(value.length>=8 || (commaIndex>=0 && value.length-commaIndex>2))return;
+   if(commaIndex<0 && value.length>=3)return;
+   if(commaIndex>=0 && value.length-commaIndex>2)return;
    value+=key;
  }
  cashReceived.value=value;
