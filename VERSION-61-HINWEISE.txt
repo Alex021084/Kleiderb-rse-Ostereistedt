@@ -1,0 +1,6 @@
+Version 61 – Hinweis-Markierung bei Kassenbons
+
+- Bons mit einem gespeicherten Transaktionshinweis zeigen in der Bonliste jetzt „⚠️ Hinweis“.
+- Bei diesen Bons wird anstelle der Kennzeichnung „⚠️ Änderung“ die passende Hinweis-Kennzeichnung angezeigt.
+- Bons ohne Transaktionshinweis behalten ihre bisherige Änderungsmarkierung.
+- Keine Datenbankmigration erforderlich.
