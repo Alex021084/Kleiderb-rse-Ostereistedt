@@ -1,0 +1,13 @@
+VERSION 60 – zwei gezielte Verbesserungen
+
+1. Barzahlung:
+   Das Feld „Erhaltenes Bargeld“ ist jetzt deutlich größer und blau hervorgehoben.
+   Die Schriftgröße entspricht dem Betrag „Zu zahlen“.
+
+2. Tagesabschluss:
+   Ein beim EC-/PayPal-Zahlungsdialog eingetragener Transaktionshinweis wird
+   unter dem jeweiligen Kassenbon angezeigt – zusammen mit dessen Bonnummer.
+   Der Hinweis wird aus dem bereits gespeicherten Feld payment_note gelesen.
+
+Es wurden keine Datenbanktabellen oder vorhandenen Verkaufsdaten geändert.
+Die vorhandene Supabase-Speicherung des Zahlungs-Hinweises wird weiterverwendet.

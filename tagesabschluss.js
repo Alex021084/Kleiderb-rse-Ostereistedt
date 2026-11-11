@@ -248,13 +248,17 @@ const paypal=receipts.filter(r=>(r.payment||"")==="PayPal").reduce((a,r)=>{
            if(oldNote!==newNote)changes.push(`Bezeichnung: ${oldNote||"—"} → ${newNote||"—"}`);
            return changes.length?`<div class="receipt-line-change">↳ ${changes.map(esc).join(" · ")}</div>`:"";
          };
+         const transactionNote=String(r.payment_note??r.paymentNote??"").trim();
+         const transactionNoteHtml=transactionNote
+           ? `<div class="receipt-transaction-note"><strong>Transaktionshinweis · Bon ${esc(r.receipt_no??r.id)}:</strong><div>${esc(transactionNote)}</div></div>`
+           : "";
          const articleHtml=its.length?its.map(x=>{
            const sellerHtml=isUnassigned(x)
              ? '<span class="unassigned-meta">Nicht zugeordnet'+((x.unassigned_note??x.unassignedNote)?' · '+esc(x.unassigned_note??x.unassignedNote):'')+'</span>'
              : 'Verkäufer '+esc(x.seller_number??x.sellerNumber??"");
            return '<div class="receipt-line-meta">'+sellerHtml+' · '+esc(x.size??"")+' · '+euro(priceOf(x))+'</div>'+diffFor(x);
          }).join(""):'<div class="receipt-line-meta">Keine Einzelpositionen gespeichert.</div>';
-         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${articleHtml}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
+         return `<details class="receipt-details"><summary><strong>Bon ${esc(r.receipt_no??r.id)}</strong>${changed?' <span class="receipt-changed-badge">⚠️ Änderung</span>':""} · ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${esc(r.payment||"")} · <b>${euro(totalR)}</b></summary><div style="padding:10px 14px">${transactionNoteHtml}${articleHtml}<button type="button" class="receipt-edit-button" data-action="edit">✎ Bon bearbeiten</button><button type="button" class="receipt-history-button" data-action="history">Änderungshistorie</button></div></details>`;
        }).join("");
        target.querySelectorAll(".receipt-details").forEach((detail,index)=>{
          const receipt=list[index];

@@ -714,3 +714,18 @@ body header.top > h2{display:none!important}
  .receipt-preview-box{padding:16px;border-radius:18px}
  .receipt-preview-box .modal-head h2{font-size:22px}
 }
+
+/* V60: Bargeldbetrag gut sichtbar wie der Zahlbetrag */
+#cashReceived.cash-received-display{
+  height:54px!important;
+  min-height:54px!important;
+  font-size:23px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  color:#4357dc!important;
+  text-align:right!important;
+  border:2px solid #b9c5ff!important;
+  background:#f4f6ff!important;
+  padding:10px 14px!important;
+}
+#cashReceived.cash-received-display::placeholder{color:#7b8bea!important;opacity:1}

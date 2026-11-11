@@ -1077,3 +1077,7 @@ body header.top > h2{display:none!important}
  body header.top > #cloudStatus > span:first-child,
  body header.top > #cloudStatus svg{width:18px!important;height:18px!important;flex-basis:18px!important}
 }
+
+/* V60: Zahlungs-/Transaktionshinweise direkt beim zugehörigen Bon */
+.receipt-transaction-note{margin:2px 0 12px;padding:11px 13px;border:1px solid #bfdbfe;border-radius:11px;background:#eff6ff;color:#1e40af;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.receipt-transaction-note strong{display:block;margin-bottom:4px;color:#1d4ed8}
