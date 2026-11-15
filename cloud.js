@@ -496,6 +496,7 @@ async function cloudSaveSeller(s){
     city:s.city || "",
     email:s.email || "",
     payout_method:s.payoutMethod || "Bar",
+    is_participating:s.isParticipating === true,
 
     commission_enabled:
       s.commissionEnabled === true,

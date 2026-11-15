@@ -391,3 +391,8 @@ body header.top > h2{display:none!important}
  body header.top > #cloudStatus > span:first-child,
  body header.top > #cloudStatus svg{width:18px!important;height:18px!important;flex-basis:18px!important}
 }
+
+/* Teilnahme an der aktuellen Börse */
+.seller{position:relative;padding-top:43px}
+.participation-toggle{position:absolute;top:10px;left:16px;display:flex;align-items:center;gap:7px;color:#2459c5;font-size:13px;font-weight:800;white-space:nowrap}
+.participation-toggle input{width:21px;height:21px;accent-color:#16804c}

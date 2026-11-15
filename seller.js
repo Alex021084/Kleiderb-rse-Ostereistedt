@@ -40,7 +40,8 @@ function normalize(s){
     zip:s.zip??e.zip??"",
     city:s.city??e.city??"",
     email:s.email??e.email??"",
-    payoutMethod:s.payoutMethod??s.payout_method??e.payoutMethod??"Bar"
+    payoutMethod:s.payoutMethod??s.payout_method??e.payoutMethod??"Bar",
+    isParticipating:s.isParticipating===true || s.is_participating===true
   }
 }
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
@@ -68,10 +69,31 @@ async function sellerStats(number){
 }
 async function render(){
   let q=($("search").value||"").toLocaleLowerCase("de-DE");
-  let a=sorted(sellers).filter(s=>s.name.toLocaleLowerCase("de-DE").includes(q)||s.number.includes(q));
-  $("count").textContent=`${sellers.length} Verkäufer`;
-  $("list").innerHTML=a.length?a.map(s=>`<article class="seller"><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">Noch keine Verkäufer angelegt.</div>';
+  const view=new URLSearchParams(location.search).get("liste")||"alle";
+  let a=sorted(sellers).filter(s=>(view!=="teilnehmend"||s.isParticipating===true) &&
+    (s.name.toLocaleLowerCase("de-DE").includes(q)||s.number.includes(q)));
+  $("count").textContent=view==="teilnehmend"
+    ? `${sellers.filter(s=>s.isParticipating===true).length} teilnehmende Verkäufer`
+    : `${sellers.length} gespeicherte Verkäufer`;
+  const heading=document.getElementById("sellerViewTitle");
+  if(heading) heading.textContent=view==="teilnehmend"?"Teilnehmende Verkäufer":"Alle gespeicherten Verkäufer";
+  $("list").innerHTML=a.length?a.map(s=>`<article class="seller"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"><span>Teilnahme</span></label><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">'+(view==="teilnehmend"?'Noch keine Verkäufer für diese Börse ausgewählt.':'Noch keine Verkäufer angelegt.')+'</div>';
 }
+async function toggleParticipation(id,checked){
+  const seller=sellers.find(x=>String(x.id)===String(id)); if(!seller)return;
+  const previous=seller.isParticipating===true;
+  seller.isParticipating=!!checked;
+  try{
+    if(KBCloud.cloudReady()) await KBCloud.cloudSaveSeller(seller);
+    else localStorage.setItem("kb_sellers",JSON.stringify(sellers));
+    render();
+  }catch(error){
+    seller.isParticipating=previous;
+    render();
+    alert("Teilnahme konnte nicht gespeichert werden. Bitte Cloud-Verbindung prüfen.\n\n"+(error.message||""));
+  }
+}
+
 async function showReport(id){
   const s=sellers.find(x=>x.id===id);if(!s)return;
   const st=await sellerStats(s.number);
@@ -99,7 +121,7 @@ async function saveSeller(){
   if(!number||!name){$("error").textContent="Bitte Nummer und Name eingeben.";return}
   if(sellers.some(s=>s.number===number&&s.id!==editId)){$("error").textContent="Diese Verkäufernummer ist bereits vergeben.";return}
   let s=editId?sellers.find(x=>x.id===editId):{id:crypto.randomUUID?crypto.randomUUID():Date.now().toString()};
-  Object.assign(s,{number,name,phone,salutation,address,street,houseNumber,zip,city,email,payoutMethod,commissionEnabled,commissionRate});
+  Object.assign(s,{number,name,phone,salutation,address,street,houseNumber,zip,city,email,payoutMethod,commissionEnabled,commissionRate,isParticipating:s.isParticipating===true});
   try{
     if(KBCloud.cloudReady()){
       await KBCloud.cloudSaveSeller(s);

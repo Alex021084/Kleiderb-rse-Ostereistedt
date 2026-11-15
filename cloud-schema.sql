@@ -151,3 +151,4 @@ create index if not exists receipt_edit_history_receipt_idx
 
 -- REST/PostgREST Schema-Cache aktualisieren:
 notify pgrst, 'reload schema';
+\n\n-- V71: Teilnahme an der aktuellen Börse je Verkäufer.\nalter table public.sellers add column if not exists is_participating boolean not null default false;\n

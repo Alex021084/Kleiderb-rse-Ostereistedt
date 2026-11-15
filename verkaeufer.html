@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=52">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=71">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -26,13 +26,14 @@ body.modal-open{overscroll-behavior:none!important;}
 .modal{touch-action:pan-y!important;overscroll-behavior:contain!important;}
 .modal > .box{max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important;}
 @supports not (height: 100dvh){.modal > .box{max-height:calc(100vh - 24px)!important;}}
-</style>
+
+\n</style>
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
 <body>
 
 <header class="top"><a class="home-link" href="dashboard.html">⌂ Buchhaltung</a><strong>Verkäufer</strong><div id="cloudStatus" class="top-cloud-status" role="status" aria-live="polite"></div></header>
 <main>
-<h1>Verkäufer</h1>
+<h1 id="sellerViewTitle">Verkäufer</h1>
 <button class="add" onclick="openForm()">＋ Verkäufer hinzufügen</button>
 <div class="search"><span>⌕</span><input id="search" type="search" placeholder="Verkäufer suchen"></div>
 <p id="count" class="count"></p><section id="list"></section>
@@ -90,5 +91,5 @@ body.modal-open{overscroll-behavior:none!important;}
   <p class="reportnote">Die Abrechnung wird aus den erfassten Verkäufen dieser Verkäufernummer berechnet.</p>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=72"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=71"></script>
 </body></html>

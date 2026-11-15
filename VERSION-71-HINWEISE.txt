@@ -1,0 +1,9 @@
+Version 71 – Verkäufer-Teilnehmerlisten
+
+- Startmenü führt zum Auswahlfenster „Verkäuferlisten“.
+- Gespeicherte Verkäufer bleiben vollständig erhalten.
+- Teilnahme-Haken werden am Verkäufer gespeichert und in der Cloud zwischen Geräten geteilt.
+- Separate Ansicht zeigt nur teilnehmende Verkäufer.
+- Beim Archivieren wird die Teilnehmerliste als Bestandteil des Börsen-Snapshots gespeichert.
+- Nach erfolgreichem Archivieren werden die Teilnahme-Haken für die nächste Börse zurückgesetzt.
+- Supabase-Migration CLOUD-MIGRATION-V71-TEILNEHMER.sql muss einmal im SQL Editor ausgeführt werden.

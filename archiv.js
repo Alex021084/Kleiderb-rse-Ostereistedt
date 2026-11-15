@@ -32,18 +32,19 @@ async function currentSnapshot(){
   }
   let sellerExtras={};
   try{sellerExtras=JSON.parse(localStorage.getItem("kb_seller_extras")||"{}")}catch(e){}
-  return {mode,sellers,sales,receipts,sellerExtras,register:localStorage.getItem("kb_register")||"Kasse 1",savedAt:new Date().toISOString(),version:"65"};
+  const participatingSellers=(sellers||[]).filter(s=>s.is_participating===true||s.isParticipating===true).map(s=>({id:s.id,number:String(s.number||""),name:String(s.name||"")}));
+  return {mode,sellers,sales,receipts,sellerExtras,participatingSellers,register:localStorage.getItem("kb_register")||"Kasse 1",savedAt:new Date().toISOString(),version:"71"};
 }
 function salesFromSnapshot(a){
   if(a.mode!=="cloud")return a.sales||[];
   const out=[];(a.receipts||[]).forEach(r=>(r.receipt_items||[]).forEach(i=>out.push({receiptId:r.id,payment:r.payment,timestamp:r.created_at,registerId:r.register_id,sellerNumber:i.seller_number||"",unassignedNote:i.unassigned_note||"",unassignedPhoto:i.unassigned_photo||"",size:i.size,price:Number(i.price||0),commissionEnabled:i.commission_enabled===true,commissionRate:Number(i.commission_rate||0)})));return out;
 }
-function totals(a){const s=salesFromSnapshot(a);return {total:s.reduce((n,x)=>n+Number(x.price||0),0),items:s.length,sellers:(a.sellers||[]).length}}
+function totals(a){const s=salesFromSnapshot(a);return {total:s.reduce((n,x)=>n+Number(x.price||0),0),items:s.length,sellers:(a.sellers||[]).length,participants:(a.participatingSellers||[]).length}}
 function sourceLabel(){return archiveSource==="cloud"?"☁️ Cloud-Archiv":"📱 Lokales Archiv"}
 function render(){
   const list=$("archiveList");
   if(!archives.length){list.innerHTML='<div class="archive-empty">Noch keine Börse archiviert.</div>';return;}
-  list.innerHTML=archives.slice().sort((a,b)=>new Date(b.savedAt)-new Date(a.savedAt)).map(a=>{const t=totals(a),d=new Date(a.savedAt);return `<div class="archive-card"><div><strong>${esc(a.name)}</strong><div class="muted">${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${t.sellers} Verkäufer · ${t.items} Artikel · ${euro(t.total)}</div><div class="muted">${sourceLabel()}</div></div><div class="archive-actions"><button data-open="${esc(a.id)}">Öffnen</button><button data-export="${esc(a.id)}">⬇️ Export</button><button data-pdf="${esc(a.id)}">📄 PDF</button><button data-restore="${esc(a.id)}">Wiederherstellen</button><button class="danger" data-del="${esc(a.id)}">Löschen</button></div></div>`}).join("");
+  list.innerHTML=archives.slice().sort((a,b)=>new Date(b.savedAt)-new Date(a.savedAt)).map(a=>{const t=totals(a),d=new Date(a.savedAt);return `<div class="archive-card"><div><strong>${esc(a.name)}</strong><div class="muted">${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${t.sellers} Verkäufer · ${t.participants} Teilnehmende · ${t.items} Artikel · ${euro(t.total)}</div><div class="muted">${sourceLabel()}</div></div><div class="archive-actions"><button data-open="${esc(a.id)}">Öffnen</button><button data-export="${esc(a.id)}">⬇️ Export</button><button data-pdf="${esc(a.id)}">📄 PDF</button><button data-restore="${esc(a.id)}">Wiederherstellen</button><button class="danger" data-del="${esc(a.id)}">Löschen</button></div></div>`}).join("");
   list.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openArchive(b.dataset.open));
   list.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportArchive(b.dataset.export));
   list.querySelectorAll("[data-pdf]").forEach(b=>b.onclick=()=>exportArchivePdf(b.dataset.pdf));
@@ -121,7 +122,7 @@ async function restoreArchive(id){
   }catch(e){console.error(e);alert("Die Börse konnte nicht vollständig wiederhergestellt werden.\n\n"+(e?.message||"Unbekannter Fehler"));buttons.forEach(b=>{b.disabled=false;b.textContent="Wiederherstellen"})}
 }
 function openArchive(id){
-  const a=archives.find(x=>x.id===id);if(!a)return;const s=salesFromSnapshot(a),t=totals(a);$("detailPanel").hidden=false;$("detailTitle").textContent=a.name;const d=new Date(a.savedAt);$("detailMeta").textContent=`Archiviert am ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${archiveSource==="cloud"?"Cloud-Sicherung":"Lokale Sicherung"}`;const by={};s.forEach(x=>{const n=String(x.sellerNumber||"").trim();if(!n)return;(by[n]||={count:0,total:0});by[n].count++;by[n].total+=Number(x.price||0)});$("detailBody").innerHTML=`<div class="stats"><div class="stat"><span>Verkäufer</span><strong>${t.sellers}</strong></div><div class="stat"><span>Artikel</span><strong>${t.items}</strong></div><div class="stat"><span>Umsatz</span><strong>${euro(t.total)}</strong></div><div class="stat"><span>Nicht zugeordnet</span><strong>${s.filter(x=>!String(x.sellerNumber||"").trim()).length}</strong></div></div><h3>Verkäufer</h3>${Object.entries(by).map(([n,x])=>{const seller=(a.sellers||[]).find(z=>String(z.number)===n);return `<div class="seller-card"><div><strong>${esc(seller?.name||("Verkäufer "+n))}</strong><div class="muted">Nr. ${esc(n)} · ${x.count} Artikel</div></div><strong>${euro(x.total)}</strong></div>`}).join("")||'<div class="archive-empty">Keine Verkäufe vorhanden.</div>'}`;window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})
+  const a=archives.find(x=>x.id===id);if(!a)return;const s=salesFromSnapshot(a),t=totals(a);$("detailPanel").hidden=false;$("detailTitle").textContent=a.name;const d=new Date(a.savedAt);$("detailMeta").textContent=`Archiviert am ${isNaN(d.getTime())?"":d.toLocaleString("de-DE")} · ${archiveSource==="cloud"?"Cloud-Sicherung":"Lokale Sicherung"}`;const by={};s.forEach(x=>{const n=String(x.sellerNumber||"").trim();if(!n)return;(by[n]||={count:0,total:0});by[n].count++;by[n].total+=Number(x.price||0)});$("detailBody").innerHTML=`<div class="stats"><div class="stat"><span>Verkäufer</span><strong>${t.sellers}</strong></div><div class="stat"><span>Artikel</span><strong>${t.items}</strong></div><div class="stat"><span>Umsatz</span><strong>${euro(t.total)}</strong></div><div class="stat"><span>Nicht zugeordnet</span><strong>${s.filter(x=>!String(x.sellerNumber||"").trim()).length}</strong></div></div><h3>Teilnehmende Verkäufer (${t.participants})</h3>${(a.participatingSellers||[]).map(v=>`<div class="seller-card"><div><strong>${esc(v.name||("Verkäufer "+v.number))}</strong><div class="muted">Nr. ${esc(v.number)}</div></div><strong>✓</strong></div>`).join("")||'<div class="archive-empty">Keine Teilnehmerliste in diesem Archiv gespeichert.</div>'}<h3>Verkäufer mit Verkäufen</h3>${Object.entries(by).map(([n,x])=>{const seller=(a.sellers||[]).find(z=>String(z.number)===n);return `<div class="seller-card"><div><strong>${esc(seller?.name||("Verkäufer "+n))}</strong><div class="muted">Nr. ${esc(n)} · ${x.count} Artikel</div></div><strong>${euro(x.total)}</strong></div>`}).join("")||'<div class="archive-empty">Keine Verkäufe vorhanden.</div>'}`;window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})
 }
 function downloadText(filename,text){const blob=new Blob([text],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function safeFileName(v){return String(v||"boerse").replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/Ä/g,"Ae").replace(/Ö/g,"Oe").replace(/Ü/g,"Ue").replace(/ß/g,"ss").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"")||"boerse"}
@@ -132,7 +133,29 @@ async function importArchiveFile(file){
   let count=0;for(const raw of incoming){const a=normalizeArchive(raw);if(!a)continue;if(window.KBCloud&&KBCloud.cloudReady())await KBCloud.cloudSaveArchive(a);else{const arr=loadLocalArchives();const i=arr.findIndex(x=>String(x.id)===a.id);if(i>=0)arr[i]=a;else arr.push(a);saveLocalArchives(arr)}count++}
   await refreshArchives();alert(`${count} Archiv${count===1?"":"e"} erfolgreich importiert.`)
 }
-$("saveArchive").onclick=async()=>{const name=$("archiveName").value.trim();if(!name){alert("Bitte einen Namen für die Börse eingeben.");return}const btn=$("saveArchive");btn.disabled=true;try{const snap=await currentSnapshot();snap.id=crypto.randomUUID?crypto.randomUUID():String(Date.now());snap.name=name;await saveArchiveCloudOrLocal(snap);$("archiveName").value="";await refreshArchives();alert(`„${name}“ wurde ${archiveSource==="cloud"?"in der Cloud":"lokal"} archiviert.`)}catch(e){console.error(e);alert("Die Börse konnte nicht archiviert werden.\n\n"+(e?.message||"Unbekannter Fehler"))}finally{btn.disabled=false}}
+async function resetParticipationAfterArchive(snapshot){
+  if(snapshot.mode==="cloud" && window.KBCloud && KBCloud.cloudReady()){
+    const current=await KBCloud.cloudGetSellers();
+    for(const row of current){
+      if(row.is_participating===true || row.isParticipating===true){
+        await KBCloud.cloudSaveSeller({
+          id:row.id,number:row.number,name:row.name,phone:row.phone||"",
+          salutation:row.salutation||"Frau",address:row.address||"",street:row.street||"",
+          houseNumber:row.house_number||"",zip:row.zip||"",city:row.city||"",
+          email:row.email||"",payoutMethod:row.payout_method||"Bar",
+          commissionEnabled:row.commission_enabled===true,
+          commissionRate:Number(row.commission_rate??15),
+          isParticipating:false
+        });
+      }
+    }
+  }else{
+    const current=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+    current.forEach(s=>{s.isParticipating=false;s.is_participating=false});
+    localStorage.setItem("kb_sellers",JSON.stringify(current));
+  }
+}
+$("saveArchive").onclick=async()=>{const name=$("archiveName").value.trim();if(!name){alert("Bitte einen Namen für die Börse eingeben.");return}const btn=$("saveArchive");btn.disabled=true;try{const snap=await currentSnapshot();snap.id=crypto.randomUUID?crypto.randomUUID():String(Date.now());snap.name=name;await saveArchiveCloudOrLocal(snap);let resetOk=true;try{await resetParticipationAfterArchive(snap)}catch(resetError){resetOk=false;console.error("Teilnahme-Haken konnten nach dem Archivieren nicht zurückgesetzt werden",resetError)}$("archiveName").value="";await refreshArchives();alert(`„${name}“ wurde ${archiveSource==="cloud"?"in der Cloud":"lokal"} archiviert.`+(resetOk?" Die Teilnahme-Haken wurden für die nächste Börse zurückgesetzt.":" Die Börse ist gespeichert, aber die Haken konnten nicht automatisch zurückgesetzt werden. Bitte später erneut versuchen."))}catch(e){console.error(e);alert("Die Börse konnte nicht archiviert werden.\n\n"+(e?.message||"Unbekannter Fehler"))}finally{btn.disabled=false}}
 $("importArchive").onclick=()=>$("archiveFile").click();$("archiveFile").onchange=async e=>{try{await importArchiveFile(e.target.files?.[0])}catch(err){console.error(err);alert("Import fehlgeschlagen.\n\n"+(err?.message||"Unbekannter Fehler"))}finally{e.target.value=""}};
 $("closeDetail").onclick=()=>$("detailPanel").hidden=true;
 refreshArchives();
