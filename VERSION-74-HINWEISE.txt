@@ -1,0 +1,5 @@
+Version 74
+- Kopfzeile der beiden Verkäuferlisten korrigiert.
+- Buchhaltung und Zurück stehen nebeneinander links.
+- Cloudanzeige bleibt rechts und wird nicht vom Zurück-Button überlagert.
+- Keine Änderungen an anderen Seiten oder Funktionen.

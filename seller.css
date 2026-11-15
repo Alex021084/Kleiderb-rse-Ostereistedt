@@ -398,3 +398,90 @@ body header.top > h2{display:none!important}
 .seller{position:relative;padding-top:43px}
 .participation-toggle{position:absolute;top:10px;left:16px;display:flex;align-items:center;gap:7px;color:#2459c5;font-size:13px;font-weight:800;white-space:nowrap}
 .participation-toggle input{width:21px;height:21px;accent-color:#16804c}
+
+
+/* Version 74 – drei getrennte Bereiche: Buchhaltung, Zurück, Cloud */
+body header.top{
+  display:grid!important;
+  grid-template-columns:max-content max-content minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-content:initial!important;
+  column-gap:10px!important;
+  padding:8px 14px!important;
+}
+body header.top > a.home-link{
+  grid-column:1!important;
+  grid-row:1!important;
+  justify-self:start!important;
+}
+body header.top > a.back-link{
+  grid-column:2!important;
+  grid-row:1!important;
+  justify-self:start!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  display:inline-flex!important;
+  box-sizing:border-box!important;
+  width:max-content!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  margin:0!important;
+  padding:0 10px!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+body header.top > a.back-link:active{
+  transform:scale(.97)!important;
+}
+body header.top > #cloudStatus{
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  width:min(100%,260px)!important;
+  max-width:260px!important;
+  min-width:0!important;
+  margin:0!important;
+}
+@media(max-width:700px){
+  body header.top{
+    grid-template-columns:max-content max-content minmax(0,1fr)!important;
+    column-gap:6px!important;
+    padding:8px 9px!important;
+  }
+  body header.top > a.home-link{
+    max-width:none!important;
+    padding:0 8px!important;
+    font-size:12px!important;
+  }
+  body header.top > a.back-link{
+    padding:0 8px!important;
+    font-size:12px!important;
+  }
+  body header.top > #cloudStatus{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:44px!important;
+    min-height:44px!important;
+    max-height:44px!important;
+    padding:4px 6px!important;
+    font-size:10px!important;
+    justify-self:stretch!important;
+  }
+  body header.top > #cloudStatus > span:first-child,
+  body header.top > #cloudStatus svg{
+    width:17px!important;
+    height:17px!important;
+    flex:0 0 17px!important;
+  }
+}
