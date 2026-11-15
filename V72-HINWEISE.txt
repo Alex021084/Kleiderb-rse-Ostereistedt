@@ -1,0 +1,3 @@
+Version 72 – Kasse sucht nur teilnehmende Verkäufer
+
+Die Verkäufernummern-Suche an der Kasse berücksichtigt jetzt ausschließlich Verkäufer mit is_participating=true (bzw. lokal gecachtem isParticipating=true). Nicht teilnehmende Verkäufer bleiben in der vollständigen Verkäuferverwaltung erhalten, werden aber an der Kasse nicht gefunden. Der exakte Nummernvergleich bleibt bestehen. Cache-Buster kasse.js auf 72 erhöht.

@@ -44,6 +44,10 @@ function findSellerByNumber(value){
  const key=sellerNumberKey(value);
  if(!key) return undefined;
  const matches=getSellers().filter(s=>{
+  // An der Kasse dürfen ausschließlich Verkäufer der aktuellen Börse
+  // ausgewählt werden. Die vollständige Stammliste bleibt in der Verwaltung.
+  const participating=s.is_participating===true || s.isParticipating===true;
+  if(!participating) return false;
   const raw=s.number!==undefined&&s.number!==null?s.number:(s.seller_number??s.verkaeufernummer);
   return sellerNumberKey(raw)===key;
  });
