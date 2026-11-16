@@ -32,8 +32,17 @@ body.modal-open{overscroll-behavior:none!important;}
 /* V77 – Dokumente und Unterschriften in der Teilnehmerliste */
 .signature-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
 .signature-action,.signature-pdf{border:0;border-radius:9px;padding:9px 12px;font-weight:700;font-size:14px;min-height:38px}
-.signature-action.signed{background:#dcfce7;color:#167d45}
-.signature-action.pending{background:#fff0d9;color:#9a5a00}
+.signature-action.signed{
+ background:#f0fdf4;
+ color:#15803d;
+ border:2px solid #22a06b;
+ box-shadow:inset 0 0 0 1px rgba(34,160,107,.08);
+}
+.signature-action.pending{
+ background:#fff7e8;
+ color:#a85b08;
+ border:2px solid #f4c77d;
+}
 .signature-pdf{background:#e9edff;color:#394bd5}
 .signature-modal-box{width:min(980px,calc(100vw - 24px));max-width:980px}
 .signature-modal-box .agreement-text{font-size:17px;line-height:1.55;white-space:normal;padding:16px;background:#f7f8fa;border-radius:12px}
@@ -43,6 +52,21 @@ body.modal-open{overscroll-behavior:none!important;}
 .signature-modal-actions button{min-height:48px;padding:10px 18px;border-radius:10px;border:0;font-weight:700}
 #signatureError{color:#b42318;margin-top:8px}
 @media(max-width:600px){.signature-actions{gap:5px}.signature-action,.signature-pdf{font-size:12px;padding:8px 9px}}
+/* V78: Signatur-Aktionen rechts neben dem Euro-Button, mit mehr Abstand */
+.seller.participant-compact{grid-template-columns:34px minmax(110px,1fr) auto;column-gap:16px}
+.seller.participant-compact .compact-actions{width:auto;height:auto;display:flex;align-items:center;justify-content:flex-end;gap:16px;margin:0}
+.signature-actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.signature-action,.signature-pdf{white-space:nowrap;min-height:42px;padding:10px 13px}
+.seller.participant-compact .compact-actions .report{flex:0 0 48px;width:48px;height:48px}
+.signature-canvas-wrap.signature-locked{opacity:.42;background:#edf0f4;position:relative}
+.signature-canvas-wrap.signature-locked:after{content:"Bitte zuerst die Erklärung akzeptieren";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;color:#596273;font-weight:700;background:rgba(245,247,250,.72);pointer-events:none}
+.signature-canvas-wrap.signature-locked canvas{pointer-events:none}
+@media(max-width:760px){
+ .seller.participant-compact{grid-template-columns:30px minmax(0,1fr);row-gap:8px}
+ .seller.participant-compact .compact-actions{grid-column:2;justify-content:flex-start;flex-wrap:wrap;gap:10px}
+ .signature-actions{justify-content:flex-start;gap:8px}
+}
+
 </style>
 
 </style>
@@ -116,11 +140,11 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureText" class="agreement-text"></div>
  <label class="commission-check" style="display:flex;align-items:center;gap:12px;margin:18px 0"><input id="signatureAccepted" type="checkbox"><span>Ich habe den Text gelesen und akzeptiere die Erklärung.</span></label>
  <h3>Unterschrift</h3>
- <p>Bitte direkt im Feld unterschreiben. Das Feld nutzt die gesamte verfügbare Tabletbreite.</p>
+ <p>Bitte direkt im Feld unterschreiben.</p>
  <div class="signature-canvas-wrap"><canvas id="signatureCanvas"></canvas></div>
  <div class="signature-modal-actions"><button type="button" onclick="clearSignature()" style="background:#e9edf5">Löschen</button><button type="button" onclick="closeSignature()" style="background:#e9edf5">Abbrechen</button><button type="button" onclick="saveSignature()" style="background:#2456df;color:white">Unterschrift speichern</button></div>
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=77"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=78"></script>
 </body></html>

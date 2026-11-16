@@ -1,0 +1,7 @@
+Kleiderbörse Version 78 – Layout und Unterschriftenfeld
+
+- Abgabe-, Abholungs- und PDF-Schaltflächen stehen jetzt rechts neben dem Euro-Button.
+- Die Schaltflächen haben mehr Abstand zueinander.
+- Das Unterschriftenfeld ist gesperrt, bis die Bestätigungs-Checkbox aktiviert wurde.
+- Der Hinweis zur gesamten Tabletbreite wurde entfernt.
+- Keine zusätzliche Datenbankmigration gegenüber Version 77.

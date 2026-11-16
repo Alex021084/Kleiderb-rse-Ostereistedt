@@ -79,7 +79,7 @@ async function render(){
   const heading=document.getElementById("sellerViewTitle");
   if(heading) heading.textContent=view==="teilnehmend"?"Teilnehmende Verkäufer":"Alle gespeicherten Verkäufer";
   $("list").innerHTML=a.length?a.map(s=>view==="teilnehmend"
-    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div><div class="signature-actions"><button class="signature-action ${s.signatureDocuments?.abgabe?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abgabe')">${s.signatureDocuments?.abgabe?.signature?'✓ Abgabe':'○ Abgabe'}</button><button class="signature-action ${s.signatureDocuments?.abholung?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abholung')">${s.signatureDocuments?.abholung?.signature?'✓ Abholung':'○ Abholung'}</button><button class="signature-pdf" title="Beide Dokumente als PDF" onclick="openSellerDocumentsPdf('${s.id}')">PDF</button></div></div><div class="seller-actions compact-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
+    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div></div><div class="seller-actions compact-actions"><div class="signature-actions"><button class="signature-action ${s.signatureDocuments?.abgabe?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abgabe')">${s.signatureDocuments?.abgabe?.signature?'✓ Abgabe':'○ Abgabe'}</button><button class="signature-action ${s.signatureDocuments?.abholung?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abholung')">${s.signatureDocuments?.abholung?.signature?'✓ Abholung':'○ Abholung'}</button><button class="signature-pdf" title="Beide Dokumente als PDF" onclick="openSellerDocumentsPdf('${s.id}')">PDF</button></div><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
     : `<article class="seller"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"><span>Teilnahme</span></label><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">'+(view==="teilnehmend"?'Noch keine Verkäufer für diese Börse ausgewählt.':'Noch keine Verkäufer angelegt.')+'</div>';
 }
 async function toggleParticipation(id,checked){
@@ -171,8 +171,10 @@ function openSignature(id,type){
  document.getElementById("signatureTitle").textContent=title+" – "+seller.name;
  document.getElementById("signatureText").textContent=AGREEMENT_TEXT[type];
  document.getElementById("signatureAccepted").checked=false;
+ document.getElementById("signatureAccepted").onchange=updateSignatureCanvasLock;
  document.getElementById("signatureError").textContent="";
  clearSignatureCanvas();
+ updateSignatureCanvasLock();
  document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");modal.classList.remove("hidden");
  setTimeout(resizeSignatureCanvas,80);
 }
@@ -188,9 +190,14 @@ function resizeSignatureCanvas(){
  if(old){const im=new Image();im.onload=()=>sigCtx.drawImage(im,0,0,rect.width,220);im.src=old;}
 }
 function clearSignatureCanvas(){sigHasInk=false;sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);}
+function updateSignatureCanvasLock(){
+ const accepted=document.getElementById("signatureAccepted").checked;
+ const wrap=document.querySelector(".signature-canvas-wrap");
+ if(wrap){wrap.classList.toggle("signature-locked",!accepted);wrap.setAttribute("aria-disabled",String(!accepted));}
+}
 function signaturePoint(e){const r=sigCanvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
-sigCanvas.addEventListener("pointerdown",e=>{e.preventDefault();sigCanvas.setPointerCapture(e.pointerId);sigDrawing=true;const p=signaturePoint(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);});
-sigCanvas.addEventListener("pointermove",e=>{if(!sigDrawing)return;e.preventDefault();const p=signaturePoint(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigHasInk=true;});
+sigCanvas.addEventListener("pointerdown",e=>{if(!document.getElementById("signatureAccepted").checked)return;e.preventDefault();sigCanvas.setPointerCapture(e.pointerId);sigDrawing=true;const p=signaturePoint(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);});
+sigCanvas.addEventListener("pointermove",e=>{if(!sigDrawing||!document.getElementById("signatureAccepted").checked)return;e.preventDefault();const p=signaturePoint(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigHasInk=true;});
 ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>sigCanvas.addEventListener(ev,()=>sigDrawing=false));
 function clearSignature(){clearSignatureCanvas();}
 async function saveSignature(){

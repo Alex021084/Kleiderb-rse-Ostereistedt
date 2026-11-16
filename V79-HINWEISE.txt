@@ -1,0 +1,6 @@
+Kleiderbörse Version 79 – Statusfarben der Unterschriften
+
+- Offene Abgabe-/Abholungsschaltflächen: helleres Orange mit dezenter orangefarbener Umrandung.
+- Unterschriebene Schaltflächen: hellgrüner Hintergrund, grüne Umrandung und grüne Schrift mit grünem Haken.
+- Keine Datenbankänderung erforderlich.
+- Keine Änderung an Kasse, Verkäufern oder Unterschriftenspeicherung.
