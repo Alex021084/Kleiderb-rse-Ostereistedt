@@ -1,0 +1,8 @@
+Version 76 – PDF-Button auf iPad/Safari korrigiert
+
+- Die PDF-Ansicht wird jetzt direkt beim Button-Klick in einem neuen Fenster vorbereitet.
+- Nach der PDF-Erstellung wird dieses Fenster mit der fertigen PDF befüllt.
+- Das verhindert, dass Safari/iPadOS das Öffnen wegen eines asynchronen Popup-Aufrufs blockiert.
+- Bei blockiertem Fenster gibt es einen Download-Fallback.
+- Nur die PDF-Ausgabe der einzelnen Verkäuferabrechnung und der Cache-Buster wurden angepasst.
+- Keine Datenbankänderung und keine SQL-Ausführung erforderlich.

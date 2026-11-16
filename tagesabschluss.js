@@ -670,19 +670,34 @@ ${pages.join("")}
 }
 
 async function saveSellerPdfByNumber(number, receipts, sellers){
+  // iPadOS/Safari blockiert window.open häufig, wenn es erst nach await
+  // (also nicht mehr direkt im Button-Klick) aufgerufen wird. Das leere
+  // Fenster deshalb synchron beim Klick öffnen und anschließend die PDF laden.
+  let win=null;
   try{
+    win=window.open("about:blank","_blank");
     const data=sellerPdfData(number,receipts,sellers);
     const title=`Verkäufer_${safeFilePart(data.seller.number)}_${String(data.seller.name||"Verkäufer").trim().replace(/[\\/:*?"<>|]/g,"_")}_${dateStamp()}`;
     const blob=await makeSellerPdf(data);
     const url=URL.createObjectURL(blob);
-    const win=window.open(url,"_blank");
-    if(!win){
-      const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.click();
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-      return;
+    if(win && !win.closed){
+      win.location.href=url;
+    }else{
+      const a=document.createElement("a");
+      a.href=url;
+      a.target="_blank";
+      a.rel="noopener";
+      a.download=title+".pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
     setTimeout(()=>URL.revokeObjectURL(url),60000);
-  }catch(e){console.error(e);alert("Die Verkäufer-Abrechnung konnte nicht geöffnet werden.")}
+  }catch(e){
+    if(win && !win.closed) win.close();
+    console.error(e);
+    alert("Die Verkäufer-Abrechnung konnte nicht geöffnet werden. Bitte Pop-ups für diese Seite erlauben und erneut versuchen.");
+  }
 }
 function pdfText(x,y,size,text,bold=false){
   return `BT /${bold?"F2":"F1"} ${size} Tf ${x} ${y} Td (${pdfEscape(text)}) Tj ET`;
