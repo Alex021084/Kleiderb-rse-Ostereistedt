@@ -1,0 +1,5 @@
+Kleiderbörse Version 81 – ZIP-Fehler behoben
+
+In Version 80 fehlte im ZIP-Dateikopf ein Pflichtfeld. Dadurch meldete iOS beim Öffnen „Ungültige Nachricht“.
+Version 81 ergänzt das Feld korrekt. Die ZIP-Datei sollte sich nun in der Dateien-App auf iPad/iPhone öffnen lassen.
+An den Inhalten der Vereinbarungen, Unterschriften, Datenbank oder Kassenfunktionen wurde nichts geändert.

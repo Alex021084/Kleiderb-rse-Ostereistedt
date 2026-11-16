@@ -240,7 +240,7 @@ function makeStoredZip(entries){
   const name=enc.encode(entry.name),data=enc.encode(entry.content),crc=zipCrc32(data);
   const local=new Uint8Array([...zipU32(0x04034b50),...zipU16(20),...zipU16(0x0800),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(crc),...zipU32(data.length),...zipU32(data.length),...zipU16(name.length),...zipU16(0),...name,...data]);
   locals.push(local);
-  const central=new Uint8Array([...zipU32(0x02014b50),...zipU16(20),...zipU16(20),...zipU16(0x0800),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(crc),...zipU32(data.length),...zipU32(data.length),...zipU16(name.length),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(0),...zipU32(offset),...name]);
+  const central=new Uint8Array([...zipU32(0x02014b50),...zipU16(20),...zipU16(20),...zipU16(0x0800),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(crc),...zipU32(data.length),...zipU32(data.length),...zipU16(name.length),...zipU16(0),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(0),...zipU32(offset),...name]);
   centrals.push(central);offset+=local.length;
  }
  const centralSize=centrals.reduce((n,x)=>n+x.length,0),count=entries.length;
