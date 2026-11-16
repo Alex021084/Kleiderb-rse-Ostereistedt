@@ -1,0 +1,3 @@
+Version 75
+
+Die Ansicht „Teilnehmende Verkäufer“ wurde kompakt gestaltet: Haken, VK-Nummer, Name und Euro-Abrechnungsbutton. Die Ansicht „Alle gespeicherten Verkäufer“ bleibt unverändert. Keine Datenbankänderung erforderlich.

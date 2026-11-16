@@ -485,3 +485,39 @@ body header.top > #cloudStatus{
     flex:0 0 17px!important;
   }
 }
+
+
+/* Version 75 – kompakte Darstellung nur für die Liste der Teilnehmenden */
+.seller.participant-compact{
+  grid-template-columns:34px minmax(0,1fr) 54px;
+  gap:12px;
+  min-height:66px;
+  height:auto;
+  padding:10px 13px;
+  margin:7px 0;
+  align-items:center;
+}
+.seller.participant-compact .participation-toggle{
+  position:static;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  padding:0;
+  width:34px;
+  height:38px;
+}
+.seller.participant-compact .participation-toggle input{
+  width:23px;
+  height:23px;
+  margin:0;
+}
+.participant-identity{min-width:0;display:flex;flex-direction:column;gap:3px}
+.participant-number{font-size:13px;font-weight:800;color:#687282;line-height:1.2}
+.participant-name{font-size:17px;font-weight:800;color:#172033;line-height:1.25;overflow-wrap:anywhere}
+.seller.participant-compact .compact-actions{
+  width:48px;height:42px;display:block;margin:0;
+}
+.seller.participant-compact .compact-actions .report{
+  width:48px;height:42px;border-radius:10px;font-size:19px;
+}
