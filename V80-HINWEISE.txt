@@ -1,0 +1,18 @@
+Kleiderbörse Version 80
+
+PDF-Einzelansicht:
+- Gut sichtbarer Zurück-Button oben links.
+- Größerer, gestalteter Button „PDF drucken / speichern“ oben rechts.
+
+Teilnehmerliste:
+- Neuer Button „Alle Vereinbarungen als ZIP speichern“ (nur in der Teilnehmerliste sichtbar).
+- Das ZIP enthält pro teilnehmendem Verkäufer mit mindestens einer Unterschrift eine HTML-Datei mit den vorhandenen unterschriebenen Erklärungen und Unterschriftsbildern. Die Dateien können geöffnet und bei Bedarf als PDF gedruckt/gespeichert werden.
+
+Börsenarchiv:
+- Beim Archivieren wird zuerst der vollständige Verkäufer-Snapshot einschließlich der Unterschriften gespeichert.
+- Danach werden bei den teilnehmenden Verkäufern die Teilnahme-Markierung und die aktiven Unterschriften zurückgesetzt.
+- Bei lokaler Speicherung werden die aktiven Unterschriften ebenfalls geleert.
+- Das Archiv behält die alten Unterschriften; die nächste Börse startet mit leeren Unterschriftsfeldern.
+
+Keine neue SQL-Migration gegenüber V77 erforderlich.
+Bitte vor Nutzung V79 als Sicherung behalten und Archivieren zuerst mit einem Testverkäufer prüfen.

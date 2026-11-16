@@ -67,6 +67,14 @@ body.modal-open{overscroll-behavior:none!important;}
  .signature-actions{justify-content:flex-start;gap:8px}
 }
 
+
+.agreements-zip-button{display:block;width:100%;margin:10px 0 14px;padding:14px 18px;border:0;border-radius:12px;background:#2456df;color:#fff;font-size:16px;font-weight:700;box-shadow:0 3px 9px rgba(36,86,223,.18)}
+.agreements-zip-button:disabled{opacity:.55}
+.agreement-pdf-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0 0 22px}
+.agreement-back-button,.agreement-print-button{border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.agreement-back-button{background:#edf1f8;color:#26364c}
+.agreement-print-button{background:#2456df;color:white;box-shadow:0 3px 10px rgba(36,86,223,.2)}
+@media(max-width:520px){.agreement-pdf-toolbar{flex-wrap:wrap}.agreement-back-button,.agreement-print-button{flex:1}}
 </style>
 
 </style>
@@ -77,6 +85,7 @@ body.modal-open{overscroll-behavior:none!important;}
 <main>
 <h1 id="sellerViewTitle">Verkäufer</h1>
 <button class="add" onclick="openForm()">＋ Verkäufer hinzufügen</button>
+<button id="downloadAllAgreements" class="agreements-zip-button hidden" type="button">🗂️ Alle Vereinbarungen als ZIP speichern</button>
 <div class="search"><span>⌕</span><input id="search" type="search" placeholder="Verkäufer suchen"></div>
 <p id="count" class="count"></p><section id="list"></section>
 </main>
@@ -146,5 +155,5 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=78"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=80"></script>
 </body></html>

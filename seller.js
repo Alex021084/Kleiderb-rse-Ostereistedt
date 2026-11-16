@@ -71,6 +71,8 @@ async function sellerStats(number){
 async function render(){
   let q=($("search").value||"").toLocaleLowerCase("de-DE");
   const view=new URLSearchParams(location.search).get("liste")||"alle";
+  const zipButton=$("downloadAllAgreements");
+  if(zipButton) zipButton.classList.toggle("hidden",view!=="teilnehmend");
   let a=sorted(sellers).filter(s=>(view!=="teilnehmend"||s.isParticipating===true) &&
     (s.name.toLocaleLowerCase("de-DE").includes(q)||s.number.includes(q)));
   $("count").textContent=view==="teilnehmend"
@@ -219,9 +221,58 @@ function openSellerDocumentsPdf(id){
  const d=seller.signatureDocuments||{};
  const section=(type,label)=>{const x=d[type];return `<section><h2>Bei der ${label}:</h2><p>${esc(AGREEMENT_TEXT[type])}</p>${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
  const w=window.open("","_blank");if(!w){alert("Safari hat das PDF-Fenster blockiert. Bitte Pop-ups für diese Seite erlauben.");return;}
- w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;color:#111;padding:28px;line-height:1.55}h1{font-size:22px}h2{font-size:18px;margin-top:28px}section{page-break-inside:avoid;border-bottom:1px solid #bbb;padding-bottom:18px}.sig{display:block;max-width:100%;height:95px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}@media print{button{display:none}}</style></head><body><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}<button onclick="window.print()">PDF drucken / speichern</button><script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>`);
+ w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;color:#172033;padding:28px;line-height:1.6;max-width:900px;margin:auto}h1{font-size:25px;margin:20px 0 8px}h2{font-size:19px;margin-top:28px;color:#26364c}section{page-break-inside:avoid;border-bottom:1px solid #cbd3df;padding:0 0 22px;margin-bottom:22px}.sig{display:block;max-width:100%;height:100px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}.agreement-pdf-toolbar{display:flex;justify-content:space-between;gap:14px;margin:0 0 22px}.agreement-back-button,.agreement-print-button{border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer}.agreement-back-button{background:#edf1f8;color:#26364c}.agreement-print-button{background:#2456df;color:white;box-shadow:0 3px 10px rgba(36,86,223,.2)}@media print{.agreement-pdf-toolbar{display:none}body{padding:0}}</style></head><body><div class="agreement-pdf-toolbar"><button class="agreement-back-button" onclick="window.close();setTimeout(()=>{if(!window.closed)history.back()},120)">← Zurück</button><button class="agreement-print-button" onclick="window.print()">📄 PDF drucken / speichern</button></div><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}</body></html>`);
  w.document.close();
 }
+
+
+// ZIP-Export aller unterschriebenen Vereinbarungen der aktuellen Teilnehmer.
+function zipCrc32(bytes){
+ let c=0xffffffff;
+ for(let i=0;i<bytes.length;i++){c^=bytes[i];for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}
+ return (c^0xffffffff)>>>0;
+}
+function zipU16(v){return [v&255,(v>>>8)&255]}
+function zipU32(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255]}
+function makeStoredZip(entries){
+ const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;
+ for(const entry of entries){
+  const name=enc.encode(entry.name),data=enc.encode(entry.content),crc=zipCrc32(data);
+  const local=new Uint8Array([...zipU32(0x04034b50),...zipU16(20),...zipU16(0x0800),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(crc),...zipU32(data.length),...zipU32(data.length),...zipU16(name.length),...zipU16(0),...name,...data]);
+  locals.push(local);
+  const central=new Uint8Array([...zipU32(0x02014b50),...zipU16(20),...zipU16(20),...zipU16(0x0800),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(crc),...zipU32(data.length),...zipU32(data.length),...zipU16(name.length),...zipU16(0),...zipU16(0),...zipU16(0),...zipU32(0),...zipU32(offset),...name]);
+  centrals.push(central);offset+=local.length;
+ }
+ const centralSize=centrals.reduce((n,x)=>n+x.length,0),count=entries.length;
+ const end=new Uint8Array([...zipU32(0x06054b50),...zipU16(0),...zipU16(0),...zipU16(count),...zipU16(count),...zipU32(centralSize),...zipU32(offset),...zipU16(0)]);
+ return new Blob([...locals,...centrals,end],{type:"application/zip"});
+}
+function agreementHtmlForZip(seller){
+ const d=seller.signatureDocuments||seller.signature_documents||{};
+ const block=(type,label)=>{const x=d[type];if(!x?.signature)return "";
+ return `<section><h2>Bei der ${label}:</h2><p>${esc(x.text||AGREEMENT_TEXT[type])}</p><p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p></section>`};
+ return `<!doctype html><html lang="de"><meta charset="utf-8"><title>Vereinbarung ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;line-height:1.6;padding:28px;color:#172033}h1{font-size:23px}h2{font-size:18px;margin-top:28px}section{page-break-inside:avoid;border-bottom:1px solid #bbb;padding-bottom:18px}.sig{display:block;max-width:100%;height:95px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}</style><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${block("abgabe","Abgabe der Kleidung")}${block("abholung","Abholung und Auszahlung")}</html>`;
+}
+async function downloadAllAgreementsZip(){
+ const btn=$("downloadAllAgreements");if(!btn)return;
+ const participants=sellers.filter(x=>x.isParticipating===true||x.is_participating===true);
+ const entries=[];
+ participants.forEach(s=>{
+  const d=s.signatureDocuments||s.signature_documents||{};
+  if(!d.abgabe?.signature&&!d.abholung?.signature)return;
+  const safe=(String(s.name||"Verkaeufer").replace(/[^a-z0-9äöüß_-]+/gi,"_").replace(/^_+|_+$/g,"")||"Verkaeufer");
+  entries.push({name:`VK_${String(s.number||"").replace(/[^a-z0-9_-]/gi,"")}_${safe}.html`,content:agreementHtmlForZip(s)});
+ });
+ if(!entries.length){alert("Es liegen noch keine unterschriebenen Vereinbarungen bei den teilnehmenden Verkäufern vor.");return;}
+ btn.disabled=true;const old=btn.textContent;btn.textContent="ZIP wird erstellt …";
+ try{
+  const blob=makeStoredZip(entries),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="Kleiderboerse_Vereinbarungen.zip";document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+ }catch(e){console.error(e);alert("ZIP konnte nicht erstellt werden: "+(e.message||"Unbekannter Fehler"))}
+ finally{btn.disabled=false;btn.textContent=old;}
+}
+if($("downloadAllAgreements"))$("downloadAllAgreements").addEventListener("click",downloadAllAgreementsZip);
 
 $("search").oninput=render;
 if(commissionInput)commissionInput.addEventListener("change",updateCommissionVisibility);
