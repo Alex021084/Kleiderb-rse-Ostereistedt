@@ -1,0 +1,6 @@
+Kleiderbörse Version 82 – ZIP-Button nur bei Teilnehmenden
+
+- Der Button „Alle Vereinbarungen als ZIP speichern“ wird ausschließlich in der Ansicht „Teilnehmende Verkäufer“ angezeigt.
+- In „Alle gespeicherten Verkäufer“ wird er explizit ausgeblendet.
+- Keine Änderungen an Kasse, Verkäuferdaten, Unterschriften oder Datenbank.
+- Kein SQL erforderlich.

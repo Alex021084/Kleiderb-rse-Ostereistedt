@@ -72,7 +72,11 @@ async function render(){
   let q=($("search").value||"").toLocaleLowerCase("de-DE");
   const view=new URLSearchParams(location.search).get("liste")||"alle";
   const zipButton=$("downloadAllAgreements");
-  if(zipButton) zipButton.classList.toggle("hidden",view!=="teilnehmend");
+  if(zipButton){
+    const showZip=view==="teilnehmend";
+    zipButton.classList.toggle("hidden",!showZip);
+    zipButton.style.display=showZip?"block":"none";
+  }
   let a=sorted(sellers).filter(s=>(view!=="teilnehmend"||s.isParticipating===true) &&
     (s.name.toLocaleLowerCase("de-DE").includes(q)||s.number.includes(q)));
   $("count").textContent=view==="teilnehmend"
