@@ -41,7 +41,8 @@ function normalize(s){
     city:s.city??e.city??"",
     email:s.email??e.email??"",
     payoutMethod:s.payoutMethod??s.payout_method??e.payoutMethod??"Bar",
-    isParticipating:s.isParticipating===true || s.is_participating===true
+    isParticipating:s.isParticipating===true || s.is_participating===true,
+    signatureDocuments:s.signatureDocuments||s.signature_documents||{}
   }
 }
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
@@ -78,7 +79,7 @@ async function render(){
   const heading=document.getElementById("sellerViewTitle");
   if(heading) heading.textContent=view==="teilnehmend"?"Teilnehmende Verkäufer":"Alle gespeicherten Verkäufer";
   $("list").innerHTML=a.length?a.map(s=>view==="teilnehmend"
-    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div></div><div class="seller-actions compact-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
+    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div><div class="signature-actions"><button class="signature-action ${s.signatureDocuments?.abgabe?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abgabe')">${s.signatureDocuments?.abgabe?.signature?'✓ Abgabe':'○ Abgabe'}</button><button class="signature-action ${s.signatureDocuments?.abholung?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abholung')">${s.signatureDocuments?.abholung?.signature?'✓ Abholung':'○ Abholung'}</button><button class="signature-pdf" title="Beide Dokumente als PDF" onclick="openSellerDocumentsPdf('${s.id}')">PDF</button></div></div><div class="seller-actions compact-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
     : `<article class="seller"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"><span>Teilnahme</span></label><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">'+(view==="teilnehmend"?'Noch keine Verkäufer für diese Börse ausgewählt.':'Noch keine Verkäufer angelegt.')+'</div>';
 }
 async function toggleParticipation(id,checked){
@@ -153,6 +154,68 @@ async function del(id){
     sellers=sellers.filter(x=>x.id!==id);render()
   }catch(e){alert("Löschen fehlgeschlagen: " + (e?.message || e)); console.error(e)}
 }
+
+// Verkäufervereinbarungen: Abgabe und Abholung mit dauerhaft gespeicherter Unterschrift.
+const AGREEMENT_TEXT={
+ abgabe:"Ich bestätige, dass die von mir abgegebenen Kleidungsstücke mein Eigentum sind und ich diese freiwillig zum Verkauf auf der Kleiderbörse abgebe. Mir ist bekannt, dass der Veranstalter keine Haftung für Verlust, Diebstahl, Beschädigung oder sonstige Schäden an den abgegebenen Sachen übernimmt.",
+ abholung:"Hiermit bestätige ich, meine nicht verkauften Kleidungsstücke sowie den Erlös aus den verkauften Artikeln vollständig erhalten zu haben. Mit meiner Unterschrift bestätige ich, dass die Abholung und Auszahlung abgeschlossen sind."
+};
+function todayGerman(){return new Date().toLocaleDateString("de-DE");}
+function openSignature(id,type){
+ const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
+ const old=seller.signatureDocuments?.[type];
+ if(old?.signature && !confirm("Für diesen Vorgang liegt bereits eine Unterschrift vor. Möchtest du sie wirklich ersetzen?"))return;
+ const title=type==="abgabe"?"Abgabe":"Abholung";
+ const modal=document.getElementById("signatureModal");
+ modal.dataset.sellerId=id;modal.dataset.type=type;
+ document.getElementById("signatureTitle").textContent=title+" – "+seller.name;
+ document.getElementById("signatureText").textContent=AGREEMENT_TEXT[type];
+ document.getElementById("signatureAccepted").checked=false;
+ document.getElementById("signatureError").textContent="";
+ clearSignatureCanvas();
+ document.documentElement.classList.add("modal-open");document.body.classList.add("modal-open");modal.classList.remove("hidden");
+ setTimeout(resizeSignatureCanvas,80);
+}
+function closeSignature(){document.getElementById("signatureModal").classList.add("hidden");document.documentElement.classList.remove("modal-open");document.body.classList.remove("modal-open");}
+const sigCanvas=document.getElementById("signatureCanvas");
+const sigCtx=sigCanvas.getContext("2d");let sigDrawing=false,sigHasInk=false;
+function resizeSignatureCanvas(){
+ const rect=sigCanvas.getBoundingClientRect();if(!rect.width)return;
+ const ratio=Math.max(1,window.devicePixelRatio||1);
+ const old=sigHasInk?sigCanvas.toDataURL():null;
+ sigCanvas.width=Math.round(rect.width*ratio);sigCanvas.height=Math.round(220*ratio);
+ sigCtx.setTransform(ratio,0,0,ratio,0,0);sigCtx.lineWidth=3;sigCtx.lineCap="round";sigCtx.lineJoin="round";sigCtx.strokeStyle="#172033";
+ if(old){const im=new Image();im.onload=()=>sigCtx.drawImage(im,0,0,rect.width,220);im.src=old;}
+}
+function clearSignatureCanvas(){sigHasInk=false;sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);}
+function signaturePoint(e){const r=sigCanvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+sigCanvas.addEventListener("pointerdown",e=>{e.preventDefault();sigCanvas.setPointerCapture(e.pointerId);sigDrawing=true;const p=signaturePoint(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);});
+sigCanvas.addEventListener("pointermove",e=>{if(!sigDrawing)return;e.preventDefault();const p=signaturePoint(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigHasInk=true;});
+["pointerup","pointercancel","lostpointercapture"].forEach(ev=>sigCanvas.addEventListener(ev,()=>sigDrawing=false));
+function clearSignature(){clearSignatureCanvas();}
+async function saveSignature(){
+ const modal=document.getElementById("signatureModal"),id=modal.dataset.sellerId,type=modal.dataset.type;
+ const seller=sellers.find(x=>String(x.id)===String(id));const err=document.getElementById("signatureError");
+ if(!document.getElementById("signatureAccepted").checked){err.textContent="Bitte zuerst die Erklärung bestätigen.";return;}
+ if(!sigHasInk){err.textContent="Bitte die Unterschrift im Feld leisten.";return;}
+ const docs={...(seller.signatureDocuments||{})};
+ docs[type]={text:AGREEMENT_TEXT[type],accepted:true,signature:sigCanvas.toDataURL("image/png"),date:new Date().toISOString(),dateDisplay:todayGerman()};
+ const previous=seller.signatureDocuments;seller.signatureDocuments=docs;
+ try{
+  if(KBCloud.cloudReady()) await KBCloud.cloudSaveSeller(seller);
+  else localStorage.setItem("kb_sellers",JSON.stringify(sellers));
+  closeSignature();render();
+ }catch(e){seller.signatureDocuments=previous;err.textContent="Speichern fehlgeschlagen. Bitte Cloud-Verbindung prüfen.";console.error(e);}
+}
+function openSellerDocumentsPdf(id){
+ const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
+ const d=seller.signatureDocuments||{};
+ const section=(type,label)=>{const x=d[type];return `<section><h2>Bei der ${label}:</h2><p>${esc(AGREEMENT_TEXT[type])}</p>${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
+ const w=window.open("","_blank");if(!w){alert("Safari hat das PDF-Fenster blockiert. Bitte Pop-ups für diese Seite erlauben.");return;}
+ w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;color:#111;padding:28px;line-height:1.55}h1{font-size:22px}h2{font-size:18px;margin-top:28px}section{page-break-inside:avoid;border-bottom:1px solid #bbb;padding-bottom:18px}.sig{display:block;max-width:100%;height:95px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}@media print{button{display:none}}</style></head><body><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}<button onclick="window.print()">PDF drucken / speichern</button><script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>`);
+ w.document.close();
+}
+
 $("search").oninput=render;
 if(commissionInput)commissionInput.addEventListener("change",updateCommissionVisibility);
 updateCommissionVisibility();

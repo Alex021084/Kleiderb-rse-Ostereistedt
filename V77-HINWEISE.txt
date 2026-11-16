@@ -1,0 +1,16 @@
+Kleiderbörse Version 77 – Verkäufervereinbarungen
+
+NEU
+- In der Teilnehmerliste: Status-Schaltflächen für Abgabe und Abholung.
+- Grün = unterschrieben, Orange = noch offen.
+- Große Unterschriftenfläche im Dialog, optimiert für Tablet und Touch.
+- Bestätigung per Kontrollkästchen erforderlich.
+- Unterschrift, Erklärung und Datum werden beim jeweiligen Verkäufer gespeichert.
+- PDF-Ansicht mit beiden Erklärungen; über Drucken/Sichern kann als PDF gespeichert werden.
+
+WICHTIG: Vor der ersten Nutzung die Datei CLOUD-MIGRATION-V77-UNTERSCHRIFTEN.sql
+im Supabase SQL Editor ausführen. Danach App neu laden.
+Bestehende Verkäufer-, Kassen- und Abrechnungsdaten werden nicht gelöscht.
+
+Hinweis: Die Unterschrift ist eine einfache digitale Zeichnung plus Bestätigungs-Checkbox.
+Sie ersetzt keine qualifizierte elektronische Signatur.
