@@ -41,10 +41,10 @@ drop policy if exists "kb sellers select" on public.sellers;
 drop policy if exists "kb sellers insert" on public.sellers;
 drop policy if exists "kb sellers update" on public.sellers;
 drop policy if exists "kb sellers delete" on public.sellers;
-create policy "kb sellers select" on public.sellers for select using (true);
-create policy "kb sellers insert" on public.sellers for insert with check (true);
-create policy "kb sellers update" on public.sellers for update using (true) with check (true);
-create policy "kb sellers delete" on public.sellers for delete using (true);
+create policy "kb sellers select" on public.sellers for select to authenticated using (true);
+create policy "kb sellers insert" on public.sellers for insert to authenticated with check (true);
+create policy "kb sellers update" on public.sellers for update to authenticated using (true) with check (true);
+create policy "kb sellers delete" on public.sellers for delete to authenticated using (true);
 
 drop policy if exists "kb receipts select" on public.receipts;
 drop policy if exists "kb receipts insert" on public.receipts;
@@ -152,3 +152,9 @@ create index if not exists receipt_edit_history_receipt_idx
 -- REST/PostgREST Schema-Cache aktualisieren:
 notify pgrst, 'reload schema';
 \n\n-- V71: Teilnahme an der aktuellen Börse je Verkäufer.\nalter table public.sellers add column if not exists is_participating boolean not null default false;\n
+
+-- V87: Zeitpunkt der letzten Teilnahme für die 3-Jahres-Löschregel.
+alter table public.sellers add column if not exists last_participation_at timestamptz;
+update public.sellers set last_participation_at=now()
+where is_participating=true and last_participation_at is null;
+\nrevoke all on table public.sellers from anon;\ngrant select, insert, update, delete on table public.sellers to authenticated;\n

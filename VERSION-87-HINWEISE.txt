@@ -1,0 +1,13 @@
+Kleiderbörse Version 87
+
+- Neuer eigener Button „DSGVO“ in der Teilnehmerliste und in der Liste der gespeicherten Verkäufer.
+- Verkäufer können die Datenschutzhinweise direkt auf dem Tablet lesen und mit dem Finger unterschreiben.
+- DSGVO-Status wird im bestehenden signature_documents-Feld je Verkäufer gespeichert und in beiden Listen synchron angezeigt.
+- Unterschrift speichert Datum, Uhrzeit, Version der Datenschutzhinweise und Signaturbild.
+- Verkäufer-PDF und Vereinbarungs-ZIP können die separate DSGVO-Kenntnisnahme mit Unterschrift enthalten.
+- Letzte Teilnahme wird beim Aktivieren der Teilnahme gespeichert.
+- Verkäufer ohne erneute Teilnahme werden nach drei Jahren ab der letzten Teilnahme beim nächsten Laden der Verkäuferliste automatisch gelöscht; aktive Verkäufer bleiben erhalten.
+- Neue Supabase-Migration erforderlich: CLOUD-MIGRATION-V87-DSGVO.sql. Sie ergänzt den Teilnahme-Zeitstempel und beschränkt den Zugriff auf die Verkäufertabelle auf angemeldete Supabase-Benutzer.
+
+Wichtig: Vor dem Einsatz die Migration im Supabase SQL Editor ausführen. Die vollständigen Pflichtinformationen nach Art. 13 DSGVO (insbesondere Kontaktdaten des Verantwortlichen und Rechtsgrundlage) müssen den Verkäufern zusätzlich zugänglich gemacht werden. Die automatische Löschung muss zu etwaigen gesetzlichen Aufbewahrungspflichten passen.
+- Archivabschluss setzt die aktuelle Teilnahme zurück, behält aber DSGVO-/Abgabe-/Abholungsunterschriften und das Datum der letzten Teilnahme bei.\n

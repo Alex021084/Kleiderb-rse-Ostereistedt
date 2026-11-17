@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=77">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=87">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -157,8 +157,8 @@ body.modal-open{overscroll-behavior:none!important;}
  <div class="modalhead"><h2 id="signatureTitle">Unterschrift</h2><button onclick="closeSignature()">×</button></div>
  <h3>Ich bestätige folgende Erklärung:</h3>
  <div id="signatureText" class="agreement-text"></div>
- <div id="signaturePrivacy" class="agreement-text hidden" style="margin-top:16px"><h3>Datenschutzhinweis</h3><p>Im Rahmen der Kleiderbörse erheben und speichern wir folgende personenbezogene Daten: Name, Telefonnummer und E-Mail-Adresse.</p><p>Die Daten werden ausschließlich zur Organisation und Durchführung der Kleiderbörse sowie zur Abwicklung des Verkaufs und der Auszahlung verwendet. Die Speicherung erfolgt digital in einer zugriffsgeschützten Cloud.</p><p>Nach Abschluss der Kleiderbörse und der vollständigen Abwicklung werden die Daten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p><p>Die Teilnehmer haben das Recht auf Auskunft, Berichtigung und Löschung ihrer personenbezogenen Daten im Rahmen der gesetzlichen Bestimmungen.</p></div>
- <label class="commission-check" style="display:flex;align-items:center;gap:12px;margin:18px 0"><input id="signatureAccepted" type="checkbox"><span>Ich habe den Text gelesen und akzeptiere die Erklärung.</span></label>
+ <div id="signaturePrivacy" class="agreement-text hidden" style="margin-top:16px"><h3>Datenschutzhinweise – Kleiderbörse Ostereistedt e.V.</h3><p>Verantwortlich für die Verarbeitung der personenbezogenen Daten ist der Verein Kleiderbörse Ostereistedt e.V.</p><p>Im Rahmen der Anmeldung und Teilnahme verarbeiten wir Anrede, Vor- und Nachname, Verkäufernummer, Telefonnummer und E-Mail-Adresse sowie – sofern angegeben – Anschrift, Auszahlungsart und Angaben zur Provisionsvereinbarung. Die Daten werden zur Organisation und Durchführung der Kleiderbörse sowie zur Kontaktaufnahme und Abwicklung der Teilnahme verwendet.</p><p>Die Speicherung erfolgt digital über den Cloud-Dienst Supabase. Zugriff haben nur die mit der Organisation betrauten Personen und der technische Dienstleister im erforderlichen Umfang. Eine Weitergabe an unbeteiligte Dritte erfolgt nicht.</p><p>Die Daten werden grundsätzlich bis zu drei Jahre nach der letzten Teilnahme gespeichert. Nimmt ein Verkäufer innerhalb dieses Zeitraums erneut teil, beginnt die Frist ab der letzten Teilnahme erneut. Nach Ablauf der drei Jahre werden die Daten gelöscht, soweit keine gesetzlichen Aufbewahrungspflichten oder erforderlichen Gründe zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen entgegenstehen.</p><p>Im Rahmen der gesetzlichen Bestimmungen bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch und Datenübertragbarkeit sowie das Recht auf Beschwerde bei einer Datenschutzaufsichtsbehörde.</p></div>
+ <label class="commission-check" style="display:flex;align-items:center;gap:12px;margin:18px 0"><input id="signatureAccepted" type="checkbox"><span id="signatureAcceptedText">Ich habe den Text gelesen und akzeptiere die Erklärung.</span></label>
  <h3>Unterschrift</h3>
  <p>Bitte direkt im Feld unterschreiben.</p>
  <div class="signature-canvas-wrap"><canvas id="signatureCanvas"></canvas></div>
@@ -166,5 +166,5 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=84"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=87"></script><script src="seller.js?v=87"></script>
 </body></html>

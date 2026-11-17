@@ -497,6 +497,7 @@ async function cloudSaveSeller(s){
     email:s.email || "",
     payout_method:s.payoutMethod || "Bar",
     is_participating:s.isParticipating === true,
+    last_participation_at:s.lastParticipationAt || s.last_participation_at || null,
     signature_documents:s.signatureDocuments || {},
 
     commission_enabled:
@@ -542,6 +543,16 @@ async function cloudDeleteSeller(id){
   );
 
   return true;
+}
+
+// Verkäufer erst nach drei Jahren ohne erneute Teilnahme löschen.
+// Aktive Teilnehmer und Datensätze ohne dokumentierte Teilnahme bleiben erhalten.
+async function cloudDeleteExpiredSellers(cutoffIso){
+  await cloudClient();
+  return await apiRequest(
+    "sellers?is_participating=eq.false&last_participation_at=lt."+encodeURIComponent(cutoffIso),
+    {method:"DELETE",headers:{"Prefer":"return=representation"}}
+  );
 }
 
 
@@ -880,6 +891,9 @@ async function cloudRestoreSnapshot(snapshot){
       city:String(s.city ?? ""),
       email:String(s.email ?? ""),
       payout_method:String(s.payout_method ?? s.payoutMethod ?? "Bar"),
+      is_participating:s.is_participating===true || s.isParticipating===true,
+      last_participation_at:s.last_participation_at ?? s.lastParticipationAt ?? null,
+      signature_documents:s.signature_documents ?? s.signatureDocuments ?? {},
       commission_enabled:s.commission_enabled===true || s.commissionEnabled===true,
       commission_rate:Number(s.commission_rate ?? s.commissionRate ?? 15)
     }));
@@ -1141,6 +1155,7 @@ window.KBCloud={
   cloudSaveSeller,
 
   cloudDeleteSeller,
+  cloudDeleteExpiredSellers,
 
   cloudCreateReceipt,
 

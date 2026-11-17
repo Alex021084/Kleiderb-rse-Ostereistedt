@@ -521,3 +521,24 @@ body header.top > #cloudStatus{
 .seller.participant-compact .compact-actions .report{
   width:48px;height:42px;border-radius:10px;font-size:19px;
 }
+
+
+/* V87 – DSGVO-Status auch in der Liste der gespeicherten Verkäufer */
+.saved-seller-actions{
+  width:92px;height:auto;display:flex;flex-direction:column;gap:6px;
+}
+.saved-seller-actions>.signature-action{
+  width:92px;min-height:38px;padding:8px 6px;font-size:13px;
+}
+.saved-seller-actions>.report{
+  width:92px;height:38px;min-height:38px;flex:none;
+}
+.saved-seller-actions>.seller-bottom-actions{
+  width:92px;height:38px;min-height:38px;flex:none;
+}
+@media(max-width:600px){
+  .saved-seller-actions{width:82px}
+  .saved-seller-actions>.signature-action{width:82px;font-size:12px}
+  .saved-seller-actions>.report{width:82px}
+  .saved-seller-actions>.seller-bottom-actions{width:82px}
+}

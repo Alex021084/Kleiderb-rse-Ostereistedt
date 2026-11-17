@@ -42,6 +42,7 @@ function normalize(s){
     email:s.email??e.email??"",
     payoutMethod:s.payoutMethod??s.payout_method??e.payoutMethod??"Bar",
     isParticipating:s.isParticipating===true || s.is_participating===true,
+    lastParticipationAt:s.lastParticipationAt||s.last_participation_at||null,
     signatureDocuments:s.signatureDocuments||s.signature_documents||{}
   }
 }
@@ -53,8 +54,18 @@ function euro(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",cu
 
 async function loadSellers(){
   try{
-    if(KBCloud.cloudReady()) sellers=(await KBCloud.cloudGetSellers()).map(normalize);
-    else sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(normalize);
+    const cutoff=new Date();
+    cutoff.setFullYear(cutoff.getFullYear()-3);
+    if(KBCloud.cloudReady()){
+      try{ await KBCloud.cloudDeleteExpiredSellers(cutoff.toISOString()); }
+      catch(cleanupError){ console.warn("Automatische Prüfung abgelaufener Verkäuferdaten:",cleanupError); }
+      sellers=(await KBCloud.cloudGetSellers()).map(normalize);
+    }else{
+      sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(normalize);
+      const before=sellers.length;
+      sellers=sellers.filter(s=>!s.lastParticipationAt || s.isParticipating===true || new Date(s.lastParticipationAt)>=cutoff);
+      if(sellers.length!==before) localStorage.setItem("kb_sellers",JSON.stringify(sellers));
+    }
   }catch(e){
     console.error(e); sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]").map(normalize);
   }
@@ -87,19 +98,22 @@ async function render(){
   const heading=document.getElementById("sellerViewTitle");
   if(heading) heading.textContent=view==="teilnehmend"?"Teilnehmende Verkäufer":"Alle gespeicherten Verkäufer";
   $("list").innerHTML=a.length?a.map(s=>view==="teilnehmend"
-    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div></div><div class="seller-actions compact-actions"><div class="signature-actions"><button class="signature-action ${s.signatureDocuments?.abgabe?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abgabe')">${s.signatureDocuments?.abgabe?.signature?'✓ Abgabe':'○ Abgabe'}</button><button class="signature-action ${s.signatureDocuments?.abholung?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abholung')">${s.signatureDocuments?.abholung?.signature?'✓ Abholung':'○ Abholung'}</button><button class="signature-pdf" title="Beide Dokumente als PDF" onclick="openSellerDocumentsPdf('${s.id}')">PDF</button></div><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
-    : `<article class="seller"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"><span>Teilnahme</span></label><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions"><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">'+(view==="teilnehmend"?'Noch keine Verkäufer für diese Börse ausgewählt.':'Noch keine Verkäufer angelegt.')+'</div>';
+    ? `<article class="seller participant-compact"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"></label><div class="participant-identity"><div class="participant-number">VK ${esc(s.number)}</div><div class="participant-name">${esc(s.name)}</div></div><div class="seller-actions compact-actions"><div class="signature-actions"><button class="signature-action ${hasCurrentPrivacySignature(s)?'signed':'pending'}" onclick="openSignature('${s.id}','dsgvo')">${hasCurrentPrivacySignature(s)?'✓ DSGVO':'○ DSGVO'}</button><button class="signature-action ${s.signatureDocuments?.abgabe?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abgabe')">${s.signatureDocuments?.abgabe?.signature?'✓ Abgabe':'○ Abgabe'}</button><button class="signature-action ${s.signatureDocuments?.abholung?.signature?'signed':'pending'}" onclick="openSignature('${s.id}','abholung')">${s.signatureDocuments?.abholung?.signature?'✓ Abholung':'○ Abholung'}</button><button class="signature-pdf" title="Dokumente als PDF" onclick="openSellerDocumentsPdf('${s.id}')">PDF</button></div><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button></div></article>`
+    : `<article class="seller"><label class="participation-toggle" title="Teilnahme an der aktuellen Börse"><input type="checkbox" ${s.isParticipating===true?"checked":""} onchange="toggleParticipation('${s.id}',this.checked)"><span>Teilnahme</span></label><div class="avatar">${initials(s.name)}</div><div><div class="name">${esc(s.name)}</div><div class="no">Verkäufernummer: ${esc(s.number)}</div>${s.phone?`<div class="phone">☎ ${esc(s.phone)}</div>`:""}<span class="commission-badge ${s.commissionEnabled?"yes":"no"}">${s.commissionEnabled?`${s.commissionRate??15} % Provision`:"Keine Provision"}</span></div><div class="seller-actions saved-seller-actions"><button class="signature-action ${hasCurrentPrivacySignature(s)?'signed':'pending'}" onclick="openSignature('${s.id}','dsgvo')">${hasCurrentPrivacySignature(s)?'✓ DSGVO':'○ DSGVO'}</button><button class="report" title="Abrechnung" onclick="showReport('${s.id}')">€</button><div class="seller-bottom-actions"><button class="small" title="Bearbeiten" onclick="editSeller('${s.id}')">✎</button><button class="small delete" title="Löschen" onclick="del('${s.id}')">×</button></div></div></article>`).join(""):'<div class="empty">'+(view==="teilnehmend"?'Noch keine Verkäufer für diese Börse ausgewählt.':'Noch keine Verkäufer angelegt.')+'</div>';
 }
 async function toggleParticipation(id,checked){
   const seller=sellers.find(x=>String(x.id)===String(id)); if(!seller)return;
   const previous=seller.isParticipating===true;
+  const previousParticipationAt=seller.lastParticipationAt||null;
   seller.isParticipating=!!checked;
+  if(checked) seller.lastParticipationAt=new Date().toISOString();
   try{
     if(KBCloud.cloudReady()) await KBCloud.cloudSaveSeller(seller);
     else localStorage.setItem("kb_sellers",JSON.stringify(sellers));
     render();
   }catch(error){
     seller.isParticipating=previous;
+    seller.lastParticipationAt=previousParticipationAt;
     render();
     alert("Teilnahme konnte nicht gespeichert werden. Bitte Cloud-Verbindung prüfen.\n\n"+(error.message||""));
   }
@@ -165,28 +179,43 @@ async function del(id){
 
 // Verkäufervereinbarungen: Abgabe und Abholung mit dauerhaft gespeicherter Unterschrift.
 const AGREEMENT_TEXT={
- abgabe:"Ich bestätige, dass die von mir abgegebenen Kleidungsstücke mein Eigentum sind und ich diese freiwillig zum Verkauf auf der Kleiderbörse abgebe. Mir ist bekannt, dass der Veranstalter keine Haftung für Verlust, Diebstahl, Beschädigung oder sonstige Schäden an den abgegebenen Sachen übernimmt.",
+ abgabe:"Ich bestätige, dass die von mir abgegebenen Kleidungsstücke mein Eigentum sind und ich diese freiwillig zum Verkauf auf der Kleiderbörse abgebe. Mir ist bekannt, dass der Veranstalter keine Haftung für Verlust, Diebstahl, Beschädigung oder sonstige Schäden an den abgegebenen Sachen übernimmt, soweit dies gesetzlich zulässig ist.",
  abholung:"Hiermit bestätige ich, meine nicht verkauften Kleidungsstücke sowie den Erlös aus den verkauften Artikeln erhalten zu haben. Mit meiner Unterschrift bestätige ich, dass die Abholung und Auszahlung abgeschlossen sind."
 };
-const PRIVACY_NOTICE=`Im Rahmen der Kleiderbörse erheben und speichern wir folgende personenbezogene Daten: Name, Telefonnummer und E-Mail-Adresse.
+const PRIVACY_NOTICE_VERSION="1.0";
+const PRIVACY_NOTICE=`Verantwortlich für die Verarbeitung der personenbezogenen Daten ist der Verein Kleiderbörse Ostereistedt e.V.
 
-Die Daten werden ausschließlich zur Organisation und Durchführung der Kleiderbörse sowie zur Abwicklung des Verkaufs und der Auszahlung verwendet. Die Speicherung erfolgt digital in einer zugriffsgeschützten Cloud.
+Im Rahmen der Anmeldung und Teilnahme verarbeiten wir Anrede, Vor- und Nachname, Verkäufernummer, Telefonnummer und E-Mail-Adresse sowie – sofern angegeben – Anschrift, Auszahlungsart und Angaben zur Provisionsvereinbarung. Die Daten werden zur Organisation und Durchführung der Kleiderbörse sowie zur Kontaktaufnahme und Abwicklung der Teilnahme verwendet.
 
-Nach Abschluss der Kleiderbörse und der vollständigen Abwicklung werden die Daten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+Die Speicherung erfolgt digital über den Cloud-Dienst Supabase. Zugriff haben nur die mit der Organisation betrauten Personen und der technische Dienstleister im erforderlichen Umfang. Eine Weitergabe an unbeteiligte Dritte erfolgt nicht.
 
-Die Teilnehmer haben das Recht auf Auskunft, Berichtigung und Löschung ihrer personenbezogenen Daten im Rahmen der gesetzlichen Bestimmungen.`;
+Die Daten werden grundsätzlich bis zu drei Jahre nach der letzten Teilnahme gespeichert. Nimmt ein Verkäufer innerhalb dieses Zeitraums erneut teil, beginnt die Frist ab der letzten Teilnahme erneut. Nach Ablauf der drei Jahre werden die Daten gelöscht, soweit keine gesetzlichen Aufbewahrungspflichten oder erforderlichen Gründe zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen entgegenstehen.
+
+Im Rahmen der gesetzlichen Bestimmungen bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch und Datenübertragbarkeit sowie das Recht auf Beschwerde bei einer Datenschutzaufsichtsbehörde.`;
+function hasCurrentPrivacySignature(s){
+ const d=s?.signatureDocuments?.dsgvo;
+ return !!(d?.signature && d?.accepted && d?.version===PRIVACY_NOTICE_VERSION);
+}
 function todayGerman(){return new Date().toLocaleDateString("de-DE");}
 function openSignature(id,type){
  const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
  const old=seller.signatureDocuments?.[type];
- if(old?.signature && !confirm("Für diesen Vorgang liegt bereits eine Unterschrift vor. Möchtest du sie wirklich ersetzen?"))return;
- const title=type==="abgabe"?"Abgabe":"Abholung";
+ if(old?.signature && !confirm(type==="dsgvo" && old.version!==PRIVACY_NOTICE_VERSION
+   ?"Es gibt eine ältere Datenschutzhinweis-Version. Möchtest du die aktuelle Version unterschreiben?"
+   :"Für diesen Vorgang liegt bereits eine Unterschrift vor. Möchtest du sie wirklich ersetzen?"))return;
+ const title=type==="dsgvo"?"DSGVO":type==="abgabe"?"Abgabe":"Abholung";
  const modal=document.getElementById("signatureModal");
  modal.dataset.sellerId=id;modal.dataset.type=type;
  document.getElementById("signatureTitle").textContent=title+" – "+seller.name;
- document.getElementById("signatureText").textContent=AGREEMENT_TEXT[type];
+ document.getElementById("signatureText").textContent=type==="dsgvo"
+   ?"Ich bestätige, dass ich die nachfolgenden Datenschutzhinweise gelesen und zur Kenntnis genommen habe."
+   :AGREEMENT_TEXT[type];
  const privacyBox=document.getElementById("signaturePrivacy");
- if(privacyBox){privacyBox.classList.toggle("hidden",type!=="abgabe");}
+ if(privacyBox){privacyBox.classList.toggle("hidden",type!=="dsgvo");}
+ const acceptedLabel=document.getElementById("signatureAcceptedText");
+ if(acceptedLabel) acceptedLabel.textContent=type==="dsgvo"
+   ?"Ich habe die Datenschutzhinweise gelesen und zur Kenntnis genommen."
+   :"Ich habe den Text gelesen und akzeptiere die Erklärung.";
  document.getElementById("signatureAccepted").checked=false;
  document.getElementById("signatureAccepted").onchange=updateSignatureCanvasLock;
  document.getElementById("signatureError").textContent="";
@@ -223,7 +252,7 @@ async function saveSignature(){
  if(!document.getElementById("signatureAccepted").checked){err.textContent="Bitte zuerst die Erklärung bestätigen.";return;}
  if(!sigHasInk){err.textContent="Bitte die Unterschrift im Feld leisten.";return;}
  const docs={...(seller.signatureDocuments||{})};
- docs[type]={text:AGREEMENT_TEXT[type],accepted:true,signature:sigCanvas.toDataURL("image/png"),date:new Date().toISOString(),dateDisplay:todayGerman()};
+ docs[type]={text:type==="dsgvo"?PRIVACY_NOTICE:AGREEMENT_TEXT[type],accepted:true,signature:sigCanvas.toDataURL("image/png"),date:new Date().toISOString(),dateDisplay:todayGerman(),version:type==="dsgvo"?PRIVACY_NOTICE_VERSION:"1"};
  const previous=seller.signatureDocuments;seller.signatureDocuments=docs;
  try{
   if(KBCloud.cloudReady()) await KBCloud.cloudSaveSeller(seller);
@@ -234,9 +263,9 @@ async function saveSignature(){
 function openSellerDocumentsPdf(id){
  const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
  const d=seller.signatureDocuments||{};
- const section=(type,label)=>{const x=d[type];return `<section><h2>Bei der ${label}:</h2><p>${esc(AGREEMENT_TEXT[type])}</p>${type==="abgabe"?`<h3>Datenschutzhinweis</h3><p>${esc(PRIVACY_NOTICE).replace(/\\n\\n/g,"</p><p>")}</p>`:""}${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
+ const section=(type,label)=>{const x=d[type];const text=type==="dsgvo"?(x?.text||PRIVACY_NOTICE):AGREEMENT_TEXT[type];return `<section><h2>${type==="dsgvo"?label:`Bei der ${label}:`}</h2>${esc(text).replace(/\n\n/g,"</p><p>").replace(/^/,"<p>").replace(/$/,"</p>")}${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
  const w=window.open("","_blank");if(!w){alert("Safari hat das PDF-Fenster blockiert. Bitte Pop-ups für diese Seite erlauben.");return;}
- w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:24px;line-height:1.4;max-width:900px;margin:auto}h1{font-size:23px;margin:16px 0 6px}h2{font-size:17px;margin:18px 0 6px;color:#26364c}h3{font-size:13px;margin:10px 0 4px}p{margin:5px 0}section{border-bottom:1px solid #cbd3df;padding:0 0 10px;margin-bottom:10px}.sig{display:block;max-width:100%;height:72px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}.agreement-pdf-toolbar{display:flex;justify-content:space-between;gap:14px;margin:0 0 22px}.agreement-back-button,.agreement-print-button{border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer}.agreement-back-button{background:#edf1f8;color:#26364c}.agreement-print-button{background:#2456df;color:white;box-shadow:0 3px 10px rgba(36,86,223,.2)}@page{size:A4 portrait;margin:9mm}@media print{.agreement-pdf-toolbar{display:none}html,body{padding:0!important;margin:0!important;width:auto;max-width:none;font-size:9.5pt;line-height:1.22}h1{font-size:16pt;margin:0 0 3mm}h2{font-size:11pt;margin:4mm 0 1.5mm}h3{font-size:9.5pt;margin:2mm 0 1mm}p{margin:1.2mm 0}section{break-inside:avoid;page-break-inside:avoid;padding-bottom:2mm;margin-bottom:2mm}.sig{height:17mm;max-height:17mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="agreement-pdf-toolbar"><button class="agreement-back-button" onclick="window.close();setTimeout(()=>{if(!window.closed)history.back()},120)">← Zurück</button><button class="agreement-print-button" onclick="window.print()">📄 PDF drucken / speichern</button></div><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}</body></html>`);
+ w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:24px;line-height:1.4;max-width:900px;margin:auto}h1{font-size:23px;margin:16px 0 6px}h2{font-size:17px;margin:18px 0 6px;color:#26364c}h3{font-size:13px;margin:10px 0 4px}p{margin:5px 0}section{border-bottom:1px solid #cbd3df;padding:0 0 10px;margin-bottom:10px}.sig{display:block;max-width:100%;height:72px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}.agreement-pdf-toolbar{display:flex;justify-content:space-between;gap:14px;margin:0 0 22px}.agreement-back-button,.agreement-print-button{border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer}.agreement-back-button{background:#edf1f8;color:#26364c}.agreement-print-button{background:#2456df;color:white;box-shadow:0 3px 10px rgba(36,86,223,.2)}@page{size:A4 portrait;margin:9mm}@media print{.agreement-pdf-toolbar{display:none}html,body{padding:0!important;margin:0!important;width:auto;max-width:none;font-size:9.5pt;line-height:1.22}h1{font-size:16pt;margin:0 0 3mm}h2{font-size:11pt;margin:4mm 0 1.5mm}h3{font-size:9.5pt;margin:2mm 0 1mm}p{margin:1.2mm 0}section{break-inside:avoid;page-break-inside:avoid;padding-bottom:2mm;margin-bottom:2mm}.sig{height:17mm;max-height:17mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="agreement-pdf-toolbar"><button class="agreement-back-button" onclick="window.close();setTimeout(()=>{if(!window.closed)history.back()},120)">← Zurück</button><button class="agreement-print-button" onclick="window.print()">📄 PDF drucken / speichern</button></div><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("dsgvo","Datenschutzhinweise – Kenntnisnahme")}${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}</body></html>`);
  w.document.close();
 }
 
@@ -265,8 +294,9 @@ function makeStoredZip(entries){
 function agreementHtmlForZip(seller){
  const d=seller.signatureDocuments||seller.signature_documents||{};
  const block=(type,label)=>{const x=d[type];if(!x?.signature)return "";
- return `<section><h2>Bei der ${label}:</h2><p>${esc(x.text||AGREEMENT_TEXT[type])}</p>${type==="abgabe"?`<h3>Datenschutzhinweis</h3><p>${esc(PRIVACY_NOTICE).replace(/\\n\\n/g,"</p><p>")}</p>`:""}<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p></section>`};
- return `<!doctype html><html lang="de"><meta charset="utf-8"><title>Vereinbarung ${esc(seller.name)}</title><style>body{font:14px Arial,sans-serif;line-height:1.4;padding:24px;color:#172033}h1{font-size:23px;margin:16px 0 6px}h2{font-size:17px;margin:18px 0 6px}h3{font-size:13px;margin:10px 0 4px}p{margin:5px 0}section{border-bottom:1px solid #bbb;padding-bottom:10px;margin-bottom:10px}.sig{display:block;max-width:100%;height:72px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}@page{size:A4 portrait;margin:9mm}@media print{html,body{padding:0!important;margin:0!important;font-size:9.5pt;line-height:1.22}h1{font-size:16pt;margin:0 0 3mm}h2{font-size:11pt;margin:4mm 0 1.5mm}h3{font-size:9.5pt;margin:2mm 0 1mm}p{margin:1.2mm 0}section{break-inside:avoid;page-break-inside:avoid;padding-bottom:2mm;margin-bottom:2mm}.sig{height:17mm;max-height:17mm}}</style><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${block("abgabe","Abgabe der Kleidung")}${block("abholung","Abholung und Auszahlung")}</html>`;
+ const text=type==="dsgvo"?(x.text||PRIVACY_NOTICE):(x.text||AGREEMENT_TEXT[type]);
+ return `<section><h2>${type==="dsgvo"?label:`Bei der ${label}:`}</h2><p>${esc(text).replace(/\n\n/g,"</p><p>")}</p><p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p></section>`};
+ return `<!doctype html><html lang="de"><meta charset="utf-8"><title>Vereinbarung ${esc(seller.name)}</title><style>body{font:14px Arial,sans-serif;line-height:1.4;padding:24px;color:#172033}h1{font-size:23px;margin:16px 0 6px}h2{font-size:17px;margin:18px 0 6px}h3{font-size:13px;margin:10px 0 4px}p{margin:5px 0}section{border-bottom:1px solid #bbb;padding-bottom:10px;margin-bottom:10px}.sig{display:block;max-width:100%;height:72px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}@page{size:A4 portrait;margin:9mm}@media print{html,body{padding:0!important;margin:0!important;font-size:9.5pt;line-height:1.22}h1{font-size:16pt;margin:0 0 3mm}h2{font-size:11pt;margin:4mm 0 1.5mm}h3{font-size:9.5pt;margin:2mm 0 1mm}p{margin:1.2mm 0}section{break-inside:avoid;page-break-inside:avoid;padding-bottom:2mm;margin-bottom:2mm}.sig{height:17mm;max-height:17mm}}</style><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${block("dsgvo","Datenschutzhinweise – Kenntnisnahme")}${block("abgabe","Abgabe der Kleidung")}${block("abholung","Abholung und Auszahlung")}</html>`;
 }
 async function downloadAllAgreementsZip(){
  const btn=$("downloadAllAgreements");if(!btn)return;
@@ -274,11 +304,11 @@ async function downloadAllAgreementsZip(){
  const entries=[];
  participants.forEach(s=>{
   const d=s.signatureDocuments||s.signature_documents||{};
-  if(!d.abgabe?.signature&&!d.abholung?.signature)return;
+  if(!d.dsgvo?.signature&&!d.abgabe?.signature&&!d.abholung?.signature)return;
   const safe=(String(s.name||"Verkaeufer").replace(/[^a-z0-9äöüß_-]+/gi,"_").replace(/^_+|_+$/g,"")||"Verkaeufer");
   entries.push({name:`VK_${String(s.number||"").replace(/[^a-z0-9_-]/gi,"")}_${safe}.html`,content:agreementHtmlForZip(s)});
  });
- if(!entries.length){alert("Es liegen noch keine unterschriebenen Vereinbarungen bei den teilnehmenden Verkäufern vor.");return;}
+ if(!entries.length){alert("Es liegen noch keine unterschriebenen DSGVO-Hinweise oder Vereinbarungen bei den teilnehmenden Verkäufern vor.");return;}
  btn.disabled=true;const old=btn.textContent;btn.textContent="ZIP wird erstellt …";
  try{
   const blob=makeStoredZip(entries),url=URL.createObjectURL(blob),a=document.createElement("a");

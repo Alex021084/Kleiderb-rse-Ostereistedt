@@ -145,6 +145,8 @@ async function resetParticipationAfterArchive(snapshot){
           email:row.email||"",payoutMethod:row.payout_method||"Bar",
           commissionEnabled:row.commission_enabled===true,
           commissionRate:Number(row.commission_rate??15),
+          signatureDocuments:row.signature_documents||row.signatureDocuments||{},
+          lastParticipationAt:row.last_participation_at||row.lastParticipationAt||null,
           isParticipating:false
         });
       }
