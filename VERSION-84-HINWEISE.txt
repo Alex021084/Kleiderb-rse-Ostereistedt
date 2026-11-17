@@ -1,0 +1,9 @@
+Kleiderbörse – Version 84
+
+Änderungen:
+- In der Ansicht „Teilnehmende Verkäufer“ wird „+ Verkäufer hinzufügen“ ausgeblendet.
+- Im Unterschriftenfenster heißt die Schaltfläche jetzt „Unterschrift übernehmen“.
+- Das Unterschriftenfenster ist etwas kompakter und auf kleinen Bildschirmen scrollbar, damit die unteren Schaltflächen erreichbar bleiben.
+- Im Abgabetext zur Abholung wurde „vollständig“ entfernt.
+
+Keine Datenbankänderung erforderlich.

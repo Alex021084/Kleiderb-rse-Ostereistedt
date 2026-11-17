@@ -71,6 +71,8 @@ async function sellerStats(number){
 async function render(){
   let q=($("search").value||"").toLocaleLowerCase("de-DE");
   const view=new URLSearchParams(location.search).get("liste")||"alle";
+  const addButton=document.querySelector("main > .add");
+  if(addButton){const isParticipantsView=view==="teilnehmend";addButton.classList.toggle("hidden",isParticipantsView);addButton.style.display=isParticipantsView?"none":"";}
   const zipButton=$("downloadAllAgreements");
   if(zipButton){
     const showZip=view==="teilnehmend";
@@ -164,7 +166,7 @@ async function del(id){
 // Verkäufervereinbarungen: Abgabe und Abholung mit dauerhaft gespeicherter Unterschrift.
 const AGREEMENT_TEXT={
  abgabe:"Ich bestätige, dass die von mir abgegebenen Kleidungsstücke mein Eigentum sind und ich diese freiwillig zum Verkauf auf der Kleiderbörse abgebe. Mir ist bekannt, dass der Veranstalter keine Haftung für Verlust, Diebstahl, Beschädigung oder sonstige Schäden an den abgegebenen Sachen übernimmt.",
- abholung:"Hiermit bestätige ich, meine nicht verkauften Kleidungsstücke sowie den Erlös aus den verkauften Artikeln vollständig erhalten zu haben. Mit meiner Unterschrift bestätige ich, dass die Abholung und Auszahlung abgeschlossen sind."
+ abholung:"Hiermit bestätige ich, meine nicht verkauften Kleidungsstücke sowie den Erlös aus den verkauften Artikeln erhalten zu haben. Mit meiner Unterschrift bestätige ich, dass die Abholung und Auszahlung abgeschlossen sind."
 };
 const PRIVACY_NOTICE=`Im Rahmen der Kleiderbörse erheben und speichern wir folgende personenbezogene Daten: Name, Telefonnummer und E-Mail-Adresse.
 

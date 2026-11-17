@@ -77,6 +77,16 @@ body.modal-open{overscroll-behavior:none!important;}
 @media(max-width:520px){.agreement-pdf-toolbar{flex-wrap:wrap}.agreement-back-button,.agreement-print-button{flex:1}}
 </style>
 
+
+/* V84: Unterschriftsfenster etwas kompakter, damit Aktionen auf dem iPad sichtbar bleiben */
+#signatureModal{padding:10px;align-items:center}
+.signature-modal-box{padding:16px;width:min(980px,calc(100vw - 20px));max-height:calc(100dvh - 20px);overflow-y:auto}
+.signature-modal-box h3{margin:10px 0 8px;font-size:16px}
+.signature-modal-box > p{margin:6px 0 8px;font-size:14px}
+.signature-modal-box .agreement-text{font-size:15px;line-height:1.45;padding:12px}
+#signatureCanvas{height:180px}
+.signature-modal-actions{gap:8px;margin-top:10px}
+.signature-modal-actions button{min-height:42px;padding:8px 14px;font-size:14px}
 </style>
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
 <body>
@@ -152,9 +162,9 @@ body.modal-open{overscroll-behavior:none!important;}
  <h3>Unterschrift</h3>
  <p>Bitte direkt im Feld unterschreiben.</p>
  <div class="signature-canvas-wrap"><canvas id="signatureCanvas"></canvas></div>
- <div class="signature-modal-actions"><button type="button" onclick="clearSignature()" style="background:#e9edf5">Löschen</button><button type="button" onclick="closeSignature()" style="background:#e9edf5">Abbrechen</button><button type="button" onclick="saveSignature()" style="background:#2456df;color:white">Unterschrift speichern</button></div>
+ <div class="signature-modal-actions"><button type="button" onclick="clearSignature()" style="background:#e9edf5">Löschen</button><button type="button" onclick="closeSignature()" style="background:#e9edf5">Abbrechen</button><button type="button" onclick="saveSignature()" style="background:#2456df;color:white">Unterschrift übernehmen</button></div>
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=83"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=86"></script><script src="seller.js?v=84"></script>
 </body></html>
