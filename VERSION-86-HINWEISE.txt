@@ -1,0 +1,9 @@
+Kleiderbörse Version 86
+
+- Vereinbarungs-PDF-Drucklayout auf eine A4-Seite optimiert.
+- Abgabe, Datenschutzhinweis und Abholung werden kompakter gesetzt.
+- Unterschriften bleiben enthalten und werden platzsparender dargestellt.
+- Auch die HTML-Dateien im Vereinbarungs-ZIP nutzen das einseitige A4-Drucklayout.
+- Keine Datenbankänderung erforderlich.
+
+Hinweis: Die endgültige Seitenzahl hängt geringfügig von den Druckeinstellungen des Geräts ab. Im Druckdialog bitte A4 und 100 % bzw. „An Seite anpassen“ verwenden.
