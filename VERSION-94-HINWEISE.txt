@@ -1,0 +1,14 @@
+KLEIDERBÖRSE OSTEREISTEDT e.V. – VERSION 94
+
+Änderungen:
+- Teilnehmerliste: Ein DSGVO-Button erscheint links neben Abgabe/Abholung, mittig über beide Buttons und in gleicher Höhe (40 px).
+- Wenn die aktuelle Datenschutzerklärung bereits unterschrieben wurde, wird in der Teilnehmerliste kein DSGVO-Button angezeigt.
+- Der Button öffnet bei fehlender aktueller Unterschrift die DSGVO-Unterschrift auf dem Tablet.
+- Die vorhandene Unterschrift bleibt dem gespeicherten Verkäuferdatensatz zugeordnet. Bei erneuter Teilnahme innerhalb von drei Jahren ist keine erneute Unterschrift nötig.
+- Nach drei Jahren ohne Teilnahme wird der Verkäuferdatensatz durch die bestehende Löschprüfung entfernt (sofern keine Aufbewahrungspflichten entgegenstehen); bei erneuter Registrierung ist daher eine neue DSGVO-Unterschrift erforderlich.
+- Abgabe, Abholung, Vereinbarung-PDF und Abrechnung bleiben in ihren bisherigen Spalten.
+- Die Liste „Alle gespeicherten Verkäufer“ behält ihren bisherigen DSGVO-Button.
+
+Installation:
+Alle Dateien dieses Projekts in das GitHub-Repository übernehmen. Keine neue Supabase-SQL-Migration erforderlich.
+Nach dem Deployment die Seite auf dem iPad vollständig neu laden.

@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=93">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=94">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -215,6 +215,74 @@ body.modal-open{overscroll-behavior:none!important;}
 }
 </style>
 
+
+
+<style id="v94-participant-dsgvo-layout">
+/* V94: DSGVO links neben Abgabe/Abholung; gleiche Buttonhöhe, mittig über beide Reihen */
+.seller.participant-compact{
+  grid-template-columns:34px minmax(0,1fr) 264px!important;
+  column-gap:12px!important;
+  align-items:center!important;
+}
+.seller.participant-compact .compact-actions{
+  width:264px!important;
+  display:grid!important;
+  grid-template-columns:84px minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:40px 40px!important;
+  gap:8px!important;
+  align-items:stretch!important;
+}
+.seller.participant-compact .compact-actions .participant-privacy-slot{
+  grid-column:1!important;grid-row:1 / span 2!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;width:100%!important;height:100%!important;
+}
+.seller.participant-compact .compact-actions .participant-privacy-action{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:40px!important;min-height:40px!important;
+  box-sizing:border-box!important;padding:6px 4px!important;
+  font-size:12px!important;white-space:nowrap!important;
+}
+.seller.participant-compact .compact-actions .signature-actions,
+.seller.participant-compact .compact-actions .participant-secondary-actions{
+  display:contents!important;
+}
+.seller.participant-compact .compact-actions .signature-actions>.signature-action:nth-child(1){
+  grid-column:2!important;grid-row:1!important;
+}
+.seller.participant-compact .compact-actions .signature-actions>.signature-action:nth-child(2){
+  grid-column:2!important;grid-row:2!important;
+}
+.seller.participant-compact .compact-actions .participant-secondary-actions>.signature-pdf{
+  grid-column:3!important;grid-row:1!important;
+}
+.seller.participant-compact .compact-actions .participant-secondary-actions>.report{
+  grid-column:3!important;grid-row:2!important;
+}
+.seller.participant-compact .compact-actions .signature-action,
+.seller.participant-compact .compact-actions .signature-pdf,
+.seller.participant-compact .compact-actions .report{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:40px!important;min-height:40px!important;box-sizing:border-box!important;
+  margin:0!important;padding:6px 5px!important;font-size:12px!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:680px){
+ .seller.participant-compact{grid-template-columns:34px minmax(0,1fr)!important;row-gap:9px!important}
+ .seller.participant-compact .compact-actions{
+   grid-column:2!important;grid-row:2!important;width:100%!important;max-width:100%!important;
+   grid-template-columns:minmax(74px,.9fr) repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:420px){
+ .seller.participant-compact .compact-actions{grid-template-columns:70px repeat(2,minmax(0,1fr))!important;gap:5px!important}
+ .seller.participant-compact .compact-actions .participant-privacy-action{font-size:11px!important;padding:5px 2px!important}
+ .seller.participant-compact .compact-actions .signature-action,
+ .seller.participant-compact .compact-actions .signature-pdf,
+ .seller.participant-compact .compact-actions .report{font-size:11px!important;padding:5px 3px!important}
+}
+</style>
+
 </head>
 <body>
 
@@ -293,5 +361,5 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=93"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=94"></script>
 </body></html>
