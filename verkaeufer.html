@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=94">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=95">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -217,17 +217,18 @@ body.modal-open{overscroll-behavior:none!important;}
 
 
 
-<style id="v94-participant-dsgvo-layout">
-/* V94: DSGVO links neben Abgabe/Abholung; gleiche Buttonhöhe, mittig über beide Reihen */
+<style id="v95-participant-dsgvo-layout">
+/* V95: Breitere Aktionsspalten, damit alle Beschriftungen lesbar bleiben */
 .seller.participant-compact{
-  grid-template-columns:34px minmax(0,1fr) 264px!important;
+  grid-template-columns:34px minmax(0,1fr) 380px!important;
   column-gap:12px!important;
   align-items:center!important;
 }
 .seller.participant-compact .compact-actions{
-  width:264px!important;
+  width:380px!important;
+  min-width:380px!important;
   display:grid!important;
-  grid-template-columns:84px minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-columns:104px 124px 136px!important;
   grid-template-rows:40px 40px!important;
   gap:8px!important;
   align-items:stretch!important;
@@ -240,7 +241,7 @@ body.modal-open{overscroll-behavior:none!important;}
 .seller.participant-compact .compact-actions .participant-privacy-action{
   width:100%!important;min-width:0!important;max-width:100%!important;
   height:40px!important;min-height:40px!important;
-  box-sizing:border-box!important;padding:6px 4px!important;
+  box-sizing:border-box!important;padding:6px 7px!important;
   font-size:12px!important;white-space:nowrap!important;
 }
 .seller.participant-compact .compact-actions .signature-actions,
@@ -264,22 +265,34 @@ body.modal-open{overscroll-behavior:none!important;}
 .seller.participant-compact .compact-actions .report{
   width:100%!important;min-width:0!important;max-width:100%!important;
   height:40px!important;min-height:40px!important;box-sizing:border-box!important;
-  margin:0!important;padding:6px 5px!important;font-size:12px!important;
-  white-space:normal!important;overflow-wrap:anywhere!important;
+  margin:0!important;padding:6px 7px!important;font-size:12px!important;
+  white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;
 }
-@media(max-width:680px){
- .seller.participant-compact{grid-template-columns:34px minmax(0,1fr)!important;row-gap:9px!important}
+@media(max-width:760px){
+ .seller.participant-compact{
+   grid-template-columns:34px minmax(0,1fr)!important;
+   row-gap:9px!important;
+ }
  .seller.participant-compact .compact-actions{
-   grid-column:2!important;grid-row:2!important;width:100%!important;max-width:100%!important;
-   grid-template-columns:minmax(74px,.9fr) repeat(2,minmax(0,1fr))!important;
+   grid-column:2!important;grid-row:2!important;
+   width:100%!important;min-width:0!important;max-width:100%!important;
+   grid-template-columns:minmax(100px,104px) minmax(0,1fr) minmax(0,1fr)!important;
+ }
+ .seller.participant-compact .compact-actions .signature-pdf{
+   font-size:11px!important;
  }
 }
 @media(max-width:420px){
- .seller.participant-compact .compact-actions{grid-template-columns:70px repeat(2,minmax(0,1fr))!important;gap:5px!important}
- .seller.participant-compact .compact-actions .participant-privacy-action{font-size:11px!important;padding:5px 2px!important}
+ .seller.participant-compact .compact-actions{
+   grid-template-columns:90px minmax(0,1fr) minmax(0,1fr)!important;
+   gap:5px!important;
+ }
+ .seller.participant-compact .compact-actions .participant-privacy-action,
  .seller.participant-compact .compact-actions .signature-action,
  .seller.participant-compact .compact-actions .signature-pdf,
- .seller.participant-compact .compact-actions .report{font-size:11px!important;padding:5px 3px!important}
+ .seller.participant-compact .compact-actions .report{
+   font-size:10px!important;padding:5px 3px!important;
+ }
 }
 </style>
 
@@ -361,5 +374,5 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=94"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=95"></script>
 </body></html>

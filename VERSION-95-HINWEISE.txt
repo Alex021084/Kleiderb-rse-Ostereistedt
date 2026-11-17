@@ -1,0 +1,14 @@
+KLEIDERBÖRSE OSTEREISTEDT e.V. – VERSION 95
+
+Änderung:
+- Aktionsbereich der teilnehmenden Verkäufer von 264 px auf 380 px verbreitert.
+- DSGVO-Spalte, Abgabe/Abholung und Vereinbarung-PDF/Euro haben mehr Platz.
+- Beschriftungen bleiben einzeilig, insbesondere „Vereinbarung PDF“.
+- Auf schmalen Displays wandert der Aktionsbereich unter die Verkäuferdaten und passt sich der verfügbaren Breite an.
+- Buttonhöhe bleibt bei 40 px.
+- Die DSGVO- und Drei-Jahres-Logik wurde nicht verändert.
+- Cache-Versionen für seller.css und seller.js in verkaeufer.html auf 95 gesetzt.
+
+Installation:
+Alle Dateien aus dem ZIP in das GitHub-Repository übernehmen und den Pages-Deploy abwarten.
+Keine neue Supabase-Migration erforderlich.
