@@ -1,0 +1,10 @@
+Kleiderbörse Ostereistedt e.V. – Version 88
+
+Änderungen:
+- DSGVO-Unterschriftsfenster: redundanter Bestätigungssatz oberhalb der Datenschutzhinweise entfernt.
+- Datenschutzhinweis ergänzt: Bankverbindungen und PayPal-Adressen, soweit für Auszahlungen erfasst, werden lokal auf dem verwendeten Gerät gespeichert und nicht an Supabase/andere Cloud-Dienste übertragen.
+- PDF-Ausgabe getrennt: Abgabe und Abholung gemeinsam als Vereinbarungs-PDF; Datenschutzerklärung separat als DSGVO-PDF.
+- Datenschutztext-Version auf 1.1 erhöht, damit bestehende Unterschriften für den geänderten Hinweis erneut bestätigt werden können.
+
+Hinweis:
+Vor Produktivbetrieb sicherstellen, dass Bank-/PayPal-Daten tatsächlich ausschließlich lokal gespeichert werden und nicht über Sync, Backups oder andere Schnittstellen in die Cloud gelangen. Die Datenschutzhinweise sollten mit den tatsächlich erhobenen Daten und Verarbeitungszwecken abgeglichen werden.

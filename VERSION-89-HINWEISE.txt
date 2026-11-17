@@ -1,0 +1,11 @@
+Kleiderbörse Ostereistedt e.V. – Version 89
+
+Änderungen gegenüber Version 88:
+- Datenschutzhinweis präzisiert: Bankverbindungen und PayPal-Adressen werden separat in einer vereinsinternen Excel-Datei lokal gespeichert und verwaltet.
+- Klarstellung: Diese Zahlungsdaten werden nicht innerhalb der Kleiderbörsen-App und nicht in der Supabase-Cloud gespeichert.
+- Zugriff auf die Excel-Datei ist laut Datenschutzhinweis ausschließlich den zuständigen Vereinsmitgliedern vorbehalten.
+- Nutzung nur zur Abwicklung der Auszahlungen; Löschung, sobald die Daten nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+- Datenschutzhinweis-Version auf 1.2 erhöht, damit die geänderte Information erneut zur Kenntnis genommen und unterschrieben werden kann.
+
+Wichtig:
+Bitte sicherstellen, dass die Excel-Datei tatsächlich lokal und zugriffsgeschützt gespeichert wird und nicht über Cloud-Synchronisierung, automatische Backups oder Freigaben an andere Dienste übertragen wird. Die tatsächliche Speicher- und Löschpraxis muss dem Hinweis entsprechen.
