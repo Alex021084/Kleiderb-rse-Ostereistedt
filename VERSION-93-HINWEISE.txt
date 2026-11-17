@@ -1,0 +1,16 @@
+KLEIDERBÖRSE OSTEREISTEDT e.V. – VERSION 93
+
+Korrekturen:
+- Teilnehmerliste: Abgabe und Abholung stehen in der linken Aktionsspalte übereinander.
+- Teilnehmerliste: Vereinbarung-PDF und Abrechnung (€) stehen in der rechten Aktionsspalte übereinander.
+- Das Aktionsfeld erhält eine feste, responsive Breite; Buttons werden nicht mehr seitlich abgeschnitten.
+- Alle gespeicherten Verkäufer: DSGVO steht rechts im Aktionsbereich anstelle des Euro-Buttons.
+- Bei gespeicherten Verkäufern bleiben Bearbeiten und Löschen darunter.
+- Teilnahme-Kontrolle bleibt links neben den Verkäuferdaten.
+
+Installation:
+Alle Dateien aus diesem Projekt in das GitHub-Repository übernehmen.
+Keine neue Supabase-SQL-Migration vorgesehen.
+
+Hinweis:
+Nach dem Deployment die Seite im Browser vollständig neu laden. Die CSS- und JavaScript-Referenzen wurden zur Cache-Aktualisierung auf Version 93 gesetzt.

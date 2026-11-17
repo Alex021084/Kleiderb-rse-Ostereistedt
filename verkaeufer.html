@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=92">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=93">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -123,6 +123,98 @@ body.modal-open{overscroll-behavior:none!important;}
 @media(max-width:760px){.seller.participant-compact{grid-template-columns:34px minmax(0,1fr) 150px!important;row-gap:8px!important}.seller.participant-compact .compact-actions{grid-column:3!important;grid-row:1!important;width:150px!important;flex-direction:initial!important;flex-wrap:initial!important}}
 @media(max-width:600px){.saved-seller-actions{align-self:start!important;width:82px!important;gap:13px!important}.saved-seller-actions>.signature-action{width:82px!important;font-size:12px!important}.saved-seller-actions>.seller-bottom-actions{width:82px!important}}
 </style>
+
+<style id="v93-final-seller-layout">
+/* V93: Teilnehmendenkarte – vier Aktionen sauber in zwei Spalten */
+.seller.participant-compact{
+  grid-template-columns:34px minmax(0,1fr) 264px!important;
+  column-gap:12px!important;
+  align-items:center!important;
+  min-width:0!important;
+}
+.seller.participant-compact .compact-actions{
+  width:264px!important;
+  min-width:0!important;
+  height:auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,40px)!important;
+  gap:8px!important;
+  margin:0!important;
+  align-items:stretch!important;
+}
+.seller.participant-compact .compact-actions .signature-actions,
+.seller.participant-compact .compact-actions .participant-secondary-actions{
+  display:contents!important;
+}
+.seller.participant-compact .compact-actions .signature-actions>.signature-action:nth-child(1){
+  grid-column:1!important;grid-row:1!important;
+}
+.seller.participant-compact .compact-actions .signature-actions>.signature-action:nth-child(2){
+  grid-column:1!important;grid-row:2!important;
+}
+.seller.participant-compact .compact-actions .participant-secondary-actions>.signature-pdf{
+  grid-column:2!important;grid-row:1!important;
+}
+.seller.participant-compact .compact-actions .participant-secondary-actions>.report{
+  grid-column:2!important;grid-row:2!important;
+}
+.seller.participant-compact .compact-actions .signature-action,
+.seller.participant-compact .compact-actions .signature-pdf,
+.seller.participant-compact .compact-actions .report{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:40px!important;min-height:40px!important;box-sizing:border-box!important;
+  margin:0!important;padding:6px 7px!important;font-size:12px!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+}
+/* Schmale Ansichten: Aktionen unter der Verkäuferidentität, weiterhin 2 Spalten */
+@media(max-width:680px){
+  .seller.participant-compact{
+    grid-template-columns:34px minmax(0,1fr)!important;
+    row-gap:9px!important;
+  }
+  .seller.participant-compact .compact-actions{
+    grid-column:2!important;grid-row:2!important;
+    width:100%!important;max-width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+/* Gespeicherte Verkäufer: DSGVO rechts anstelle des Euro-Buttons */
+.saved-participation-controls{
+  position:absolute!important;top:10px!important;left:16px!important;
+  display:flex!important;align-items:center!important;gap:8px!important;
+}
+.saved-seller-actions{
+  width:92px!important;height:auto!important;min-width:92px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;justify-content:flex-start!important;
+  gap:14px!important;margin:0!important;
+}
+.saved-seller-actions>.signature-action{
+  display:block!important;order:0!important;
+  width:92px!important;min-width:92px!important;
+  min-height:40px!important;height:40px!important;
+  margin:0 0 4px!important;padding:7px 5px!important;
+  font-size:12px!important;white-space:nowrap!important;
+}
+.saved-seller-actions>.seller-bottom-actions{
+  order:1!important;width:92px!important;height:40px!important;
+  min-height:40px!important;display:grid!important;
+  grid-template-columns:43px 43px!important;gap:6px!important;
+  margin:0!important;
+}
+.saved-seller-actions>.seller-bottom-actions .small{
+  width:43px!important;height:40px!important;min-height:40px!important;
+}
+@media(max-width:600px){
+  .saved-seller-actions{width:82px!important;min-width:82px!important;gap:14px!important}
+  .saved-seller-actions>.signature-action{width:82px!important;min-width:82px!important}
+  .saved-seller-actions>.seller-bottom-actions{width:82px!important;grid-template-columns:39px 39px!important;gap:4px!important}
+  .saved-seller-actions>.seller-bottom-actions .small{width:39px!important}
+  .saved-participation-controls{left:12px!important}
+}
+</style>
+
 </head>
 <body>
 
@@ -201,5 +293,5 @@ body.modal-open{overscroll-behavior:none!important;}
  <div id="signatureError"></div>
 </div></div>
 
-<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=90"></script>
+<script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="seller.js?v=93"></script>
 </body></html>
