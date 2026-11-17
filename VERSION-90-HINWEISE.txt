@@ -1,0 +1,10 @@
+Kleiderbörse Ostereistedt e.V. – Version 90
+
+Änderungen:
+- DSGVO-Statusbutton in der Teilnehmerliste direkt neben dem Teilnahme-Häkchen.
+- Separate Schaltfläche „DSGVO PDF“ entfernt.
+- Klick auf DSGVO: Bei bereits unterschriebenen Hinweisen öffnet sich die druck-/speicherbare PDF-Ansicht; bei fehlender oder veralteter Unterschrift öffnet sich das Unterschriftsfenster.
+- DSGVO-Statusbutton auch bei gespeicherten Verkäufern mit derselben Funktion.
+- Abgabe, Abholung, Vereinbarungs-PDF und Abrechnung bleiben erhalten.
+
+Keine Supabase-SQL-Migration erforderlich.
