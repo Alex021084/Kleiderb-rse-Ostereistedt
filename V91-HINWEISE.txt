@@ -1,0 +1,7 @@
+Kleiderbörse Ostereistedt e.V. – Version 91
+
+Änderung: Der DSGVO-Button befindet sich ausschließlich in „Alle gespeicherten Verkäufer“ direkt neben der Teilnahme-Auswahl. In der Liste „Teilnehmende Verkäufer“ wird kein DSGVO-Button angezeigt.
+
+Verhalten: Bei bereits unterschriebenen und aktuellen Datenschutzhinweisen öffnet der Button die PDF-Ansicht mit Unterschriftsnachweis. Fehlt die Unterschrift oder ist sie veraltet, öffnet sich das Unterschriftsfenster.
+
+Keine neue Supabase-Migration erforderlich.

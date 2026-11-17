@@ -523,6 +523,22 @@ body header.top > #cloudStatus{
 }
 
 
+/* V91 – DSGVO-Schaltfläche nur in „Alle gespeicherten Verkäufer“, neben Teilnahme */
+.saved-participation-controls{
+  position:absolute;top:10px;left:16px;display:flex;align-items:center;gap:12px;
+  min-height:30px;z-index:1;
+}
+.saved-participation-controls .participation-toggle{
+  position:static;display:flex;align-items:center;gap:7px;margin:0;padding:0;
+}
+.saved-participation-controls .signature-action{
+  min-width:82px;min-height:32px;padding:6px 10px;font-size:12px;white-space:nowrap;
+}
+@media(max-width:600px){
+  .saved-participation-controls{left:12px;gap:8px}
+  .saved-participation-controls .signature-action{min-width:76px;padding:6px 8px}
+}
+
 /* V87 – DSGVO-Status auch in der Liste der gespeicherten Verkäufer */
 .saved-seller-actions{
   width:92px;height:auto;display:flex;flex-direction:column;gap:6px;
