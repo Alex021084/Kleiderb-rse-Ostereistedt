@@ -166,6 +166,13 @@ const AGREEMENT_TEXT={
  abgabe:"Ich bestätige, dass die von mir abgegebenen Kleidungsstücke mein Eigentum sind und ich diese freiwillig zum Verkauf auf der Kleiderbörse abgebe. Mir ist bekannt, dass der Veranstalter keine Haftung für Verlust, Diebstahl, Beschädigung oder sonstige Schäden an den abgegebenen Sachen übernimmt.",
  abholung:"Hiermit bestätige ich, meine nicht verkauften Kleidungsstücke sowie den Erlös aus den verkauften Artikeln vollständig erhalten zu haben. Mit meiner Unterschrift bestätige ich, dass die Abholung und Auszahlung abgeschlossen sind."
 };
+const PRIVACY_NOTICE=`Im Rahmen der Kleiderbörse erheben und speichern wir folgende personenbezogene Daten: Name, Telefonnummer und E-Mail-Adresse.
+
+Die Daten werden ausschließlich zur Organisation und Durchführung der Kleiderbörse sowie zur Abwicklung des Verkaufs und der Auszahlung verwendet. Die Speicherung erfolgt digital in einer zugriffsgeschützten Cloud.
+
+Nach Abschluss der Kleiderbörse und der vollständigen Abwicklung werden die Daten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+
+Die Teilnehmer haben das Recht auf Auskunft, Berichtigung und Löschung ihrer personenbezogenen Daten im Rahmen der gesetzlichen Bestimmungen.`;
 function todayGerman(){return new Date().toLocaleDateString("de-DE");}
 function openSignature(id,type){
  const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
@@ -176,6 +183,8 @@ function openSignature(id,type){
  modal.dataset.sellerId=id;modal.dataset.type=type;
  document.getElementById("signatureTitle").textContent=title+" – "+seller.name;
  document.getElementById("signatureText").textContent=AGREEMENT_TEXT[type];
+ const privacyBox=document.getElementById("signaturePrivacy");
+ if(privacyBox){privacyBox.classList.toggle("hidden",type!=="abgabe");}
  document.getElementById("signatureAccepted").checked=false;
  document.getElementById("signatureAccepted").onchange=updateSignatureCanvasLock;
  document.getElementById("signatureError").textContent="";
@@ -223,7 +232,7 @@ async function saveSignature(){
 function openSellerDocumentsPdf(id){
  const seller=sellers.find(x=>String(x.id)===String(id));if(!seller)return;
  const d=seller.signatureDocuments||{};
- const section=(type,label)=>{const x=d[type];return `<section><h2>Bei der ${label}:</h2><p>${esc(AGREEMENT_TEXT[type])}</p>${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
+ const section=(type,label)=>{const x=d[type];return `<section><h2>Bei der ${label}:</h2><p>${esc(AGREEMENT_TEXT[type])}</p>${type==="abgabe"?`<h3>Datenschutzhinweis</h3><p>${esc(PRIVACY_NOTICE).replace(/\\n\\n/g,"</p><p>")}</p>`:""}${x?.accepted?`<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>`:`<p class="missing">Noch nicht unterschrieben</p>`}</section>`};
  const w=window.open("","_blank");if(!w){alert("Safari hat das PDF-Fenster blockiert. Bitte Pop-ups für diese Seite erlauben.");return;}
  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vereinbarung – ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;color:#172033;padding:28px;line-height:1.6;max-width:900px;margin:auto}h1{font-size:25px;margin:20px 0 8px}h2{font-size:19px;margin-top:28px;color:#26364c}section{page-break-inside:avoid;border-bottom:1px solid #cbd3df;padding:0 0 22px;margin-bottom:22px}.sig{display:block;max-width:100%;height:100px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}.missing{color:#a45b00;font-weight:bold}.agreement-pdf-toolbar{display:flex;justify-content:space-between;gap:14px;margin:0 0 22px}.agreement-back-button,.agreement-print-button{border:0;border-radius:11px;padding:13px 18px;font-size:16px;font-weight:700;cursor:pointer}.agreement-back-button{background:#edf1f8;color:#26364c}.agreement-print-button{background:#2456df;color:white;box-shadow:0 3px 10px rgba(36,86,223,.2)}@media print{.agreement-pdf-toolbar{display:none}body{padding:0}}</style></head><body><div class="agreement-pdf-toolbar"><button class="agreement-back-button" onclick="window.close();setTimeout(()=>{if(!window.closed)history.back()},120)">← Zurück</button><button class="agreement-print-button" onclick="window.print()">📄 PDF drucken / speichern</button></div><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${section("abgabe","Abgabe der Kleidung")}${section("abholung","Abholung und Auszahlung")}</body></html>`);
  w.document.close();
@@ -254,7 +263,7 @@ function makeStoredZip(entries){
 function agreementHtmlForZip(seller){
  const d=seller.signatureDocuments||seller.signature_documents||{};
  const block=(type,label)=>{const x=d[type];if(!x?.signature)return "";
- return `<section><h2>Bei der ${label}:</h2><p>${esc(x.text||AGREEMENT_TEXT[type])}</p><p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p></section>`};
+ return `<section><h2>Bei der ${label}:</h2><p>${esc(x.text||AGREEMENT_TEXT[type])}</p>${type==="abgabe"?`<h3>Datenschutzhinweis</h3><p>${esc(PRIVACY_NOTICE).replace(/\\n\\n/g,"</p><p>")}</p>`:""}<p><strong>Bestätigt am:</strong> ${esc(x.dateDisplay||"")}</p><img class="sig" src="${x.signature}" alt="Unterschrift"><p>${esc(seller.name)} · VK ${esc(seller.number)}</p></section>`};
  return `<!doctype html><html lang="de"><meta charset="utf-8"><title>Vereinbarung ${esc(seller.name)}</title><style>body{font:16px Arial,sans-serif;line-height:1.6;padding:28px;color:#172033}h1{font-size:23px}h2{font-size:18px;margin-top:28px}section{page-break-inside:avoid;border-bottom:1px solid #bbb;padding-bottom:18px}.sig{display:block;max-width:100%;height:95px;object-fit:contain;object-position:left center;border-bottom:1px solid #222}</style><h1>Kleiderbörse – Vereinbarung</h1><p>${esc(seller.name)} · VK ${esc(seller.number)}</p>${block("abgabe","Abgabe der Kleidung")}${block("abholung","Abholung und Auszahlung")}</html>`;
 }
 async function downloadAllAgreementsZip(){

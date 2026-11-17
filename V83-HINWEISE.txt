@@ -1,0 +1,1 @@
+Version 83: Datenschutzhinweis unter dem Abgabetext in Unterschriftsfenster, Einzel-PDF und ZIP-Vereinbarungen. Abholung unveraendert. Keine Datenbankmigration erforderlich.
