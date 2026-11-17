@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=87">
+<link rel="manifest" href="manifest.webmanifest"><title>Verkäufer</title><link rel="stylesheet" href="seller.css?v=92">
 <style>
 .seller-extra-fields{margin-top:16px;padding-top:14px;border-top:1px solid #e5e7eb}
 .seller-extra-fields .field-note{display:block;font-size:13px;color:#7b8490;margin:-5px 0 10px}
@@ -108,6 +108,20 @@ body.modal-open{overscroll-behavior:none!important;}
  .seller.participant-compact .compact-actions .report{width:42px;flex:0 0 42px}
 }
 @media(max-width:420px){.seller.participant-compact{grid-template-columns:105px minmax(0,1fr)!important}.participant-left-controls{gap:5px}.participant-left-controls .signature-action{min-width:72px;font-size:11px}}
+</style>
+
+<style id="v92-layout">
+/* Teilnehmerliste: Abgabe/Abholung links, PDF/Euro rechts – jeweils vertikal */
+.seller.participant-compact .compact-actions{width:150px!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:stretch!important;justify-content:stretch!important;gap:8px!important}
+.seller.participant-compact .compact-actions .signature-actions,.seller.participant-compact .compact-actions .participant-secondary-actions{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:7px!important;margin:0!important;min-width:0}
+.seller.participant-compact .compact-actions .signature-action,.seller.participant-compact .compact-actions .signature-pdf,.seller.participant-compact .compact-actions .report{width:100%!important;min-width:0!important;min-height:36px!important;height:36px!important;box-sizing:border-box;padding:6px 5px!important;font-size:11px!important;white-space:normal}
+.seller.participant-compact .compact-actions .report{flex:none!important}
+/* Gespeicherte Verkäufer: DSGVO rechts oben, Bearbeiten/Löschen darunter; Euro entfällt */
+.saved-seller-actions{align-self:start!important;width:92px!important;height:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:13px!important}
+.saved-seller-actions>.signature-action{width:92px!important;min-height:38px!important;margin:0 0 2px!important;align-self:stretch}
+.saved-seller-actions>.seller-bottom-actions{width:92px!important;height:38px!important;min-height:38px!important;flex:none!important;margin-top:0!important}
+@media(max-width:760px){.seller.participant-compact{grid-template-columns:34px minmax(0,1fr) 150px!important;row-gap:8px!important}.seller.participant-compact .compact-actions{grid-column:3!important;grid-row:1!important;width:150px!important;flex-direction:initial!important;flex-wrap:initial!important}}
+@media(max-width:600px){.saved-seller-actions{align-self:start!important;width:82px!important;gap:13px!important}.saved-seller-actions>.signature-action{width:82px!important;font-size:12px!important}.saved-seller-actions>.seller-bottom-actions{width:82px!important}}
 </style>
 </head>
 <body>

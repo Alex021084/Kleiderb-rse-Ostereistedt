@@ -1,0 +1,10 @@
+Kleiderbörse Ostereistedt e.V. – Version 92
+
+Änderungen:
+- Teilnehmerliste: Abgabe und Abholung stehen rechts in einer vertikalen Spalte.
+- Daneben stehen Vereinbarung PDF und Euro/Abrechnung ebenfalls vertikal.
+- Liste „Alle gespeicherten Verkäufer“: DSGVO-Schaltfläche sitzt rechts oben an der Stelle des bisherigen Euro-Buttons.
+- Euro-Button in der Liste der gespeicherten Verkäufer entfernt.
+- Bearbeiten und Löschen bleiben darunter mit zusätzlichem Abstand.
+
+Keine Supabase-SQL-Migration erforderlich.
