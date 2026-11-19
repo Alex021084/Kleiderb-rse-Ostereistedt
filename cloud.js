@@ -562,7 +562,8 @@ async function cloudCreateReceipt(
   items,
   payment,
   paymentMeta={},
-  clientUuid=null
+  clientUuid=null,
+  createdAt=null
 ){
 
   await cloudClient();
@@ -595,6 +596,12 @@ async function cloudCreateReceipt(
 
           client_uuid:clientUuid,
           payment:payment,
+
+          // Ursprünglicher Verkaufszeitpunkt vom Kassen-Gerät.
+          // Bei Offline-Synchronisierung niemals durch den Upload-Zeitpunkt ersetzen.
+          created_at:(createdAt && !Number.isNaN(Date.parse(createdAt)))
+            ? new Date(createdAt).toISOString()
+            : new Date().toISOString(),
 
           total:total,
           payment_note:String(paymentMeta.note||""),

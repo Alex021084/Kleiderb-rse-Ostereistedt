@@ -26,7 +26,7 @@ async function syncOfflineReceipts(){
    let previousRegister=KBCloud.KB_CLOUD.register;
    try{
     KBCloud.KB_CLOUD.register=entry.registerId;
-    await KBCloud.cloudCreateReceipt(entry.items,entry.payment,entry.paymentMeta,entry.clientUuid);
+    await KBCloud.cloudCreateReceipt(entry.items,entry.payment,entry.paymentMeta,entry.clientUuid,entry.timestamp);
     saveOfflineQueue(offlineQueue().filter(x=>x.clientUuid!==entry.clientUuid));
    }catch(e){console.warn("Offline-Synchronisierung wartet:",e);break}
    finally{KBCloud.KB_CLOUD.register=previousRegister}
@@ -121,7 +121,7 @@ async function saveSale(payment, paymentMeta={}){
    const clientUuid=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`);
    let savedInCloud=false;
    if(KBCloud.cloudReady() && navigator.onLine){
-     try{const receipt=await KBCloud.cloudCreateReceipt(prepared,payment,paymentMeta,clientUuid);receiptNo=receipt.receipt_no ?? receipt.id;savedInCloud=true;}
+     try{const receipt=await KBCloud.cloudCreateReceipt(prepared,payment,paymentMeta,clientUuid,timestamp);receiptNo=receipt.receipt_no ?? receipt.id;savedInCloud=true;}
      catch(cloudError){console.warn("Cloud nicht erreichbar – speichere lokal:",cloudError);}
    }
    if(!savedInCloud){

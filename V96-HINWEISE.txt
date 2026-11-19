@@ -1,0 +1,17 @@
+VERSION 96 – OFFLINE-BONZEITSTEMPEL
+
+Änderung:
+- Beim Erstellen eines Bons wird der Verkaufszeitpunkt auf dem Kassen-Gerät als ISO-Zeitstempel gespeichert.
+- Offline-Bons behalten diesen Zeitstempel in der lokalen Warteschlange.
+- Bei der späteren Synchronisierung wird derselbe Zeitstempel als receipts.created_at an Supabase übertragen.
+- Der Synchronisierungszeitpunkt überschreibt die ursprüngliche Verkaufszeit nicht.
+- Bereits vorhandene Offline-Bons ohne Zeitstempel erhalten beim Upload aus Kompatibilitätsgründen einen aktuellen Zeitstempel.
+
+Keine SQL-Migration erforderlich, da die Anwendung die bereits vorhandene Spalte receipts.created_at verwendet.
+
+Bitte nach dem Deployment testen:
+1. App online laden.
+2. Internetverbindung ausschalten.
+3. Zwei Testbons mit etwas Zeitabstand erstellen.
+4. Internet wieder einschalten und Synchronisierung abwarten.
+5. In der Buchhaltung prüfen, ob beide Bons ihre unterschiedlichen ursprünglichen Uhrzeiten behalten.
