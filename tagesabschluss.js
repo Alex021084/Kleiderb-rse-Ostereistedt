@@ -413,6 +413,33 @@ async function resetSales(){
  }catch(e){console.error(e);alert("Die Verkaufszahlen konnten nicht zurückgesetzt werden. Bitte Internetverbindung prüfen.")}
 }
 
+async function resetReceiptNumbers(){
+  if(!navigator.onLine || !KBCloud.cloudReady()){
+    alert("Bonnummern können nur mit aktiver Cloud-Verbindung zurückgesetzt werden.");
+    return;
+  }
+  let pending=[];
+  try{pending=JSON.parse(localStorage.getItem("kb_offline_receipts")||"[]");}
+  catch(e){pending=[{unknown:true}];}
+  if(window.kbOfflineSyncing || (Array.isArray(pending)&&pending.length)){
+    alert("Auf diesem Gerät stehen noch Offline-Verkäufe zur Synchronisierung aus. Bitte zuerst vollständig synchronisieren.");
+    return;
+  }
+  const question=
+    "Sollen die Bonnummern für ALLE KASSEN wirklich wieder bei 1 beginnen?\n\n"+
+    "Alle bereits gespeicherten Bons und Buchhaltungsdaten bleiben erhalten. Die alten und neuen Bons können dadurch dieselbe Bonnummer haben.\n\n"+
+    "WICHTIG: Bitte vorher ALLE Kassen mit dem Internet verbinden und sicherstellen, dass dort keine Offline-Verkäufe mehr ausstehen. Offline-Bons, die erst nach dem Zurücksetzen hochgeladen werden, erhalten sonst eine neue Nummer aus dem zurückgesetzten Nummernkreis.";
+  if(!confirm(question))return;
+  try{
+    await KBCloud.cloudResetReceiptNumbers();
+    alert("Die Bonnummern wurden für alle Kassen zurückgesetzt. Der nächste online gespeicherte Bon erhält die Nummer 1.");
+    await render();
+  }catch(e){
+    console.error(e);
+    alert("Die Bonnummern konnten nicht zurückgesetzt werden. Bitte prüfen, ob die Supabase-Migration V97 ausgeführt wurde und eine Cloud-Verbindung besteht.");
+  }
+}
+
 
 function safeFilePart(value){
   return String(value||"").trim()
@@ -986,6 +1013,7 @@ floatPad.querySelectorAll("[data-float-key]").forEach(button=>button.addEventLis
 $("refreshButton").addEventListener("click",render);
 $("saveAllSellerPdf").addEventListener("click",saveAllSellerPdfs);
 $("resetSalesButton").addEventListener("click",resetSales);
+$("resetReceiptNumbersButton").addEventListener("click",resetReceiptNumbers);
 document.querySelectorAll(".register-filter-button").forEach(btn=>btn.addEventListener("click",(event)=>{
  event.preventDefault();
  selectedRegister=btn.dataset.register;

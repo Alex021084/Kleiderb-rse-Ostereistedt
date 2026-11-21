@@ -4,7 +4,7 @@ const sizeButtons=[...document.querySelectorAll(".size-button")],keypadButtons=[
 const addButton=$("addButton"),finishButton=$("finishButton"),cancelEditButton=$("cancelEditButton"),articleTitle=$("articleTitle"),activeField=$("activeField");
 const receiptItems=$("receiptItems"),itemCount=$("itemCount"),liveTotal=$("liveTotal");
 const paymentModal=$("paymentModal"),finalReceipt=$("finalReceipt"),finalTotal=$("finalTotal"),finalCount=$("finalCount");
-const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton");
+const successModal=$("successModal"),successText=$("successText"),newSaleButton=$("newSaleButton"),processingModal=$("processingModal");
 const cashChangeModal=$("cashChangeModal"),cashReceived=$("cashReceived"),cashDue=$("cashDue"),cashChange=$("cashChange"),nonCashConfirmModal=$("nonCashConfirmModal"),paymentNote=$("paymentNote");
 let pendingPayment=null;
 const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypadTitle"),mobileSellerStatus=$("mobileSellerStatus"),mobilePriceValue=$("mobilePriceValue"),mobileInputValue=$("mobileInputValue"),closeMobileKeypad=$("closeMobileKeypad");
@@ -92,7 +92,7 @@ function openShoe(){shoeModal.classList.add("is-open")}
 function selectShoe(v){isShoe=true;isToy=false;toyType="";shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));shoeModal.classList.remove("is-open");setActive("price");update()}
 function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedPhoto="";unassignedPhotoInput.value="";unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";isShoe=false;shoeSize="";toyType="";toyModal.classList.remove("is-open");unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update()}
-function saveItem(){if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",unassignedPhoto:unassignedMode?String(unassignedPhoto||""):"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
+function saveItem(){if(savingSale||successModal.classList.contains("is-open"))return;if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",unassignedPhoto:unassignedMode?String(unassignedPhoto||""):"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
 function editItem(i){const x=currentItems[i];editingIndex=i;unassignedMode=!x.sellerNumber;unassignedNote=String(x.unassignedNote||"");unassignedPhoto=String(x.unassignedPhoto||"");setPhotoPreview(unassignedPhoto);unassignedButton.classList.toggle("active",unassignedMode);unassignedButton.textContent=unassignedMode?"✓ Ohne Verkäufernummer":"＋ Ohne Verkäufernummer";sellerNumber.disabled=unassignedMode;sellerNumber.placeholder=unassignedMode?"Nicht zugeordnet":"Verkäufernummer auswählen";articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber||"";price.value=String(x.price).replace(".",",");if(/^Spielzeug(?:\s|$)/i.test(String(x.size||""))){isToy=true;isShoe=false;shoeSize="";toyType=String(x.size).replace(/^Spielzeug\s*/i,"").trim()||"Allgemein";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else if(String(x.size||"").startsWith("Schuhe ")){isToy=false;isShoe=true;shoeSize=String(x.size).replace(/^Schuhe\s*/,"");shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else{isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}
 function deleteItem(i){currentItems.splice(i,1);if(editingIndex===i)nextArticle();render()}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
@@ -104,11 +104,12 @@ function render(){
  }).join(""):'<div class="receipt-empty">Noch keine Artikel.</div>';
  liveTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));update()
 }
-function showPayment(){if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}${x.unassignedPhoto?" · 📷":""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
+function showPayment(){if(savingSale||successModal.classList.contains("is-open"))return;if(valid())saveItem();if(!currentItems.length)return;finalCount.textContent=`${currentItems.length} Artikel`;finalReceipt.innerHTML=currentItems.map((x,i)=>{const who=x.sellerNumber?`Verkäufer ${esc(x.sellerNumber)}`:`<span class="unassigned-meta">Nicht zugeordnet${x.unassignedNote?` · ${esc(x.unassignedNote)}`:""}${x.unassignedPhoto?" · 📷":""}</span>`;return `<div class="receipt-line"><div><b>Artikel ${i+1}</b><div class="receipt-line-meta">${who} · ${esc(x.size)}</div></div><b>${euro(x.price)}</b></div>`}).join("");finalTotal.textContent=euro(currentItems.reduce((a,x)=>a+x.price,0));paymentModal.classList.add("is-open")}
 async function saveSale(payment, paymentMeta={}){
  if(savingSale)return;
  if(!currentItems.length)return;
  savingSale=true;
+ if(processingModal)processingModal.classList.add("is-open");
  try{
    const prepared=currentItems.map(x=>{
      const seller=findSellerByNumber(x.sellerNumber);
@@ -134,14 +135,19 @@ async function saveSale(payment, paymentMeta={}){
      receiptNo=receiptId.slice(0,8).toUpperCase();
    }
    paymentModal.classList.remove("is-open");
+   cashChangeModal.classList.remove("is-open");
+   nonCashConfirmModal.classList.remove("is-open");
+   if(processingModal)processingModal.classList.remove("is-open");
+   pendingPayment=null;
    successText.textContent=`Bon ${receiptNo} · ${currentItems.length} Artikel · ${euro(currentItems.reduce((a,x)=>a+x.price,0))} · ${payment}`;
    successModal.classList.add("is-open");
  }catch(e){
    console.error(e);
-   alert("Der Verkauf konnte nicht gespeichert werden. Bitte Internetverbindung prüfen.");
+   if(processingModal)processingModal.classList.remove("is-open");
+   alert("Der Verkauf konnte nicht gespeichert werden. Bitte erneut versuchen oder die Internetverbindung prüfen.");
  }finally{savingSale=false}
 }
-function newSale(){currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
+function newSale(){if(savingSale)return;currentItems=[];render();successModal.classList.remove("is-open");nextArticle()}
 
 async function loadUnassignedItems(){
   const register=KBCloud.KB_CLOUD.register || localStorage.getItem("kb_register") || "Kasse 1";
@@ -373,7 +379,6 @@ $("confirmCash").addEventListener("click",async()=>{
  const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
  if(rawGiven===""){alert("Bitte zuerst den erhaltenen Bargeldbetrag eingeben.");return;}
  if(given+0.00001<total){alert("Der erhaltene Betrag ist kleiner als der zu zahlende Betrag.");return;}
- cashChangeModal.classList.remove("is-open");
  await saveSale("Bar",{cashReceived:given,changeGiven:Math.round((given-total)*100)/100});
 });
 function openNonCash(payment){
@@ -387,8 +392,8 @@ $("cancelNonCash").addEventListener("click",()=>returnToPayment(nonCashConfirmMo
 $("nonCashBack").addEventListener("click",()=>returnToPayment(nonCashConfirmModal));
 $("confirmNonCash").addEventListener("click",async()=>{
  if(!pendingPayment)return;
- const method=pendingPayment,note=paymentNote.value.trim();pendingPayment=null;
- nonCashConfirmModal.classList.remove("is-open");await saveSale(method,{note});
+ const method=pendingPayment,note=paymentNote.value.trim();
+ await saveSale(method,{note});
 });
 document.querySelectorAll(".payment").forEach(b=>b.addEventListener("click",()=>{
  const method=b.dataset.payment;

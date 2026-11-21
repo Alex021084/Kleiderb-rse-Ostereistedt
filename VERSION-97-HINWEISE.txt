@@ -1,0 +1,31 @@
+Kleiderbörse Ostereistedt e.V. – Version 97
+
+Änderungen:
+1. Nach „Zahlung bestätigen“ erscheint sofort eine Sperr-/Warteanzeige.
+   Die Kasse bleibt blockiert, bis der Verkauf gespeichert ist und
+   „Neuer Verkauf“ ausdrücklich gedrückt wird.
+2. In der Buchhaltung gibt es unter „Verkaufszahlen zurücksetzen“
+   den neuen Button „Bonnummern zurücksetzen“.
+3. Der Bonnummernkreis wird global für alle Kassen auf 1 zurückgesetzt.
+   Bereits vorhandene Bons und Buchhaltungsdaten werden NICHT gelöscht.
+
+WICHTIG – Supabase:
+Vor dem ersten Einsatz muss CLOUD-MIGRATION-V97-BONNUMMERN.sql
+einmal vollständig im Supabase SQL Editor ausgeführt werden.
+
+WICHTIG – Bonnummern zurücksetzen:
+Vor dem Reset alle Kassen mit dem Internet verbinden und warten, bis
+alle Offline-Verkäufe synchronisiert sind. Offline-Verkäufe, die erst
+nach dem Reset hochgeladen werden, erhalten eine Nummer aus dem neuen
+Nummernkreis. Die App prüft die lokale Warteschlange auf dem Gerät,
+kann aber Warteschlangen anderer Geräte nicht selbst prüfen.
+
+Alte Bons bleiben erhalten. Da der Nummernkreis wieder bei 1 beginnt,
+können alte und neue Bons dieselbe angezeigte Bonnummer haben.
+Die interne Bon-ID bleibt eindeutig.
+
+Installation:
+- Alle Anwendungsdateien aus dem ZIP ins GitHub-Repository übernehmen.
+- Supabase-Migration einmal ausführen.
+- GitHub Pages/Hosting-Deployment abwarten.
+- Auf den Kassen-Geräten die Seite vollständig neu laden.

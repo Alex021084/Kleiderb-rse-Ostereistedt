@@ -1081,3 +1081,12 @@ body header.top > h2{display:none!important}
 /* V60: Zahlungs-/Transaktionshinweise direkt beim zugehörigen Bon */
 .receipt-transaction-note{margin:2px 0 12px;padding:11px 13px;border:1px solid #bfdbfe;border-radius:11px;background:#eff6ff;color:#1e40af;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
 .receipt-transaction-note strong{display:block;margin-bottom:4px;color:#1d4ed8}
+
+
+/* V97: eigener Bereich zum Zurücksetzen des globalen Bonnummernkreises */
+.reset-number-box{background:#fffaf0;border-color:#f0d9a8}
+#resetReceiptNumbersButton{
+  border:0;border-radius:11px;background:#a86b16;color:#fff;
+  font-weight:800;padding:13px 16px;min-height:48px;touch-action:manipulation;
+}
+@media(max-width:700px){#resetReceiptNumbersButton{width:100%}}

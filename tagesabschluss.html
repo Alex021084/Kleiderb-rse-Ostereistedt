@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Tagesabschluss</title>
-<link rel="stylesheet" href="tagesabschluss.css?v=60">
+<link rel="stylesheet" href="tagesabschluss.css?v=97">
 <script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head>
 <body data-kb-build="V46">
 <header class="top">
@@ -128,6 +128,11 @@
   <button id="resetSalesButton" type="button">🔴 Verkaufszahlen zurücksetzen</button>
 </section>
 
+<section class="reset-box reset-number-box">
+  <div><h2>Bonnummern zurücksetzen</h2><p>Setzt die fortlaufende Bonnummer für alle Kassen gemeinsam wieder auf 1. Bereits gespeicherte Bons und Buchhaltungsdaten bleiben erhalten. Vorher müssen alle Kassen online sein und sämtliche Offline-Verkäufe synchronisiert haben.</p></div>
+  <button id="resetReceiptNumbersButton" type="button">↻ Bonnummern zurücksetzen</button>
+</section>
+
 <div class="info-box">
       <strong>Hinweis</strong>
       <p>Die Zahlen werden aus den gespeicherten Verkäufen der Kasse berechnet. Bar, EC und PayPal werden getrennt ausgewiesen.</p>
@@ -195,8 +200,8 @@
 </div>
 
 <script src="cloud-config.js"></script>
-<script src="cloud.js?v=87"></script>
-<script src="tagesabschluss.js?v=76"></script>
+<script src="cloud.js?v=97"></script>
+<script src="tagesabschluss.js?v=97"></script>
 
 
 

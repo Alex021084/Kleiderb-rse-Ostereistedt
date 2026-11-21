@@ -856,6 +856,19 @@ async function cloudResetReceiptsForRegister(
   return true;
 }
 
+/* BONNUMMERN – GLOBAL FÜR ALLE KASSEN ZURÜCKSETZEN */
+async function cloudResetReceiptNumbers(){
+  await cloudClient();
+  return await apiRequest(
+    "rpc/kb_reset_receipt_numbers",
+    {
+      method:"POST",
+      headers:{"Prefer":"return=representation"},
+      body:"{}"
+    }
+  );
+}
+
 /* ARCHIV – KOMPLETTE BÖRSE WIEDERHERSTELLEN */
 async function cloudRestoreSnapshot(snapshot){
 
