@@ -417,6 +417,11 @@ function updateCashChange(){
  cashChange.textContent=euro(Math.max(0,given-total));
 }
 cashReceived.addEventListener("input",updateCashChange);
+$("cashExactButton").addEventListener("click",()=>{
+ const total=currentItems.reduce((a,x)=>a+Number(x.price||0),0);
+ cashReceived.value=total.toFixed(2).replace(".",",");
+ updateCashChange();
+});
 $("cashKeypad").addEventListener("click",(event)=>{
  const button=event.target.closest("button[data-cash-key]");
  if(!button)return;

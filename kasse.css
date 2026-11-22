@@ -965,3 +965,12 @@ header.top, body header.top, .cash-register header.top {
     margin-top: 0 !important;
   }
 }
+
+/* Schnellwahl: passend gegeben – nur im Barzahlungsdialog */
+.cash-exact-button{
+  display:flex;align-items:center;justify-content:center;width:100%;
+  min-height:48px;margin:10px 0 8px;padding:10px 14px;
+  border:1px solid #b8dfc5;border-radius:12px;
+  background:#edf8f0;color:#287344;font-size:17px;font-weight:800;
+}
+.cash-exact-button:active{background:#d9f0e0;transform:scale(.99)}
