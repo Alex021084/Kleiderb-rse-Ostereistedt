@@ -1147,6 +1147,20 @@ function registerPicker(){
 }
 
 
+// V98: gemeinsame Börsenart für alle Kassen
+async function cloudGetEventMode(){
+ const rows=await apiRequest("event_config?select=mode&id=eq.1&limit=1");
+ return rows&&rows[0]?rows[0].mode:null;
+}
+async function cloudSetEventMode(mode){
+ if(!["clothing","toy"].includes(mode)) throw new Error("Ungültige Börsenart");
+ return apiRequest("event_config?id=eq.1",{
+  method:"POST",
+  headers:{"Prefer":"resolution=merge-duplicates,return=representation"},
+  body:JSON.stringify({id:1,mode:mode,updated_at:new Date().toISOString()})
+ });
+}
+
 /* ÖFFENTLICH */
 
 /* Cloud-Funktionen ergänzen die Rollen-Funktionen aus auth.js,
@@ -1171,6 +1185,8 @@ window.KBCloud={
   cloudReady,
 
   cloudGetSellers,
+  cloudGetEventMode,
+  setEventMode:cloudSetEventMode,
 
   cloudSaveSeller,
 

@@ -1,0 +1,24 @@
+Kleiderbörse Ostereistedt e.V. – Version 98
+
+NEU: Zwei Kassenansichten
+- Vor dem Kassiervorgang wird die Veranstaltungsart ausgewählt: Kleiderbörse oder Spielzeugbörse.
+- Kleiderbörse: Größen liegen in einem eigenen Popup unter „Kleidung“; Schuhe bleiben in der Kleideransicht verfügbar.
+- Spielzeugbörse: Kategorien Playmobil, LEGO, Schleich, Tonies, Bücher, Spiele, Schule, Puzzle, Puppen-Zubehör, Fahrzeuge, Outdoor, Babyspielzeug, Sonstiges und Großteil.
+- Großteil öffnet ein zusätzliches Beschreibungsfeld.
+- Freie Eingabe für eigene Spielzeugarten.
+- Jede Spielzeugkategorie wird als eigene Bonposition (z. B. „Spielzeug LEGO“) gespeichert.
+- Verkäufer, Preise, Zahlung, Bons und Offline-Synchronisierung bleiben im bisherigen Kassenablauf.
+
+Supabase:
+Vor dem Einsatz CLOUD-MIGRATION-V98-BÖRSENART.sql im Supabase SQL Editor ausführen.
+Die Auswahl der Börsenart wird in event_config gespeichert und kann von allen Kassen verwendet werden.
+Jede Kasse zeigt beim Öffnen die Auswahl; die gewählte Börsenart wird in Supabase geschrieben.
+
+Installation:
+1. Alle Dateien aus dem ZIP ins GitHub-Repository übernehmen.
+2. SQL-Migration einmal in Supabase ausführen.
+3. Deployment abwarten.
+4. Alle Kassen neu laden und dieselbe Börsenart auswählen.
+
+Hinweis:
+Die App benötigt für die gemeinsame Speicherung der Börsenart eine Online-Verbindung bei der Auswahl. Bei Offline-Betrieb bleibt die lokale Ansichtsauswahl auf dem Gerät erhalten.
