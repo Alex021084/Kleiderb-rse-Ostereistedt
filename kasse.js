@@ -101,8 +101,8 @@ function closeToyModal(cancel=false){
  toyTypeButtons.forEach(b=>b.classList.remove("selected"));
  if(cancel){isToy=false;toyType="";toyButton.classList.remove("active");update()}
 }
-function chooseToyType(v){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));toyMarketButtons.forEach(b=>b.classList.toggle("active",b.dataset.marketToy===toyType));setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);closeToyModal(false);setActive("price");update()}
-function openShoe(){shoeModal.classList.add("is-open")}
+function chooseToyType(v, selectedCategory=""){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));const category=selectedCategory||toyType;toyMarketButtons.forEach(b=>{const selected=b.dataset.marketToy===category;b.classList.toggle("active",selected);b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",selected?"true":"false")});setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);closeToyModal(false);setActive("price");update()}
+function openShoe(){shoeModal.classList.toggle("toy-shoe-popup",eventMode==="toy");shoeModal.classList.add("is-open")}
 function selectShoe(v){isShoe=true;isToy=false;toyType="";shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");toyMarketButtons.forEach(b=>b.classList.remove("active"));sizeButtons.forEach(b=>b.classList.remove("selected"));setToyChoiceButton("toyShoesButton",eventMode==="toy");setToyChoiceButton("toyClothingButton",false);shoeModal.classList.remove("is-open");setActive("price");update()}
 // Spielzeugbörsen-Kasse: eigene Artikelbuttons; Kleiderbörsen-Ansicht bleibt unverändert.
 function applyEventMode(mode){
@@ -133,7 +133,7 @@ $("closeToyClothing").addEventListener("click",()=>toyClothingModal.classList.re
 toyClothingModal.addEventListener("click",e=>{if(e.target===toyClothingModal)toyClothingModal.classList.remove("is-open")});
 $("closeToyDescription").addEventListener("click",()=>toyDescriptionModal.classList.remove("is-open"));
 toyDescriptionModal.addEventListener("click",e=>{if(e.target===toyDescriptionModal)toyDescriptionModal.classList.remove("is-open")});
-function applyToyDescription(){const v=toyDescriptionInput.value.trim();if(!v)return;chooseToyType(pendingToyDescriptionType+": "+v);toyDescriptionModal.classList.remove("is-open")}
+function applyToyDescription(){const v=toyDescriptionInput.value.trim();if(!v)return;chooseToyType(pendingToyDescriptionType+": "+v,pendingToyDescriptionType);toyDescriptionModal.classList.remove("is-open")}
 $("applyToyDescription").addEventListener("click",applyToyDescription);toyDescriptionInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();applyToyDescription()}});
 $("chooseClothingMode").addEventListener("click",()=>applyEventMode("clothing"));$("chooseToyMode").addEventListener("click",()=>applyEventMode("toy"));
 

@@ -864,3 +864,62 @@ body header.top > h2{display:none!important}
   border:2px solid #16804c !important;
   box-shadow:0 0 0 2px #16804c22 !important;
 }
+
+
+/* Version 107: größere, besser antippbare Größenbuttons in der Spielzeugkasse
+   Gilt ausschließlich für die Größen-Popups der Spielzeugbörse. */
+#toyClothingModal .shoe-box,
+#shoeModal .shoe-box{
+  width:min(760px,94vw);
+  max-width:760px;
+  padding:28px;
+  max-height:92dvh;
+  overflow:auto;
+}
+#toyClothingModal .toy-clothing-sizes .size-grid{
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  gap:10px !important;
+  margin-top:18px;
+}
+#toyClothingModal .toy-clothing-sizes .size-button{
+  height:58px !important;
+  min-height:58px;
+  border-radius:12px;
+  font-size:20px !important;
+}
+#shoeModal .shoe-size-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:10px;
+  margin-top:20px;
+}
+#shoeModal .shoe-size-grid button{
+  height:60px;
+  min-height:60px;
+  border-radius:12px;
+  font-size:20px;
+}
+@media(max-width:650px){
+  #toyClothingModal .shoe-box,
+  #shoeModal .shoe-box{
+    width:min(620px,94vw);
+    padding:20px;
+  }
+  #toyClothingModal .toy-clothing-sizes .size-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+  #toyClothingModal .toy-clothing-sizes .size-button{
+    height:52px !important;
+    min-height:52px;
+    font-size:18px !important;
+  }
+  #shoeModal .shoe-size-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:8px;
+  }
+  #shoeModal .shoe-size-grid button{
+    height:52px;
+    min-height:52px;
+    font-size:18px;
+  }
+}
