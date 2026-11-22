@@ -814,3 +814,10 @@ body header.top > h2{display:none!important}
 .toy-clothing-sizes .size-grid{display:grid!important}
 .toy-description-actions{display:flex;justify-content:flex-end;margin-top:16px}
 @media(max-width:650px){.toy-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.event-mode-options{grid-template-columns:1fr}}
+
+/* Version 103: ausgewählte Artikelbuttons werden einheitlich grün markiert */
+.size-button.selected{background:#16804c!important;border-color:#16804c!important;color:#fff!important;box-shadow:0 0 0 2px #16804c22}
+.toy-button.active,.shoe-button.active{background:#16804c!important;border-color:#16804c!important;color:#fff!important;box-shadow:0 0 0 2px #16804c22}
+.toy-market-grid button.active,.toy-market-grid button.selected{background:#16804c!important;border-color:#16804c!important;color:#fff!important}
+.toy-market-grid #toyClothingButton.active,.toy-market-grid #toyShoesButton.active{background:#16804c!important;border-color:#16804c!important;color:#fff!important}
+.toy-clothing-sizes .size-button.selected{background:#16804c!important;border-color:#16804c!important;color:#fff!important}

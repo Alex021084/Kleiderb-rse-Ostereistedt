@@ -1,0 +1,3 @@
+Version 103 – Grüne Auswahlmarkierung
+
+Ausgewählte Größen, Spielzeug- und Schuhbuttons sowie ausgewählte Spielzeugkategorien werden grün markiert. Die Änderung betrifft ausschließlich die optische Auswahlmarkierung und deren Zustandsanzeige in der Kasse.
