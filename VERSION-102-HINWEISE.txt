@@ -1,0 +1,5 @@
+VERSION 102 – Börsenauswahl bei jedem Kassenstart
+
+- Beim Öffnen der Kasse erscheint jetzt immer zuerst die Auswahl „Kleiderbörse“ oder „Spielzeugbörse“.
+- Die gewählte Börsenart wird wie bisher zentral gespeichert und an die anderen Kassen weitergegeben.
+- Die Kleiderbörsen-Kassenansicht und die Spielzeugbörsen-Buttons wurden in dieser Version nicht verändert.

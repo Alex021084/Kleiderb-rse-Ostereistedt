@@ -458,9 +458,9 @@ async function initCloud(){
   if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
   KBCloud.cloudBanner();render();setActive("seller");syncOfflineReceipts();
 }
-initCloud().then(async()=>{
-  let sharedMode=null;
-  if(KBCloud.cloudReady()&&navigator.onLine&&KBCloud.cloudGetEventMode){try{sharedMode=await KBCloud.cloudGetEventMode()}catch(e){console.warn("Börsenart konnte nicht geladen werden:",e)}}
-  if(sharedMode!=="toy"&&sharedMode!=="clothing"&&(eventMode==="toy"||eventMode==="clothing"))sharedMode=eventMode;
-  if(sharedMode==="toy"||sharedMode==="clothing"){applyEventMode(sharedMode)}else{eventModeModal.classList.add("is-open")}
+// Die Börsenart wird bei JEDEM Öffnen der Kasse erneut ausgewählt.
+// Die Auswahl wird anschließend weiterhin zentral in Supabase gespeichert,
+// damit alle geöffneten Kassen dieselbe Veranstaltungsart verwenden.
+initCloud().then(()=>{
+  eventModeModal.classList.add("is-open");
 });
