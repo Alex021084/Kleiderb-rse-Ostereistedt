@@ -1,0 +1,5 @@
+Version 106
+- Spielzeugkassen-Buttons im nicht ausgewaehlten Zustand an die neutralen Groessenbuttons der Kleiderboerse angeglichen.
+- Hintergrund #f8f9fb, Rahmen #cfd5df, Schrift #172033.
+- Ausgewaehlte Buttons bleiben gruen mit weisser Schrift.
+- Keine Aenderung an der normalen Kleiderboersen-Kasse oder an der Datenbank.

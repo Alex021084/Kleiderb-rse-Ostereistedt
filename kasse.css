@@ -848,3 +848,19 @@ body header.top > h2{display:none!important}
   border:2px solid #16804c !important;
   box-shadow:0 0 0 2px #16804c22 !important;
 }
+
+
+/* Version 106: Spielzeugbuttons exakt an die neutralen Kleider-Groessenbuttons angleichen */
+#toyMarketControls .toy-market-grid > button{
+  background:#f8f9fb !important;
+  color:#172033 !important;
+  border:2px solid #cfd5df !important;
+  box-shadow:none !important;
+}
+#toyMarketControls .toy-market-grid > button.active,
+#toyMarketControls .toy-market-grid > button.selected{
+  background:#16804c !important;
+  color:#ffffff !important;
+  border:2px solid #16804c !important;
+  box-shadow:0 0 0 2px #16804c22 !important;
+}
