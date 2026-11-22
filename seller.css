@@ -581,3 +581,7 @@ body header.top::before,body header.top::after{
   backdrop-filter:none!important;
 }
 header.top > *,body header.top > *{opacity:1!important}
+
+
+/* Version 113: Kopfbereich auf Wunsch leicht nach unten versetzt */
+header.top, body header.top, .cash-register header.top { margin-top: 8px !important; }
