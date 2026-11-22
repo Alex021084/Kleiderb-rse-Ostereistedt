@@ -1,0 +1,11 @@
+Kleiderbörse Ostereistedt e.V. – Version 100
+
+Änderungen gegenüber Version 99:
+- Der Bereich „Freie Eingabe“ wurde aus dem Spielzeug-Auswahlfenster entfernt. Die Kategorie „Sonstiges“ bleibt vorhanden.
+- „Schuhe“ ist auch im Spielzeugbörsen-Modus verfügbar und öffnet die vorhandene Schuh-Größenauswahl.
+- Die Kleiderbörsen-Ansicht und die übrigen Kassenfunktionen wurden nicht gezielt verändert.
+
+Installation:
+- Alle Dateien aus dem ZIP ins GitHub-Repository übernehmen.
+- Deployment abwarten und die Kassen-Seite vollständig neu laden.
+- Keine zusätzliche SQL-Migration für diese Änderungen erforderlich.
