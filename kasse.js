@@ -92,7 +92,17 @@ function setToyChoiceButton(id,selected){
  button.style.borderColor=selected?"#16804c":"";
  button.style.color=selected?"#ffffff":"";
 }
-function selectSize(v){isToy=false;isShoe=false;shoeSize="";toyType="";toyButton.classList.remove("active");shoeButton.classList.remove("active");toyMarketButtons.forEach(b=>b.classList.remove("active"));sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setToyChoiceButton("toyClothingButton",eventMode==="toy");setToyChoiceButton("toyShoesButton",false);document.querySelectorAll("#toyModeSizeGrid .size-button").forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
+function resetToyChoice(){
+ // Bei jeder neuen Auswahl wird die vorherige Spielzeugkategorie vollständig verworfen.
+ isToy=false;isShoe=false;shoeSize="";toyType="";pendingToyDescriptionType="";
+ toyMarketButtons.forEach(b=>{b.classList.remove("active","selected");b.setAttribute("aria-pressed","false")});
+ setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);
+ toyButton.classList.remove("active");shoeButton.classList.remove("active");
+ sizeButtons.forEach(b=>b.classList.remove("selected"));
+ toyDescriptionInput.value="";toyDescriptionModal.classList.remove("is-open");
+ toyClothingModal.classList.remove("is-open");shoeModal.classList.remove("is-open");
+}
+function selectSize(v){resetToyChoice();sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setToyChoiceButton("toyClothingButton",eventMode==="toy");document.querySelectorAll("#toyModeSizeGrid .size-button").forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
 function selectToy(){isToy=true;isShoe=false;shoeSize="";toyType="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));toyCustomInput.value="";toyTypeButtons.forEach(b=>b.classList.remove("selected"));toyModal.classList.add("is-open");setActive("price");update()}
 function closeToyModal(cancel=false){
  toyModal.classList.remove("is-open");
@@ -101,9 +111,9 @@ function closeToyModal(cancel=false){
  toyTypeButtons.forEach(b=>b.classList.remove("selected"));
  if(cancel){isToy=false;toyType="";toyButton.classList.remove("active");update()}
 }
-function chooseToyType(v, selectedCategory=""){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));const category=selectedCategory||toyType;toyMarketButtons.forEach(b=>{const selected=b.dataset.marketToy===category;b.classList.toggle("active",selected);b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",selected?"true":"false")});setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);closeToyModal(false);setActive("price");update()}
-function openShoe(){shoeModal.classList.toggle("toy-shoe-popup",eventMode==="toy");shoeModal.classList.add("is-open")}
-function selectShoe(v){isShoe=true;isToy=false;toyType="";shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");toyMarketButtons.forEach(b=>b.classList.remove("active"));sizeButtons.forEach(b=>b.classList.remove("selected"));setToyChoiceButton("toyShoesButton",eventMode==="toy");setToyChoiceButton("toyClothingButton",false);shoeModal.classList.remove("is-open");setActive("price");update()}
+function chooseToyType(v, selectedCategory=""){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));const category=selectedCategory||toyType;toyMarketButtons.forEach(b=>{const selected=b.dataset.marketToy===category;b.classList.toggle("active",selected);b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",selected?"true":"false")});setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);toyDescriptionInput.value="";pendingToyDescriptionType="";closeToyModal(false);setActive("price");update()}
+function openShoe(){resetToyChoice();shoeModal.classList.toggle("toy-shoe-popup",eventMode==="toy");shoeModal.classList.add("is-open")}
+function selectShoe(v){resetToyChoice();isShoe=true;shoeSize=String(v);shoeButton.classList.add("active");setToyChoiceButton("toyShoesButton",eventMode==="toy");shoeModal.classList.remove("is-open");setActive("price");update()}
 // Spielzeugbörsen-Kasse: eigene Artikelbuttons; Kleiderbörsen-Ansicht bleibt unverändert.
 function applyEventMode(mode){
  eventMode=mode;try{localStorage.setItem("kb_event_mode",mode)}catch(e){}
@@ -120,24 +130,26 @@ function applyEventMode(mode){
  eventModeModal.classList.remove("is-open");clearFields();render();
 }
 function openToyClothing(){
+ resetToyChoice();
  const source=document.querySelector(".size-grid"),host=$("toyClothingSizes");
  host.innerHTML="";const clone=source.cloneNode(true);clone.id="toyModeSizeGrid";clone.style.display="grid";
  clone.querySelectorAll(".size-button").forEach(b=>{b.classList.toggle("selected",b.dataset.size===String(document.querySelector(".size-button.selected")?.dataset.size||""));b.addEventListener("click",()=>{selectSize(b.dataset.size);toyClothingModal.classList.remove("is-open")})});host.appendChild(clone);toyClothingModal.classList.add("is-open");
 }
 function openToyDescription(kind){pendingToyDescriptionType=kind;toyDescriptionTitle.textContent=kind==="Großteil"?"Großteil beschreiben":"Sonstiges beschreiben";toyDescriptionInput.value="";toyDescriptionModal.classList.add("is-open");toyDescriptionInput.focus()}
-function chooseMarketToy(value){if(value==="Großteil"||value==="Sonstiges"){openToyDescription(value);return;}chooseToyType(value)}
+function chooseMarketToy(value){resetToyChoice();if(value==="Großteil"||value==="Sonstiges"){openToyDescription(value);return;}chooseToyType(value)}
 toyMarketButtons.forEach(b=>b.addEventListener("click",()=>chooseMarketToy(b.dataset.marketToy)));
 $("toyClothingButton").addEventListener("click",openToyClothing);
 $("toyShoesButton").addEventListener("click",openShoe);
 $("closeToyClothing").addEventListener("click",()=>toyClothingModal.classList.remove("is-open"));
 toyClothingModal.addEventListener("click",e=>{if(e.target===toyClothingModal)toyClothingModal.classList.remove("is-open")});
-$("closeToyDescription").addEventListener("click",()=>toyDescriptionModal.classList.remove("is-open"));
-toyDescriptionModal.addEventListener("click",e=>{if(e.target===toyDescriptionModal)toyDescriptionModal.classList.remove("is-open")});
+function cancelToyDescription(){pendingToyDescriptionType="";toyDescriptionInput.value="";toyDescriptionModal.classList.remove("is-open")}
+$("closeToyDescription").addEventListener("click",cancelToyDescription);
+toyDescriptionModal.addEventListener("click",e=>{if(e.target===toyDescriptionModal)cancelToyDescription()});
 function applyToyDescription(){const v=toyDescriptionInput.value.trim();if(!v)return;chooseToyType(pendingToyDescriptionType+": "+v,pendingToyDescriptionType);toyDescriptionModal.classList.remove("is-open")}
 $("applyToyDescription").addEventListener("click",applyToyDescription);toyDescriptionInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();applyToyDescription()}});
 $("chooseClothingMode").addEventListener("click",()=>applyEventMode("clothing"));$("chooseToyMode").addEventListener("click",()=>applyEventMode("toy"));
 
-function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedPhoto="";unassignedPhotoInput.value="";unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";isShoe=false;shoeSize="";toyType="";toyModal.classList.remove("is-open");unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);toyMarketButtons.forEach(b=>b.classList.remove("active"));sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
+function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedPhoto="";unassignedPhotoInput.value="";unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";isShoe=false;shoeSize="";toyType="";toyModal.classList.remove("is-open");unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);toyMarketButtons.forEach(b=>{b.classList.remove("active","selected");b.setAttribute("aria-pressed","false")});pendingToyDescriptionType="";toyDescriptionInput.value="";toyDescriptionModal.classList.remove("is-open");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update()}
 function saveItem(){if(savingSale||successModal.classList.contains("is-open"))return;if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",unassignedPhoto:unassignedMode?String(unassignedPhoto||""):"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
 function editItem(i){const x=currentItems[i];editingIndex=i;unassignedMode=!x.sellerNumber;unassignedNote=String(x.unassignedNote||"");unassignedPhoto=String(x.unassignedPhoto||"");setPhotoPreview(unassignedPhoto);unassignedButton.classList.toggle("active",unassignedMode);unassignedButton.textContent=unassignedMode?"✓ Ohne Verkäufernummer":"＋ Ohne Verkäufernummer";sellerNumber.disabled=unassignedMode;sellerNumber.placeholder=unassignedMode?"Nicht zugeordnet":"Verkäufernummer auswählen";articleTitle.textContent=`Artikel ${i+1} bearbeiten`;addButton.textContent="Änderung übernehmen";cancelEditButton.classList.remove("hidden");sellerNumber.value=x.sellerNumber||"";price.value=String(x.price).replace(".",",");if(/^Spielzeug(?:\s|$)/i.test(String(x.size||""))){isToy=true;isShoe=false;shoeSize="";toyType=String(x.size).replace(/^Spielzeug\s*/i,"").trim()||"Allgemein";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else if(String(x.size||"").startsWith("Schuhe ")){isToy=false;isShoe=true;shoeSize=String(x.size).replace(/^Schuhe\s*/,"");shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));setActive("seller")}else{isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===x.size));setActive("seller")}checkSeller();update()}

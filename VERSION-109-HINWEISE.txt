@@ -1,0 +1,9 @@
+Version 109 – Spielzeugauswahl zurücksetzen
+
+- Beim Wechsel zu einer anderen Spielzeugkategorie wird die bisherige Auswahl vollständig aufgehoben.
+- Es bleibt immer nur die zuletzt gewählte Kategorie grün.
+- Beim Wechsel weg von Großteil oder Sonstiges werden die zugehörige Beschreibung und ein offenes Beschreibungsfenster gelöscht.
+- Auch beim Wechsel zu Kleidung oder Schuhen wird die vorherige Kategorie zurückgesetzt.
+- Beim Start eines neuen Artikels werden alle Spielzeug-Auswahlmarkierungen zurückgesetzt.
+- Die Kleiderbörsen-Kasse wurde nicht gezielt geändert.
+- Keine neue SQL-Migration erforderlich.
