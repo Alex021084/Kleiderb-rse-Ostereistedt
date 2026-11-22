@@ -93,12 +93,18 @@ function setToyChoiceButton(id,selected){
  button.style.color=selected?"#ffffff":"";
 }
 function resetToyChoice(){
- // Bei jeder neuen Auswahl wird die vorherige Spielzeugkategorie vollständig verworfen.
+ // Zentrale Auswahlbereinigung: immer genau eine Kategorie darf markiert sein.
  isToy=false;isShoe=false;shoeSize="";toyType="";pendingToyDescriptionType="";
- toyMarketButtons.forEach(b=>{b.classList.remove("active","selected");b.setAttribute("aria-pressed","false")});
- setToyChoiceButton("toyClothingButton",false);setToyChoiceButton("toyShoesButton",false);
+ [...toyMarketButtons,$("toyClothingButton"),$("toyShoesButton")].filter(Boolean).forEach(b=>{
+   b.classList.remove("active","selected");
+   b.setAttribute("aria-pressed","false");
+   b.style.removeProperty("background-color");
+   b.style.removeProperty("border-color");
+   b.style.removeProperty("color");
+ });
  toyButton.classList.remove("active");shoeButton.classList.remove("active");
  sizeButtons.forEach(b=>b.classList.remove("selected"));
+ document.querySelectorAll("#toyModeSizeGrid .size-button").forEach(b=>b.classList.remove("selected"));
  toyDescriptionInput.value="";toyDescriptionModal.classList.remove("is-open");
  toyClothingModal.classList.remove("is-open");shoeModal.classList.remove("is-open");
 }
@@ -124,8 +130,8 @@ function applyEventMode(mode){
  toyButton.style.display=toy?"none":"";shoeButton.style.display=toy?"none":"";
  sizeButtons.forEach(b=>b.style.display="");
  document.querySelector(".size-grid").style.display=toy?"none":"";
- const sizeLabel=document.querySelector('label[for="size"]')||document.querySelector("#sizeGrid")?.previousElementSibling;
- if(sizeLabel&&sizeLabel.tagName==="LABEL")sizeLabel.style.display=toy?"none":"";
+ const sizeLabel=$("sizeSectionLabel");
+ if(sizeLabel){sizeLabel.textContent=toy?"Spielzeugart":"Größe";sizeLabel.style.display="";}
  articleTitle.textContent=toy?"Spielzeug eingeben":"Artikel eingeben";
  eventModeModal.classList.remove("is-open");clearFields();render();
 }
