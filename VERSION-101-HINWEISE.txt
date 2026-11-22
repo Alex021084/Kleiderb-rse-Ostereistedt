@@ -1,0 +1,5 @@
+Version 101 – getrennte Spielzeugbörsen-Kasse
+
+Ausgangspunkt ist die vom Nutzer hochgeladene ältere Kasse. Die ursprüngliche Kleiderbörsen-Ansicht und ihre Artikelbuttons bleiben erhalten. Ergänzt wurde eine separate Spielzeugbörsen-Ansicht mit direkt sichtbaren Kategoriebuttons, Kleidung mit Größen-Popup, Schuhe mit Schuhgrößen-Popup sowie Großteil/Sonstiges mit Texteingabe. Die Börsenart wird zentral in Supabase gespeichert, damit alle Kassen dieselbe Ansicht verwenden.
+
+Vor dem Einsatz CLOUD-MIGRATION-V101-BÖRSENART.sql in Supabase ausführen.

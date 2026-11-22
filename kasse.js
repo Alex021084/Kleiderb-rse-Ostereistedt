@@ -11,9 +11,10 @@ const mobileKeypadModal=$("mobileKeypadModal"),mobileKeypadTitle=$("mobileKeypad
 const unassignedButton=$("unassignedButton"),unassignedModal=$("unassignedModal"),unassignedNoteInput=$("unassignedNote"),unassignedPhotoInput=$("unassignedPhoto"),unassignedPhotoPreview=$("unassignedPhotoPreview"),photoStatus=$("photoStatus"),closeUnassigned=$("closeUnassigned"),cancelUnassigned=$("cancelUnassigned"),saveUnassigned=$("saveUnassigned");
 const openUnassignedList=$("openUnassignedList"),unassignedListModal=$("unassignedListModal"),closeUnassignedList=$("closeUnassignedList"),unassignedList=$("unassignedList"),unassignedListCount=$("unassignedListCount");
 const shoeModal=$("shoeModal"),closeShoe=$("closeShoe"),shoeSizeButtons=[...document.querySelectorAll("[data-shoe-size]")];
-const toyModal=$("toyModal"),closeToy=$("closeToy"),toyTypeButtons=[...document.querySelectorAll("[data-toy-type]")];
-const clothingButton=$("clothingButton"),clothingModal=$("clothingModal"),closeClothing=$("closeClothing"),sizeGrid=$("sizeGrid"),sizeLabel=$("sizeLabel"),toyModeModal=$("eventModeModal"),largeToyWrap=$("largeToyWrap"),largeToyInput=$("largeToyInput"),applyLargeToy=$("applyLargeToy");
-let eventMode=localStorage.getItem("kb_event_mode")||"";
+const toyMarketControls=$("toyMarketControls"),eventModeModal=$("eventModeModal"),toyClothingModal=$("toyClothingModal"),toyDescriptionModal=$("toyDescriptionModal"),toyDescriptionInput=$("toyDescriptionInput"),toyDescriptionTitle=$("toyDescriptionTitle");
+const toyMarketButtons=[...document.querySelectorAll("[data-market-toy]")];
+let eventMode=localStorage.getItem("kb_event_mode")||"",pendingToyDescriptionType="";
+const toyModal=$("toyModal"),closeToy=$("closeToy"),toyTypeButtons=[...document.querySelectorAll("[data-toy-type]")],toyCustomInput=$("toyCustomInput"),applyToyCustom=$("applyToyCustom");
 let currentItems=[],editingIndex=null,isToy=false,isShoe=false,shoeSize="",toyType="",activeInput="seller",sellers=[],savingSale=false,unassignedMode=false,unassignedNote="",unassignedPhoto="";
 
 function getSellers(){return sellers.length?sellers:JSON.parse(localStorage.getItem("kb_sellers")||"[]")}
@@ -77,19 +78,54 @@ function checkSeller(){
  sellerNumber.classList.add(ok?"valid":"invalid");sellerStatus.classList.add(ok?"valid":"invalid");
  sellerStatus.textContent=ok?`✓ Verkäufernummer gefunden${String(seller.name||"").trim()?` · ${String(seller.name).trim()}`:""}`:"✕ Verkäufernummer nicht gefunden";update();return ok
 }
-function currentSize(){const s=document.querySelector(".size-button.selected");return isToy?(toyType?`Spielzeug ${toyType}`:""):isShoe?(shoeSize?`Schuhe ${shoeSize}`:""):(s?s.dataset.size:"")}
+function currentSize(){const s=document.querySelector(".size-button.selected");return isShoe?(shoeSize?`Schuhe ${shoeSize}`:""):isToy?(toyType?`Spielzeug ${toyType}`:""):(s?s.dataset.size:"")}
 function valid(){return (unassignedMode || !!findSellerByNumber(sellerNumber.value))&&!!currentSize()&&priceValue()>0}
 function update(){const sellerOk=unassignedMode||!!findSellerByNumber(sellerNumber.value);const ok=sellerOk&&currentSize()&&priceValue()>0;addButton.disabled=!ok;finishButton.disabled=!(currentItems.length||ok)}
-function selectSize(v){if(clothingModal)clothingModal.classList.remove("is-open");isToy=false;isShoe=false;shoeSize="";toyType="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
-function selectToy(){isToy=true;isShoe=false;shoeSize="";toyType="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));largeToyInput.value="";largeToyWrap.hidden=true;toyTypeButtons.forEach(b=>b.classList.remove("selected"));toyModal.classList.add("is-open");setActive("price");update()}
+function selectSize(v){isToy=false;isShoe=false;shoeSize="";toyType="";toyButton.classList.remove("active");shoeButton.classList.remove("active");toyMarketButtons.forEach(b=>b.classList.remove("active"));sizeButtons.forEach(b=>b.classList.toggle("selected",b.dataset.size===String(v)));setActive("price");update()}
+function selectToy(){isToy=true;isShoe=false;shoeSize="";toyType="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));toyCustomInput.value="";toyTypeButtons.forEach(b=>b.classList.remove("selected"));toyModal.classList.add("is-open");setActive("price");update()}
 function closeToyModal(cancel=false){
  toyModal.classList.remove("is-open");
+ toyCustomInput.value="";
+ toyCustomInput.blur();
  toyTypeButtons.forEach(b=>b.classList.remove("selected"));
  if(cancel){isToy=false;toyType="";toyButton.classList.remove("active");update()}
 }
-function chooseToyType(v){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));closeToyModal(false);setActive("price");update()}
+function chooseToyType(v){toyType=String(v||"").trim();if(!toyType)return;isToy=true;isShoe=false;shoeSize="";toyButton.classList.add("active");shoeButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));toyMarketButtons.forEach(b=>b.classList.toggle("active",b.dataset.marketToy===toyType));closeToyModal(false);setActive("price");update()}
 function openShoe(){shoeModal.classList.add("is-open")}
-function selectShoe(v){isShoe=true;isToy=false;toyType="";shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");sizeButtons.forEach(b=>b.classList.remove("selected"));shoeModal.classList.remove("is-open");setActive("price");update()}
+function selectShoe(v){isShoe=true;isToy=false;toyType="";shoeSize=String(v);shoeButton.classList.add("active");toyButton.classList.remove("active");toyMarketButtons.forEach(b=>b.classList.remove("active"));sizeButtons.forEach(b=>b.classList.remove("selected"));shoeModal.classList.remove("is-open");setActive("price");update()}
+// Spielzeugbörsen-Kasse: eigene Artikelbuttons; Kleiderbörsen-Ansicht bleibt unverändert.
+function applyEventMode(mode){
+ eventMode=mode;try{localStorage.setItem("kb_event_mode",mode)}catch(e){}
+ if(KBCloud.setEventMode&&navigator.onLine&&KBCloud.cloudReady())KBCloud.setEventMode(mode).catch(e=>console.warn("Börsenart konnte nicht gespeichert werden:",e));
+ const toy=mode==="toy";
+ toyMarketControls.hidden=!toy;toyMarketControls.classList.toggle("toy-mode-visible",toy);
+ // Die ursprünglichen Artikel-Buttons und Größen bleiben in der Kleiderbörsen-Ansicht exakt sichtbar.
+ toyButton.style.display=toy?"none":"";shoeButton.style.display=toy?"none":"";
+ sizeButtons.forEach(b=>b.style.display="");
+ document.querySelector(".size-grid").style.display=toy?"none":"";
+ const sizeLabel=document.querySelector('label[for="size"]')||document.querySelector("#sizeGrid")?.previousElementSibling;
+ if(sizeLabel&&sizeLabel.tagName==="LABEL")sizeLabel.style.display=toy?"none":"";
+ articleTitle.textContent=toy?"Spielzeug eingeben":"Artikel eingeben";
+ eventModeModal.classList.remove("is-open");clearFields();render();
+}
+function openToyClothing(){
+ const source=document.querySelector(".size-grid"),host=$("toyClothingSizes");
+ host.innerHTML="";const clone=source.cloneNode(true);clone.id="toyModeSizeGrid";clone.style.display="grid";
+ clone.querySelectorAll(".size-button").forEach(b=>b.addEventListener("click",()=>{selectSize(b.dataset.size);toyClothingModal.classList.remove("is-open")}));host.appendChild(clone);toyClothingModal.classList.add("is-open");
+}
+function openToyDescription(kind){pendingToyDescriptionType=kind;toyDescriptionTitle.textContent=kind==="Großteil"?"Großteil beschreiben":"Sonstiges beschreiben";toyDescriptionInput.value="";toyDescriptionModal.classList.add("is-open");toyDescriptionInput.focus()}
+function chooseMarketToy(value){if(value==="Großteil"||value==="Sonstiges"){openToyDescription(value);return;}chooseToyType(value)}
+toyMarketButtons.forEach(b=>b.addEventListener("click",()=>chooseMarketToy(b.dataset.marketToy)));
+$("toyClothingButton").addEventListener("click",openToyClothing);
+$("toyShoesButton").addEventListener("click",openShoe);
+$("closeToyClothing").addEventListener("click",()=>toyClothingModal.classList.remove("is-open"));
+toyClothingModal.addEventListener("click",e=>{if(e.target===toyClothingModal)toyClothingModal.classList.remove("is-open")});
+$("closeToyDescription").addEventListener("click",()=>toyDescriptionModal.classList.remove("is-open"));
+toyDescriptionModal.addEventListener("click",e=>{if(e.target===toyDescriptionModal)toyDescriptionModal.classList.remove("is-open")});
+function applyToyDescription(){const v=toyDescriptionInput.value.trim();if(!v)return;chooseToyType(pendingToyDescriptionType+": "+v);toyDescriptionModal.classList.remove("is-open")}
+$("applyToyDescription").addEventListener("click",applyToyDescription);toyDescriptionInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();applyToyDescription()}});
+$("chooseClothingMode").addEventListener("click",()=>applyEventMode("clothing"));$("chooseToyMode").addEventListener("click",()=>applyEventMode("toy"));
+
 function clearFields(){sellerNumber.value="";price.value="";unassignedMode=false;unassignedNote="";unassignedPhoto="";unassignedPhotoInput.value="";unassignedPhotoPreview.src="";unassignedPhotoPreview.classList.add("hidden");photoStatus.textContent="Kein Foto";isShoe=false;shoeSize="";toyType="";toyModal.classList.remove("is-open");unassignedButton.classList.remove("active");unassignedButton.textContent="＋ Ohne Verkäufernummer";sellerNumber.disabled=false;sellerNumber.placeholder="Verkäufernummer auswählen";sizeButtons.forEach(b=>b.classList.remove("selected"));isToy=false;isShoe=false;shoeSize="";toyButton.classList.remove("active");shoeButton.classList.remove("active");sellerNumber.classList.remove("valid","invalid");sellerStatus.className="seller-status";sellerStatus.textContent="Bitte Verkäufernummer eingeben.";setActive("seller")}
 function nextArticle(){editingIndex=null;articleTitle.textContent="Artikel eingeben";addButton.textContent="Weiterer Artikel";cancelEditButton.classList.add("hidden");clearFields();update()}
 function saveItem(){if(savingSale||successModal.classList.contains("is-open"))return;if(!valid())return false;const item={sellerNumber:unassignedMode?"":sellerNumber.value.trim(),unassignedNote:unassignedMode?String(unassignedNote||"").trim():"",unassignedPhoto:unassignedMode?String(unassignedPhoto||""):"",size:currentSize(),price:priceValue()};if(editingIndex===null)currentItems.push(item);else currentItems[editingIndex]=item;render();nextArticle();return true}
@@ -273,39 +309,7 @@ price.addEventListener("click",()=>openMobileKeypad("price"));
 price.addEventListener("pointerup",()=>openMobileKeypad("price"));
 if(closeMobileKeypad)closeMobileKeypad.addEventListener("click",closeMobileKeypadModal);
 if(mobileKeypadModal)mobileKeypadModal.addEventListener("click",e=>{if(e.target===mobileKeypadModal)closeMobileKeypadModal()});
-sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);closeToy.addEventListener("click",()=>closeToyModal(true));toyModal.addEventListener("click",e=>{if(e.target===toyModal)closeToyModal(true)});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&toyModal.classList.contains("is-open"))closeToyModal(true)});shoeButton.addEventListener("click",openShoe);closeShoe.addEventListener("click",()=>shoeModal.classList.remove("is-open"));shoeSizeButtons.forEach(b=>b.addEventListener("click",()=>selectShoe(b.dataset.shoeSize)));
-
-// V98: Veranstaltungsart und getrennte Kassenansichten
-function applyEventMode(mode){
- eventMode=mode;localStorage.setItem("kb_event_mode",mode);if(KBCloud.setEventMode)KBCloud.setEventMode(mode).catch(e=>console.warn("Börsenart konnte nicht in der Cloud gespeichert werden:",e));
- const toy=mode==="toy";
- document.getElementById("sizeLabel").style.display=toy?"none":"block";
- sizeGrid.style.display=toy?"none":"grid";
- toyButton.style.display=toy?"":"none";
- clothingButton.style.display=toy?"none":"";
- // Schuhe mit Größenauswahl sind in beiden Börsenarten verfügbar.
- shoeButton.style.display="";
- document.getElementById("articleTitle").textContent=toy?"Spielzeug eingeben":"Artikel eingeben";
- toyModeModal.classList.remove("is-open");
- clearFields();render();
-}
-function openClothingSizes(){clothingModal.classList.add("is-open")}
-function selectToyCategory(value){
- if(value==="Großteil"){largeToyWrap.hidden=false;largeToyInput.focus();return;}
- chooseToyType(value);
-}
-clothingButton.addEventListener("click",openClothingSizes);
-closeClothing.addEventListener("click",()=>clothingModal.classList.remove("is-open"));
-clothingModal.addEventListener("click",e=>{if(e.target===clothingModal)clothingModal.classList.remove("is-open")});
-sizeGrid.parentNode.removeChild(sizeGrid);
-document.getElementById("clothingSizeHost").appendChild(sizeGrid);
-sizeGrid.style.display="grid";
-toyTypeButtons.forEach(b=>b.addEventListener("click",()=>selectToyCategory(b.dataset.toyType)));
-applyLargeToy.addEventListener("click",()=>{const detail=largeToyInput.value.trim();if(detail)chooseToyType("Großteil: "+detail)});
-largeToyInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const detail=largeToyInput.value.trim();if(detail)chooseToyType("Großteil: "+detail)}});
-$("chooseClothingMode").addEventListener("click",()=>applyEventMode("clothing"));
-$("chooseToyMode").addEventListener("click",()=>applyEventMode("toy"));
-toyModeModal.classList.add("is-open");
+sizeButtons.forEach(b=>b.addEventListener("click",()=>selectSize(b.dataset.size)));toyButton.addEventListener("click",selectToy);closeToy.addEventListener("click",()=>closeToyModal(true));toyModal.addEventListener("click",e=>{if(e.target===toyModal)closeToyModal(true)});toyTypeButtons.forEach(b=>b.addEventListener("click",()=>chooseToyType(b.dataset.toyType)));applyToyCustom.addEventListener("click",()=>chooseToyType(toyCustomInput.value));toyCustomInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();chooseToyType(toyCustomInput.value)}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&toyModal.classList.contains("is-open"))closeToyModal(true)});shoeButton.addEventListener("click",openShoe);closeShoe.addEventListener("click",()=>shoeModal.classList.remove("is-open"));shoeSizeButtons.forEach(b=>b.addEventListener("click",()=>selectShoe(b.dataset.shoeSize)));
 
 const mobileKeypadButtons=[...document.querySelectorAll("#mobileKeypadModal .keypad button")];
 mobileKeypadButtons.forEach(b=>b.addEventListener("click",()=>{
@@ -454,4 +458,9 @@ async function initCloud(){
   if(window.KBCloud && KBCloud.KB_CLOUD) KBCloud.KB_CLOUD.register=selectedRegister;
   KBCloud.cloudBanner();render();setActive("seller");syncOfflineReceipts();
 }
-initCloud();
+initCloud().then(async()=>{
+  let sharedMode=null;
+  if(KBCloud.cloudReady()&&navigator.onLine&&KBCloud.cloudGetEventMode){try{sharedMode=await KBCloud.cloudGetEventMode()}catch(e){console.warn("Börsenart konnte nicht geladen werden:",e)}}
+  if(sharedMode!=="toy"&&sharedMode!=="clothing"&&(eventMode==="toy"||eventMode==="clothing"))sharedMode=eventMode;
+  if(sharedMode==="toy"||sharedMode==="clothing"){applyEventMode(sharedMode)}else{eventModeModal.classList.add("is-open")}
+});

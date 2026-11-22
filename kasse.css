@@ -797,19 +797,20 @@ body header.top > h2{display:none!important}
 #processingModal{z-index:1000;touch-action:none}
 #processingModal .processing-box{pointer-events:auto}
 
-/* V98 – getrennte Ansichten für Kleider- und Spielzeugbörse */
-#clothingButton{display:none}
-#clothingModal .shoe-box{max-height:90dvh;overflow:auto}
-#clothingModal .size-grid{display:grid}
-#clothingSizeHost{max-height:70dvh;overflow:auto}
-#toyModal .toy-type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-#toyModal .toy-type-grid button{min-height:54px;font-weight:800;font-size:15px}
-#largeToyWrap[hidden]{display:none!important}
+
+/* Version 101: ausschließlich zusätzliche Spielzeugbörsen-Ansicht */
+#toyMarketControls[hidden]{display:none!important}
+.toy-market-controls{margin:10px 0 12px}
+.toy-market-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.toy-market-grid button{min-height:58px;border:0;border-radius:12px;background:#e9efff;color:#20346d;font-size:15px;font-weight:850;padding:8px 6px;box-shadow:0 2px 5px #00000014}
+.toy-market-grid button:active{transform:scale(.98)}
+.toy-market-grid button.active{background:#16804c;color:#fff}
+#toyMarketControls.toy-mode-visible{display:block}
 .event-mode-options{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
-.event-mode-options button{min-height:110px;border:0;border-radius:16px;background:#4357dc;color:white;font-size:20px;font-weight:900;padding:14px}
+.event-mode-options button{min-height:110px;border:0;border-radius:16px;background:#4357dc;color:#fff;font-size:20px;font-weight:900;padding:14px}
 .event-mode-options button+button{background:#16804c}
 #eventModeModal{z-index:2000}
-@media(max-width:480px){
- #toyModal .toy-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .event-mode-options{grid-template-columns:1fr}
-}
+#toyClothingModal .shoe-box,#toyDescriptionModal .shoe-box{max-height:90dvh;overflow:auto}
+.toy-clothing-sizes .size-grid{display:grid!important}
+.toy-description-actions{display:flex;justify-content:flex-end;margin-top:16px}
+@media(max-width:650px){.toy-market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.event-mode-options{grid-template-columns:1fr}}
