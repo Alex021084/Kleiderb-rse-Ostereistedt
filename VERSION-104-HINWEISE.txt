@@ -1,0 +1,5 @@
+Version 104 – Grüne Auswahl in der Spielzeugkasse
+
+Fehlerkorrektur: Die Buttons „Kleidung“ und „Schuhe“ in der Spielzeugbörsen-Kasse erhalten nach erfolgreicher Größenauswahl zuverlässig den grünen Auswahlzustand. Die jeweils andere Auswahl wird zurückgesetzt. Beim Start eines neuen Artikels und bei Auswahl einer anderen Spielzeugkategorie werden beide Markierungen entfernt.
+
+Die Änderung betrifft ausschließlich die zusätzliche Spielzeugbörsen-Auswahl in kasse.js und kasse.css. Die normale Kleiderbörsen-Ansicht und ihre Größen-/Artikelbuttons wurden nicht geändert. Keine neue SQL-Migration erforderlich.

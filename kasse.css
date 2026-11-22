@@ -821,3 +821,14 @@ body header.top > h2{display:none!important}
 .toy-market-grid button.active,.toy-market-grid button.selected{background:#16804c!important;border-color:#16804c!important;color:#fff!important}
 .toy-market-grid #toyClothingButton.active,.toy-market-grid #toyShoesButton.active{background:#16804c!important;border-color:#16804c!important;color:#fff!important}
 .toy-clothing-sizes .size-button.selected{background:#16804c!important;border-color:#16804c!important;color:#fff!important}
+
+/* Version 104: eindeutige grüne Auswahl für Kleidung/Schuhe in der Spielzeugkasse */
+#toyMarketControls .toy-market-grid > #toyClothingButton.active,
+#toyMarketControls .toy-market-grid > #toyClothingButton.selected,
+#toyMarketControls .toy-market-grid > #toyShoesButton.active,
+#toyMarketControls .toy-market-grid > #toyShoesButton.selected{
+  background:#16804c !important;
+  border:2px solid #16804c !important;
+  color:#fff !important;
+  box-shadow:0 0 0 2px #16804c22 !important;
+}
