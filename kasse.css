@@ -947,5 +947,21 @@ body header.top::before,body header.top::after{
 header.top > *,body header.top > *{opacity:1!important}
 
 
-/* Version 113: Kopfbereich auf Wunsch leicht nach unten versetzt */
-header.top, body header.top, .cash-register header.top { margin-top: 8px !important; }
+
+
+/* Version 114: blauer Kopfbereich bleibt am oberen Rand; nur Inhalt auf iPad 9 tiefer */
+header.top, body header.top, .cash-register header.top {
+  margin-top: 0 !important;
+}
+/* iPad 9 im Querformat: mehr Innenabstand oben, ohne den blauen Balken zu verschieben */
+@media screen and (orientation: landscape) and (min-width: 900px) and (max-width: 1100px) {
+  header.top, body header.top, .cash-register header.top {
+    box-sizing: border-box !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    max-height: 76px !important;
+    padding-top: 16px !important;
+    padding-bottom: 8px !important;
+    margin-top: 0 !important;
+  }
+}
