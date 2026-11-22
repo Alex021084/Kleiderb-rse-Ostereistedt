@@ -832,3 +832,19 @@ body header.top > h2{display:none!important}
   color:#fff !important;
   box-shadow:0 0 0 2px #16804c22 !important;
 }
+
+
+/* Version 105: Spielzeugkasse - neutrale Buttons und klare Auswahlmarkierung */
+#toyMarketControls .toy-market-grid > button{
+  background:#f1f2f4 !important;
+  color:#171b24 !important;
+  border:2px solid #171b24 !important;
+  box-shadow:none !important;
+}
+#toyMarketControls .toy-market-grid > button.active,
+#toyMarketControls .toy-market-grid > button.selected{
+  background:#16804c !important;
+  color:#ffffff !important;
+  border:2px solid #16804c !important;
+  box-shadow:0 0 0 2px #16804c22 !important;
+}

@@ -1,0 +1,7 @@
+Version 105 – Spielzeugkasse: Button-Farben und Auswahl
+
+- Nicht ausgewählte Buttons in der Spielzeugbörsen-Kasse: hellgrau mit dunkler Umrandung und dunkler Schrift.
+- Ausgewählte Spielzeugkategorien, Großteil und Sonstiges: grün mit weißer Schrift.
+- Kleidung und Schuhe: behalten die grüne Markierung nach Auswahl einer Größe.
+- Änderungen ausschließlich über CSS innerhalb von #toyMarketControls; die normale Kleiderbörsen-Kasse bleibt unverändert.
+- Keine neue SQL-Migration erforderlich.
