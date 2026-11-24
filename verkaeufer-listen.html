@@ -10,10 +10,10 @@ h1{font-size:30px;margin:20px 0 8px}p{color:#687386;margin:0 0 24px}
 .choices{display:grid;gap:16px}
 .choice{min-height:125px;padding:22px;border-radius:20px;color:white;text-decoration:none;display:flex;flex-direction:column;justify-content:center;box-shadow:0 5px 16px #17203312}
 .choice strong{font-size:23px}.choice small{font-size:15px;margin-top:7px;opacity:.92}
-.all{background:#4357dc}.active{background:#16804c}.history-link{display:block;margin-top:16px;border-radius:18px;overflow:hidden;box-shadow:0 5px 16px #17203318}.history-link img{display:block;width:100%;height:auto}
+.all{background:#4357dc}.active{background:#16804c}.history-link{display:block;width:82%;max-width:430px;margin:14px auto 0;padding:0;border:0;border-radius:14px;overflow:visible;background:transparent;box-shadow:none}.history-link img{display:block;width:100%;height:auto;object-fit:contain}
 </style><script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head><body><main><header><a href="dashboard.html">⌂ Startmenü</a></header>
 <h1>Verkäuferlisten</h1><p>Wähle aus, welche Verkäuferliste du öffnen möchtest.</p>
 <div class="choices">
 <a class="choice all" href="verkaeufer.html?liste=alle"><strong>👥 Alle gespeicherten Verkäufer</strong><small>Alle Verkäufer verwalten und Teilnahme-Haken setzen</small></a>
 <a class="choice active" href="verkaeufer.html?liste=teilnehmend"><strong>☑️ Teilnehmende Verkäufer</strong><small>Nur Verkäufer der aktuellen Börse anzeigen</small></a>
-</div><a class="history-link" href="umsatzhistorie.html" aria-label="Umsatzhistorie öffnen"><img src="umsatzhistorie-button.jpg" alt="Umsatzhistorie"></a></main></body></html>
+</div><a class="history-link" href="umsatzhistorie.html" aria-label="Umsatzhistorie öffnen"><img src="umsatzhistorie-button.png" alt="Umsatzhistorie"></a></main></body></html>
