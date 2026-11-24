@@ -1,32 +1,37 @@
 const $=id=>document.getElementById(id);
-const START_AT="2026-11-24T18:08:00.000Z";
 const euro=v=>Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"});
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 let sellers=[],records=[],statsByNumber=new Map();
-function startAt(){let v=localStorage.getItem("kb_turnover_history_start");if(!v){v=START_AT;localStorage.setItem("kb_turnover_history_start",v)}return new Date(v)}
 async function loadData(){
   if(window.KBCloud&&KBCloud.cloudReady()){
     sellers=await KBCloud.cloudGetSellers();
-    const receipts=await KBCloud.cloudGetReceipts();
-    records=(receipts||[]).flatMap(r=>(r.receipt_items||[]).map(i=>({
-      sellerNumber:i.seller_number??i.sellerNumber,price:Number(i.price||0),
-      timestamp:r.created_at||r.timestamp||i.timestamp,
-      receiptId:r.id||r.id,commissionRate:i.commission_rate??i.commissionRate
-    })));
+    // Diese Tabelle ist unabhängig von Kassenbons und wird beim Kassen-Reset nicht gelöscht.
+    records=await KBCloud.cloudGetTurnoverHistory();
+    records=(records||[]).map(x=>({
+      sellerNumber:x.seller_number,
+      sellerName:x.seller_name||"",
+      price:Number(x.price||0),
+      timestamp:x.created_at,
+      receiptId:x.receipt_ref
+    }));
   }else{
     sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
-    records=JSON.parse(localStorage.getItem("kb_sales")||"[]").map(x=>({
-      sellerNumber:x.seller_number??x.sellerNumber,price:Number(x.price||0),
-      timestamp:x.timestamp,receiptId:x.receiptId,commissionRate:x.commissionRate
+    records=JSON.parse(localStorage.getItem("kb_turnover_history")||"[]").map(x=>({
+      sellerNumber:x.sellerNumber??x.seller_number,
+      sellerName:x.sellerName||x.seller_name||"",
+      price:Number(x.price||0),
+      timestamp:x.timestamp||x.created_at,
+      receiptId:x.receiptId
     }));
   }
-  const cutoff=startAt().getTime();
-  records=records.filter(x=>x.sellerNumber!==undefined&&x.sellerNumber!==null&&x.sellerNumber!==""&&x.timestamp&&new Date(x.timestamp).getTime()>=cutoff);
   statsByNumber.clear();
   for(const r of records){
-    const key=String(r.sellerNumber);if(!statsByNumber.has(key))statsByNumber.set(key,{turnover:0,pieces:0,days:new Map()});
+    if(r.sellerNumber===undefined||r.sellerNumber===null||r.sellerNumber===""||!r.timestamp)continue;
+    const key=String(r.sellerNumber);
+    if(!statsByNumber.has(key))statsByNumber.set(key,{turnover:0,pieces:0,days:new Map()});
     const st=statsByNumber.get(key);st.turnover+=r.price;st.pieces++;
-    const date=new Date(r.timestamp);const dayKey=date.toISOString().slice(0,10);
+    const date=new Date(r.timestamp);if(Number.isNaN(date.getTime()))continue;
+    const dayKey=date.toISOString().slice(0,10);
     if(!st.days.has(dayKey))st.days.set(dayKey,{date,turnover:0,pieces:0});
     const d=st.days.get(dayKey);d.turnover+=r.price;d.pieces++;
   }
@@ -34,7 +39,9 @@ async function loadData(){
 }
 function render(){
   const list=$("sellerList");
-  const rows=sellers.map(s=>({...s,number:String(s.number??s.seller_number??""),name:String(s.name||"")}))
+  const sellerMap=new Map(sellers.map(s=>[String(s.number??s.seller_number??""),s]));
+  for(const r of records){const n=String(r.sellerNumber??"");if(n&&!sellerMap.has(n))sellerMap.set(n,{number:n,name:r.sellerName||"Verkäufer"});}
+  const rows=[...sellerMap.values()].map(s=>({...s,number:String(s.number??s.seller_number??""),name:String(s.name||"")}))
     .filter(s=>s.number)
     .map(s=>({seller:s,stats:statsByNumber.get(s.number)||{turnover:0,pieces:0,days:new Map()}}))
     .sort((a,b)=>b.stats.turnover-a.stats.turnover||a.seller.name.localeCompare(b.seller.name,"de"));

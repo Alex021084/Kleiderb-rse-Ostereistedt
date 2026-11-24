@@ -174,3 +174,14 @@ V42: Sammelfunktion finalisiert: „Alle Verkäufer als ZIP speichern“ erzeugt
 V44: Die PDFs im ZIP verwenden jetzt denselben A4-Aufbau wie die einzelnen Verkäufer-PDFs (blauer Kopf, Übersichtskarte, grüne Auszahlung, Artikeltabelle).
 
 Version: V52
+
+
+## Dauerhafte Umsatzhistorie (V102)
+
+Vor der ersten Nutzung der Umsatzhistorie muss in Supabase einmalig die Datei
+`CLOUD-MIGRATION-V102-UMSATZHISTORIE.sql` im SQL Editor ausgeführt werden.
+Die Tabelle `turnover_history` ist bewusst unabhängig von den Kassenbons angelegt.
+Beim Kassen-Reset werden nur aktuelle Bons gelöscht; die Umsatzhistorie bleibt erhalten.
+Die Historie beginnt nach Einspielen dieser Erweiterung bei null und übernimmt keine
+alten Archiv-Börsen. Bei Offline-Verkäufen wird die Historie nach erfolgreicher
+Synchronisierung ebenfalls in die Cloud übertragen.

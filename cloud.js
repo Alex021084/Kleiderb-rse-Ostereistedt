@@ -556,6 +556,33 @@ async function cloudDeleteExpiredSellers(cutoffIso){
 }
 
 
+/* DAUERHAFTE UMSATZHISTORIE – unabhängig von den löschbaren Kassenbons */
+async function cloudArchiveReceiptItems(receiptId, createdAt){
+  const items=await apiRequest("receipt_items?select=*&receipt_id=eq."+encodeURIComponent(receiptId)+"&order=id.asc");
+  if(!items?.length) return true;
+  const sellers=await apiRequest("sellers?select=number,name");
+  const names=new Map((sellers||[]).map(s=>[String(s.number),String(s.name||"")]));
+  const rows=items.filter(i=>i.seller_number!==null&&i.seller_number!=="").map(i=>({
+    source_item_id:i.id,
+    receipt_ref:String(receiptId),
+    seller_number:String(i.seller_number),
+    seller_name:names.get(String(i.seller_number))||"",
+    price:Number(i.price||0),
+    created_at:createdAt||new Date().toISOString()
+  }));
+  if(rows.length) await apiRequest("turnover_history?on_conflict=source_item_id",{
+    method:"POST",
+    headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
+    body:JSON.stringify(rows)
+  });
+  return true;
+}
+
+async function cloudGetTurnoverHistory(){
+  await cloudClient();
+  return await apiRequest("turnover_history?select=*&order=created_at.desc")||[];
+}
+
 /* KASSENBON */
 
 async function cloudCreateReceipt(
@@ -570,7 +597,10 @@ async function cloudCreateReceipt(
   // Bereits synchronisierte Offline-Bons nicht ein zweites Mal anlegen.
   if(clientUuid){
     const existing=await apiRequest("receipts?select=id,receipt_no&client_uuid=eq."+encodeURIComponent(clientUuid));
-    if(Array.isArray(existing) && existing[0]) return existing[0];
+    if(Array.isArray(existing) && existing[0]){
+      await cloudArchiveReceiptItems(existing[0].id, existing[0].created_at);
+      return existing[0];
+    }
   }
 
   const total=
@@ -665,7 +695,7 @@ async function cloudCreateReceipt(
         method:"POST",
 
         headers:{
-          "Prefer":"return=minimal"
+          "Prefer":"return=representation"
         },
 
         body:JSON.stringify(rows)
@@ -694,6 +724,7 @@ async function cloudCreateReceipt(
     );
   }
 
+  await cloudArchiveReceiptItems(receipt.id, receipt.created_at);
   return receipt;
 }
 
@@ -761,9 +792,16 @@ async function cloudUpdateReceiptItem(
       }
     );
 
-  return Array.isArray(data)
-    ? data[0]
-    : data;
+  const updated=Array.isArray(data)?data[0]:data;
+  if(updated?.id){
+    const sellers=await apiRequest("sellers?select=number,name");
+    const seller=(sellers||[]).find(s=>String(s.number)===String(updated.seller_number));
+    await apiRequest("turnover_history?source_item_id=eq."+encodeURIComponent(updated.id),{
+      method:"PATCH",headers:{"Prefer":"return=minimal"},
+      body:JSON.stringify({seller_number:updated.seller_number?String(updated.seller_number):null,seller_name:seller?.name||"",price:Number(updated.price||0)})
+    });
+  }
+  return updated;
 }
 
 

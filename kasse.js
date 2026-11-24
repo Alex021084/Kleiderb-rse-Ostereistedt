@@ -194,8 +194,16 @@ async function saveSale(payment, paymentMeta={}){
      const sales=JSON.parse(localStorage.getItem("kb_sales")||"[]");
      const registerId=KBCloud.KB_CLOUD.register;
      const receiptId=clientUuid;
-     prepared.forEach(x=>sales.push({...x,payment,paymentNote:paymentMeta.note||"",cashReceived:paymentMeta.cashReceived??null,changeGiven:paymentMeta.changeGiven??null,timestamp,receiptId,registerId,syncPending:true}));
+     const turnover=JSON.parse(localStorage.getItem("kb_turnover_history")||"[]");
+     prepared.forEach((x,index)=>{
+       const localTurnoverId=`${receiptId}:${index}`;
+       const seller=x.sellerNumber?findSellerByNumber(x.sellerNumber):null;
+       const sale={...x,payment,paymentNote:paymentMeta.note||"",cashReceived:paymentMeta.cashReceived??null,changeGiven:paymentMeta.changeGiven??null,timestamp,receiptId,registerId,syncPending:true,_turnoverId:localTurnoverId};
+       sales.push(sale);
+       if(x.sellerNumber) turnover.push({id:localTurnoverId,sellerNumber:String(x.sellerNumber),sellerName:seller?.name||"",price:Number(x.price||0),timestamp,receiptId});
+     });
      localStorage.setItem("kb_sales",JSON.stringify(sales));
+     localStorage.setItem("kb_turnover_history",JSON.stringify(turnover));
      const queue=offlineQueue();queue.push({clientUuid,items:prepared,payment,paymentMeta,registerId,timestamp});saveOfflineQueue(queue);
      receiptNo=receiptId.slice(0,8).toUpperCase();
    }
@@ -271,7 +279,7 @@ async function assignUnassigned(row,number){
       const sales=JSON.parse(localStorage.getItem('kb_sales')||'[]');
       const idx=sales.findIndex(x=>String(x.receiptId)===String(row.receiptId||row.receipt_id) && Number(x.price)===Number(row.price) && String(x.size)===String(row.size) && !x.sellerNumber);
       if(idx<0){alert('Artikel nicht gefunden.');return;}
-      sales[idx].sellerNumber=String(number);sales[idx].unassignedNote='';sales[idx].commissionEnabled=enabled;sales[idx].commissionRate=rate;localStorage.setItem('kb_sales',JSON.stringify(sales));
+      sales[idx].sellerNumber=String(number);sales[idx].unassignedNote='';sales[idx].commissionEnabled=enabled;sales[idx].commissionRate=rate;localStorage.setItem('kb_sales',JSON.stringify(sales));const hist=JSON.parse(localStorage.getItem('kb_turnover_history')||'[]');const h=hist.find(x=>x.id===sales[idx]._turnoverId);if(h){h.sellerNumber=String(number);h.sellerName=findSellerByNumber(number)?.name||'';}else{hist.push({id:sales[idx]._turnoverId||`${sales[idx].receiptId}:${idx}`,sellerNumber:String(number),sellerName:findSellerByNumber(number)?.name||'',price:Number(sales[idx].price||0),timestamp:sales[idx].timestamp,receiptId:sales[idx].receiptId});}localStorage.setItem('kb_turnover_history',JSON.stringify(hist));
     }
     await renderUnassignedList();
   }catch(e){console.error(e);alert('Die Zuordnung konnte nicht gespeichert werden.');}

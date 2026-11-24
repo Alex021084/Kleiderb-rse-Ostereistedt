@@ -685,3 +685,10 @@ Umsatzhistorie
 - Details zeigen Verkäufe nach Verkaufstag mit Umsatz und Artikelanzahl.
 - Verkäufe vor dem 24.11.2026, 19:08 Uhr deutscher Zeit werden ausgeschlossen.
 - Alte Archive werden nicht gelesen oder importiert.
+
+
+## Umsatzhistorie V102
+- Dauerhafte, von Kassenbons unabhängige Umsatzdatensätze.
+- Kassen-Reset löscht nicht mehr die gespeicherten Verkäuferumsätze.
+- Separater, optisch abgegrenzter Umsatzhistorie-Bereich auf der Verkäuferlisten-Seite.
+- Keine Übernahme alter Archivdaten.
