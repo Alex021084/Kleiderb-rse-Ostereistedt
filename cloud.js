@@ -562,14 +562,17 @@ async function cloudArchiveReceiptItems(receiptId, createdAt){
   if(!items?.length) return true;
   const sellers=await apiRequest("sellers?select=number,name");
   const names=new Map((sellers||[]).map(s=>[String(s.number),String(s.name||"")]));
-  const rows=items.filter(i=>i.seller_number!==null&&i.seller_number!=="").map(i=>({
-    source_item_id:i.id,
+  const saleTimestamp=(createdAt && !Number.isNaN(Date.parse(createdAt)))
+    ? new Date(createdAt).toISOString()
+    : new Date().toISOString();
+  const rows=items.filter(i=>i.seller_number!==null&&i.seller_number!==undefined&&String(i.seller_number).trim()!=="").map(i=>({
+    source_item_id:Number(i.id),
     receipt_ref:String(receiptId),
     seller_number:String(i.seller_number),
     seller_name:names.get(String(i.seller_number))||"",
     price:Number(i.price||0),
-    created_at:createdAt||new Date().toISOString()
-  }));
+    created_at:saleTimestamp
+  })).filter(row=>Number.isFinite(row.source_item_id)&&Number.isFinite(row.price));
   if(rows.length) await apiRequest("turnover_history?on_conflict=source_item_id",{
     method:"POST",
     headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
@@ -839,6 +842,8 @@ async function cloudEditReceipt(receiptId, payment, items, reason){
   });
   if(!result || result.ok!==true)
     throw new Error(result?.message||"Die Korrektur wurde von der Datenbank nicht bestätigt.");
+  const receiptRows=await apiRequest("receipts?select=id,created_at&id=eq."+encodeURIComponent(receiptId));
+  await cloudArchiveReceiptItems(receiptId, receiptRows?.[0]?.created_at || new Date().toISOString());
   return result;
 }
 
@@ -1222,6 +1227,10 @@ window.KBCloud={
   cloudDeleteExpiredSellers,
 
   cloudCreateReceipt,
+
+  // Umsatzhistorie: Lese- und Archivfunktionen müssen öffentlich verfügbar sein.
+  cloudGetTurnoverHistory,
+  cloudArchiveReceiptItems,
 
   cloudGetReceipts,
 
