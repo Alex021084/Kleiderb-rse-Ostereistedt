@@ -9,7 +9,7 @@ h1{font-size:30px;margin:10px 0 6px} .sub{color:#687386;margin:0 0 18px}.summary
 .seller-tile{background:#fff;border:1px solid #e0e5eb;border-radius:15px;padding:15px;display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center;min-width:0}
 .rank{font-size:27px;font-weight:900;text-align:center;color:#526078}.rank.medal{font-size:32px}.identity{min-width:0}.name{font-size:17px;font-weight:850;overflow-wrap:anywhere}.number{font-size:13px;color:#687386;margin-top:3px}.turnover{font-size:20px;font-weight:900;margin-top:7px;color:#172f57}
 .details{border:0;border-radius:13px;background:#4357dc;color:white;font-weight:800;padding:0 17px;min-width:84px}
-.empty{padding:28px;text-align:center;background:#fff;border:1px dashed #ccd4df;border-radius:14px;color:#687386}
+.empty{padding:28px;text-align:center;background:#fff;border:1px dashed #ccd4df;border-radius:14px;color:#687386}.warning{padding:13px 15px;margin:0 0 14px;background:#fff7df;border:1px solid #efd58a;border-radius:12px;color:#765514;font-size:14px;line-height:1.45}.warning.hidden{display:none}
 .modal{position:fixed;inset:0;background:#10182799;z-index:10;display:grid;place-items:center;padding:14px}.hidden{display:none}.dialog{width:min(620px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;padding:20px}.dialog-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.dialog h2{margin:0;font-size:21px}.close{border:0;border-radius:50%;width:38px;height:38px;font-size:23px;background:#edf0f5}
 .detail-meta{color:#687386;margin:6px 0 15px}.detail-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:13px 0;border-bottom:1px solid #e8ebf0}.detail-row strong{display:block}.detail-row small{color:#687386}.detail-total{display:flex;justify-content:space-between;padding-top:16px;font-weight:900;font-size:18px}
 @media(max-width:430px){.seller-row{grid-template-columns:minmax(0,1fr) 76px;gap:7px}.seller-tile{grid-template-columns:36px minmax(0,1fr);padding:12px;gap:8px}.rank{font-size:23px}.name{font-size:15px}.turnover{font-size:18px}.details{min-width:0;padding:0 8px;font-size:13px}}
@@ -17,6 +17,7 @@ h1{font-size:30px;margin:10px 0 6px} .sub{color:#687386;margin:0 0 18px}.summary
 <body><main><header><a href="verkaeufer-listen.html">‹ Zurück</a></header>
 <h1>Umsatzhistorie</h1><p class="sub">Gesamtumsatz aller gespeicherten Verkäufer seit Einführung der Umsatzhistorie.</p>
 <div class="summary"><span id="sellerCount">Verkäufer: –</span><strong id="grandTotal">–</strong></div>
+<div id="dataWarning" class="warning hidden" role="status"></div>
 <div id="sellerList"><div class="empty">Umsätze werden geladen …</div></div></main>
 <div id="detailModal" class="modal hidden"><section class="dialog"><div class="dialog-head"><h2 id="detailTitle">Verkäuferdetails</h2><button class="close" onclick="closeDetails()">×</button></div><div id="detailMeta" class="detail-meta"></div><div id="detailRows"></div><div class="detail-total"><span>Gesamt</span><span id="detailTotal"></span></div></section></div>
 <script src="cloud-config.js"></script><script src="cloud.js?v=90"></script><script src="umsatzhistorie.js?v=1"></script></body></html>

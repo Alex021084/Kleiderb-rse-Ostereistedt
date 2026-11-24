@@ -3,27 +3,55 @@ const euro=v=>Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EU
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 let sellers=[],records=[],statsByNumber=new Map();
 async function loadData(){
-  if(window.KBCloud&&KBCloud.cloudReady()){
-    sellers=await KBCloud.cloudGetSellers();
-    // Diese Tabelle ist unabhängig von Kassenbons und wird beim Kassen-Reset nicht gelöscht.
-    records=await KBCloud.cloudGetTurnoverHistory();
-    records=(records||[]).map(x=>({
-      sellerNumber:x.seller_number,
-      sellerName:x.seller_name||"",
-      price:Number(x.price||0),
-      timestamp:x.created_at,
-      receiptId:x.receipt_ref
-    }));
-  }else{
-    sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
-    records=JSON.parse(localStorage.getItem("kb_turnover_history")||"[]").map(x=>({
-      sellerNumber:x.sellerNumber??x.seller_number,
-      sellerName:x.sellerName||x.seller_name||"",
-      price:Number(x.price||0),
-      timestamp:x.timestamp||x.created_at,
-      receiptId:x.receiptId
-    }));
+  let sellerLoadError=null,historyLoadError=null;
+  // Verkäufer zuerst und unabhängig laden: Ein Fehler der Historientabelle
+  // darf niemals die gesamte Verkäuferliste verschwinden lassen.
+  try{
+    if(window.KBCloud&&KBCloud.cloudReady()){
+      sellers=await KBCloud.cloudGetSellers();
+    }else{
+      sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");
+    }
+  }catch(e){
+    sellerLoadError=e;
+    try{sellers=JSON.parse(localStorage.getItem("kb_sellers")||"[]");}
+    catch(ignore){sellers=[];}
   }
+
+  try{
+    if(window.KBCloud&&KBCloud.cloudReady()){
+      records=await KBCloud.cloudGetTurnoverHistory();
+      records=(records||[]).map(x=>({
+        sellerNumber:x.seller_number,
+        sellerName:x.seller_name||"",
+        price:Number(x.price||0),
+        timestamp:x.created_at,
+        receiptId:x.receipt_ref
+      }));
+    }else{
+      records=JSON.parse(localStorage.getItem("kb_turnover_history")||"[]").map(x=>({
+        sellerNumber:x.sellerNumber??x.seller_number,
+        sellerName:x.sellerName||x.seller_name||"",
+        price:Number(x.price||0),
+        timestamp:x.timestamp||x.created_at,
+        receiptId:x.receiptId
+      }));
+    }
+  }catch(e){
+    historyLoadError=e;
+    // Lokale Offline-Datensätze zeigen, falls die Cloud-Tabelle noch nicht
+    // erreichbar/eingerichtet ist. Die Verkäuferliste bleibt in jedem Fall sichtbar.
+    try{
+      records=JSON.parse(localStorage.getItem("kb_turnover_history")||"[]").map(x=>({
+        sellerNumber:x.sellerNumber??x.seller_number,
+        sellerName:x.sellerName||x.seller_name||"",
+        price:Number(x.price||0),
+        timestamp:x.timestamp||x.created_at,
+        receiptId:x.receiptId
+      }));
+    }catch(ignore){records=[];}
+  }
+
   statsByNumber.clear();
   for(const r of records){
     if(r.sellerNumber===undefined||r.sellerNumber===null||r.sellerNumber===""||!r.timestamp)continue;
@@ -36,6 +64,18 @@ async function loadData(){
     const d=st.days.get(dayKey);d.turnover+=r.price;d.pieces++;
   }
   render();
+
+  const warning=$("dataWarning");
+  if(historyLoadError||sellerLoadError){
+    const parts=[];
+    if(historyLoadError)parts.push("Die Umsatzdatenbank ist nicht erreichbar oder noch nicht eingerichtet. Verkäufer werden trotzdem angezeigt; Umsätze erscheinen, sobald die Cloud-Tabelle korrekt eingerichtet ist.");
+    if(sellerLoadError)parts.push("Die Cloud-Verkäuferliste konnte nicht geladen werden. Es werden – soweit vorhanden – lokal gespeicherte Verkäufer angezeigt.");
+    warning.textContent=parts.join(" ");
+    warning.classList.remove("hidden");
+  }else{
+    warning.classList.add("hidden");
+    warning.textContent="";
+  }
 }
 function render(){
   const list=$("sellerList");
@@ -47,7 +87,7 @@ function render(){
     .sort((a,b)=>b.stats.turnover-a.stats.turnover||a.seller.name.localeCompare(b.seller.name,"de"));
   $("sellerCount").textContent=`Verkäufer: ${rows.length}`;
   $("grandTotal").textContent=euro(rows.reduce((n,x)=>n+x.stats.turnover,0));
-  if(!rows.length){list.innerHTML='<div class="empty">Keine gespeicherten Verkäufer vorhanden.</div>';return}
+  if(!rows.length){list.innerHTML='<div class="empty">Noch keine gespeicherten Verkäufer vorhanden. Sobald Verkäufer angelegt sind, erscheinen sie hier.</div>';return}
   list.innerHTML=rows.map((x,i)=>{
     const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1)+".";
     return `<div class="seller-row"><article class="seller-tile"><div class="rank ${i<3?"medal":""}">${medal}</div><div class="identity"><div class="name">${esc(x.seller.name)}</div><div class="number">VK ${esc(x.seller.number)}</div><div class="turnover">${euro(x.stats.turnover)}</div></div></article><button class="details" onclick="showDetails('${esc(x.seller.number)}')">Details</button></div>`;

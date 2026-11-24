@@ -21,3 +21,7 @@ create policy "kb turnover history update" on public.turnover_history for update
 
 create index if not exists turnover_history_seller_date_idx
   on public.turnover_history(seller_number, created_at desc);
+
+-- Explizite Rechte für angemeldete App-Benutzer.
+grant select, insert, update on public.turnover_history to authenticated;
+grant usage, select on sequence public.turnover_history_id_seq to authenticated;
