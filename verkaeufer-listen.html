@@ -11,13 +11,12 @@ h1{font-size:30px;margin:20px 0 8px}p{color:#687386;margin:0 0 24px}
 .choice{min-height:125px;padding:22px;border-radius:20px;color:white;text-decoration:none;display:flex;flex-direction:column;justify-content:center;box-shadow:0 5px 16px #17203312}
 .choice strong{font-size:23px}.choice small{font-size:15px;margin-top:7px;opacity:.92}
 .all{background:#4357dc}.active{background:#16804c}
-.history-area{max-width:540px;margin:28px auto 0;padding:13px 14px 10px;background:linear-gradient(145deg,#edf3fc,#f8faff);border:1px solid #cbd8eb;border-radius:22px;box-shadow:0 7px 20px #233e6512}
-.history-label{font-size:11px;letter-spacing:.12em;font-weight:900;color:#607796;text-align:center;margin:0 0 8px}
-.history-link{display:block;width:100%;max-width:460px;margin:0 auto;padding:0;border:0;border-radius:13px;overflow:hidden;background:transparent;box-shadow:none}
-.history-link img{display:block;width:100%;height:auto;max-height:100px;object-fit:contain}
+.choice.history{background:#e6a817;color:#fff;box-shadow:0 5px 16px #9a6b141f}
+.choice.history strong{display:flex;align-items:center;gap:10px}
+.history-icon{font-size:25px;line-height:1}
 </style><script src="auth.js"></script><script>if(!KBAuth.requireRole(["accounting"])){};</script></head><body><main><header><a href="dashboard.html">⌂ Startmenü</a></header>
 <h1>Verkäuferlisten</h1><p>Wähle aus, welche Verkäuferliste du öffnen möchtest.</p>
 <div class="choices">
 <a class="choice all" href="verkaeufer.html?liste=alle"><strong>👥 Alle gespeicherten Verkäufer</strong><small>Alle Verkäufer verwalten und Teilnahme-Haken setzen</small></a>
 <a class="choice active" href="verkaeufer.html?liste=teilnehmend"><strong>☑️ Teilnehmende Verkäufer</strong><small>Nur Verkäufer der aktuellen Börse anzeigen</small></a>
-</div><section class="history-area" aria-label="Auswertung"><div class="history-label">AUSWERTUNG</div><a class="history-link" href="umsatzhistorie.html" aria-label="Umsatzhistorie öffnen"><img src="umsatzhistorie-button.png" alt="Umsatzhistorie"></a></section></main></body></html>
+</div><a class="choice history" href="umsatzhistorie.html"><strong><span class="history-icon">📊</span> Umsatzhistorie</strong><small>Gesamtumsätze und Verkäufe aller Börsen ansehen</small></a></main></body></html>

@@ -63,4 +63,9 @@ function showDetails(number){
   $("detailModal").classList.remove("hidden");
 }
 function closeDetails(){$("detailModal").classList.add("hidden")}
-loadData().catch(e=>{$("sellerList").innerHTML='<div class="empty">Die Umsatzdaten konnten nicht geladen werden. Bitte Verbindung prüfen und erneut öffnen.</div>';console.error(e)});
+loadData().catch(e=>{
+  const message=String(e?.message||e||"");
+  const migrationMissing=/turnover_history|PGRST205|42P01|relation.*does not exist|schema cache/i.test(message);
+  $("sellerList").innerHTML=`<div class="empty"><strong>${migrationMissing?"Umsatzhistorie noch nicht eingerichtet":"Umsatzdaten konnten nicht geladen werden"}</strong><br>${migrationMissing?"Bitte die Datei CLOUD-MIGRATION-V102-UMSATZHISTORIE.sql einmalig im Supabase SQL-Editor ausführen.":"Bitte Internetverbindung und Cloud-Anmeldung prüfen und die Seite erneut öffnen."}<br><small style="display:block;margin-top:10px;opacity:.75">Technischer Hinweis: ${esc(message).slice(0,220)}</small></div>`;
+  console.error("Umsatzhistorie konnte nicht geladen werden:",e);
+});
